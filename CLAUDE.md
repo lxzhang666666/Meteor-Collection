@@ -6,8 +6,8 @@
 
 **Meteor-Collection** 是一个基于 VuePress + `vuepress-theme-vdoing` 主题的个人技术博客，部署在 GitHub Pages。主题版本为 v1.12.5，VuePress 版本为 1.9.5。
 
-- 博客名称：Marvel-Site
-- 作者：Marvel (zouquchen)
+- 博客名称：Meteor-Collection
+- 作者：Meteor (baozhang)
 - 远程仓库：`git@github.com:lxzhang666666/Meteor-Collection.git`
 - 分支：main
 

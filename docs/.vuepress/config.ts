@@ -129,7 +129,7 @@ export default defineConfig4CustomTheme<VdoingThemeConfig>({
     // 博主信息 (显示在首页侧边栏)
     blogger: {
       avatar: 'https://mine-bed.oss-cn-hangzhou.aliyuncs.com/avatar1.jpg',
-      name: 'Marvel',
+      name: 'Meteor',
       slogan: '吾必当乘此羽葆盖车',
     },
 
@@ -157,7 +157,7 @@ export default defineConfig4CustomTheme<VdoingThemeConfig>({
 
     // 页脚信息
     footer: {
-      createYear: 2022, // 博客创建年份
+      createYear: 2026, // 博客创建年份
       copyrightInfo:
         'lxzhang666666', // 博客版权信息，支持a标签或换行标签</br>
     },
