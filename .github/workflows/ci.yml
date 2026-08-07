@@ -1,0 +1,46 @@
+name: CI
+
+#on: [push]
+
+# 在 master 分支发生 push 事件时触发。
+on: 
+  push:
+    branches:
+      - main
+      
+env: # 设置环境变量
+  TZ: Asia/Shanghai # 时区（设置时区可使页面中的 最近更新时间 使用时区时间）
+
+jobs: # 工作流
+  build: # 自定义名称
+    runs-on: ubuntu-latest # 必填，运行在虚拟机环境 ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps: # 步骤1
+      - name: Checkout # 步骤1，拉取代码
+      # 使用的动作。格式：userName/repoName。作用：检出仓库，获取源码。 官方actions库：https://github.com/actions
+        uses: actions/checkout@v1
+        with:
+          persist-credentials: false
+
+      - name: Configure Git # 配置 Git 用户信息
+        run: |
+          git config --global user.name "lxzhang666666"
+          git config --global user.email "1870287706@qq.com"
+          # 禁用凭证助手，使用内嵌 token 进行认证
+          git config --global credential.helper ""
+          # 将 SSH 地址转换为 HTTPS
+          git config --global url."https://github.com/".insteadOf "git@github.com:"
+
+      - name: Use Node.js ${{ matrix.node-version }} # 步骤2
+        uses: actions/setup-node@v1 # 作用：安装nodejs
+        with:
+          node-version: ${{ matrix.node-version }} # 版本
+
+      - name: run deploy.sh # 步骤3：执行脚本 deploy.sh
+        env: # 设置环境变量，未设置则不运行
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }} # token
+        run: npm install && npm run deploy  # 执行 deploy.sh 脚本，位于项目根目录
