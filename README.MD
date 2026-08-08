@@ -3,7 +3,7 @@
 <div align="center">
     <h1 style="margin-top:0px">Meteor-Collection</h1>
     <p style="margin-top:0px; margin-bottom:8px; font-size:18px">记录 Java 后端学习笔记<br></p>
-    <a href = "https://github.io/">在线阅读: github.io/</a>
+    <a href = "https://meteor.baozhang666666.cn/">在线阅读: https://meteor.baozhang666666.cn</a>
 </div >
 
 ### 🙋‍♂️ 关于我
