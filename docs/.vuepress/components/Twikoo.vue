@@ -65,7 +65,7 @@ export default {
         .init({
           // envId 要切换成自己的，这是评论区的 ID，一个博客只能有一个评论区 ID，用别人的评论区 ID，导致读者评论时或发送到别人的评论区里
           envId: "https://vercel.baozhang666666.cn",
-          el: "#twikoo",
+          el: "#tcomment",
           //region: 'ap-beijing', // 环境地域，默认为 ap-shanghai，如果您的环境地域不是上海，需传此参数
           // path: 'window.location.pathname', // 用于区分不同文章的自定义 js 路径，如果您的文章路径不是 location.pathname，需传此参数
           // lang: 'zh-CN', // 用于手动设定评论区语言，支持的语言列表 https://github.com/imaegoo/twikoo/blob/dev/src/js/utils/i18n/index.js
