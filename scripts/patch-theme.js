@@ -1,5 +1,5 @@
 /**
- * 构建前脚本：自动修改 vuepress-theme-vdoing 以排除 assets 目录
+ * 构建前脚本：自动修改 vuepress-theme-vdoing 以排除 Collection 下的 assets 目录
  */
 const fs = require('fs');
 const path = require('path');
@@ -32,4 +32,4 @@ content = content.replace(
 );
 
 fs.writeFileSync(themeFile, content, 'utf8');
-console.log('Theme patched successfully');
+console.log('Theme patched successfully - assets directory excluded from sidebar');
