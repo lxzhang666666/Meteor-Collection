@@ -347,5 +347,21 @@ export default defineConfig4CustomTheme<VdoingThemeConfig>({
   extraWatchFiles: [
     '.vuepress/config.ts',
     '.vuepress/config/htmlModules.ts',
-  ]
+  ],
+
+  // 支持 .webp 图片格式
+  configureWebpack: {
+    module: {
+      rules: [
+        {
+          test: /\.webp$/,
+          loader: 'url-loader',
+          options: {
+            limit: 8192,
+            name: 'img/[name].[hash:8].[ext]',
+          },
+        },
+      ],
+    },
+  },
 })
