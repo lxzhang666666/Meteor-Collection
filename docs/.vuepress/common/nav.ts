@@ -15,7 +15,7 @@ export default [
           ],
         },
         {
-          text: '计算机基础', link: 'computerBasic',
+          text: '计算机基础', link: '/computer-basic/',
           items: [
             { text: '数据结构与算法', link: '/pages/7f453c/' },
             { text: '计算机网络', link: '/pages/4e9070/' },

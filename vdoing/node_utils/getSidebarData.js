@@ -48,7 +48,7 @@ function readTocs(root) {
   const files = fs.readdirSync(root); // 读取目录,返回数组，成员是root底下所有的目录名 (包含文件夹和文件)
   files.forEach(name => {
     const file = path.resolve(root, name); // 将路径或路径片段的序列解析为绝对路径
-    if (fs.statSync(file).isDirectory() && name !== '.vuepress' && name !== '@pages') { // 是否为文件夹目录，并排除.vuepress文件夹
+    if (fs.statSync(file).isDirectory() && name !== '.vuepress' && name !== '@pages' && name !== 'assets') { // 是否为文件夹目录，并排除.vuepress文件夹和assets文件夹
       result.push(file);
     }
   })
@@ -116,6 +116,9 @@ function mapTocToSidebar(root, collapsable, prefix = '') {
     const file = path.resolve(root, filename); // 方法：将路径或路径片段的序列解析为绝对路径
     const stat = fs.statSync(file); // 文件信息
     if (filename === '.DS_Store') { // 过滤.DS_Store文件
+      return
+    }
+    if (filename === 'assets') { // 过滤assets文件夹
       return
     }
     // let [order, title, type] = filename.split('.');
