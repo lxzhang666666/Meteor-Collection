@@ -1,3 +1,17 @@
+---
+title: logstash
+date: 2026-08-09 14:56:23
+permalink: /pages/d7861d/
+categories:
+  - 后端
+  - Collection
+  - logstash
+tags:
+  - 
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
 # logstash
 
 ## mac

@@ -1,3 +1,17 @@
+---
+title: nodejs
+date: 2026-08-09 14:56:24
+permalink: /pages/eec41d/
+categories:
+  - 后端
+  - Collection
+  - nodejs
+tags:
+  - 
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
 # nodeJs
 
 [官网](https://nodejs.org/)  https://nodejs.org/

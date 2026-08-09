@@ -310,12 +310,37 @@ export default defineConfig4CustomTheme<VdoingThemeConfig>({
         	name: 'custom-plugins', // 自定义插件：网站信息统计、修改代码块显示
         	globalUIComponents: ["PageInfo", "BlockToggle", "Twikoo"] // 2.x 版本 globalUIComponents 改名为 clientAppRootComponentFiles
     	}
-    ]
+    ],
+    require('./plugins/fix-chinese-image'), // 修复含中文图片路径被 URL 编码的问题
   ],
 
   markdown: {
     lineNumbers: true,
     extractHeaders: ['h2', 'h3', 'h4', 'h5', 'h6'], // 提取标题到侧边栏的级别，默认['h2', 'h3']
+    // 修复含中文图片路径被 URL 编码导致构建失败的问题
+    // markdown-it 的 normalizeLink() 会对 src 中的中文进行编码，
+    // 需要在渲染后将 src 还原为原始路径
+    extendMarkdown: (md) => {
+      const originalImage = md.renderer.rules.image
+      md.renderer.rules.image = (tokens: any, idx: number, options: any, env: any, slf: any) => {
+        const token = tokens[idx]
+        if (token.attrs) {
+          for (const attr of token.attrs) {
+            if (attr[0] === 'src' && attr[1]) {
+              try {
+                attr[1] = decodeURIComponent(attr[1])
+              } catch (e) {
+                // ignore
+              }
+            }
+          }
+        }
+        if (originalImage) {
+          return originalImage(tokens, idx, options, env, slf)
+        }
+        return slf.renderToken(tokens, idx, options)
+      }
+    },
   },
 
   // 监听文件变化并重新构建

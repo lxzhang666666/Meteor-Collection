@@ -1,3 +1,17 @@
+---
+title: elk
+date: 2026-08-09 14:56:23
+permalink: /pages/0da7a3/
+categories:
+  - 后端
+  - Collection
+  - elk
+tags:
+  - 
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
 # ELK
 
 ## docker compose编排容器

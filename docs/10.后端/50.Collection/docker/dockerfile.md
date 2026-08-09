@@ -1,3 +1,17 @@
+---
+title: dockerfile
+date: 2026-08-09 14:56:23
+permalink: /pages/278be5/
+categories:
+  - 后端
+  - Collection
+  - docker
+tags:
+  - 
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
 # Dockerfile
 ## 文件概述
 > Dockerfile是一个用于自定义构建镜像的文本文件，其中包含了多条构建镜像所需要的指令、软件依赖和说明。

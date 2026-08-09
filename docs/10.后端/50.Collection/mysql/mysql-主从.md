@@ -1,3 +1,17 @@
+---
+title: mysql-主从
+date: 2026-08-09 14:56:24
+permalink: /pages/f0c17c/
+categories:
+  - 后端
+  - Collection
+  - mysql
+tags:
+  - 
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
 # mysql
 
 ## mysql 单节点

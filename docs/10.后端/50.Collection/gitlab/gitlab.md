@@ -1,3 +1,17 @@
+---
+title: gitlab
+date: 2026-08-09 14:56:23
+permalink: /pages/263c7e/
+categories:
+  - 后端
+  - Collection
+  - gitlab
+tags:
+  - 
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
 # GitLab
 
 ## Centos7 安装

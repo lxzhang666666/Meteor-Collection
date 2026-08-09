@@ -1,3 +1,17 @@
+---
+title: ignore
+date: 2026-08-09 14:56:23
+permalink: /pages/68370b/
+categories:
+  - 后端
+  - Collection
+  - ignore
+tags:
+  - 
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
 # ignore
 
 > .gitignore文件是在git提交的时候用来屏蔽某些你不想提交上去的文件。

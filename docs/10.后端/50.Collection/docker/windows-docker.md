@@ -1,3 +1,17 @@
+---
+title: windows-docker
+date: 2026-08-09 14:56:23
+permalink: /pages/b78102/
+categories:
+  - 后端
+  - Collection
+  - docker
+tags:
+  - 
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
 # docker
 
 windows docker 安装

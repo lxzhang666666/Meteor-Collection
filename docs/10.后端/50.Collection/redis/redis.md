@@ -1,3 +1,17 @@
+---
+title: redis
+date: 2026-08-09 14:56:24
+permalink: /pages/e34ed7/
+categories:
+  - 后端
+  - Collection
+  - redis
+tags:
+  - 
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
 # Redis
 
 ## 数据结构

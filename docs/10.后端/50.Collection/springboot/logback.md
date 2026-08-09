@@ -1,3 +1,17 @@
+---
+title: logback
+date: 2026-08-09 14:56:24
+permalink: /pages/b8888d/
+categories:
+  - 后端
+  - Collection
+  - springboot
+tags:
+  - 
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
 # logback
 
 > logback是java的日志开源组件，是log4j创始人写的，性能比log4j要好，目前主要分为3个模块

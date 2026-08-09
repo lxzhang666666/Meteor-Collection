@@ -1,3 +1,17 @@
+---
+title: maven 脚手架
+date: 2026-08-09 14:56:23
+permalink: /pages/0a6ff8/
+categories:
+  - 后端
+  - Collection
+  - maven
+tags:
+  - 
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
 ## MAVEN 脚手架
 
 ### 准备

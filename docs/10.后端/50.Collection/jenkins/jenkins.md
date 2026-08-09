@@ -1,3 +1,17 @@
+---
+title: jenkins
+date: 2026-08-09 14:56:23
+permalink: /pages/4c06f3/
+categories:
+  - 后端
+  - Collection
+  - jenkins
+tags:
+  - 
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
 # jenkins
 
 ## 介绍

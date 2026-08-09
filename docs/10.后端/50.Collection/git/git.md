@@ -1,3 +1,17 @@
+---
+title: git
+date: 2026-08-09 14:56:23
+permalink: /pages/095d29/
+categories:
+  - 后端
+  - Collection
+  - git
+tags:
+  - 
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
 # git
 
 ## 补充知识

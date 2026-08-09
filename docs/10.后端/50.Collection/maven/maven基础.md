@@ -1,3 +1,17 @@
+---
+title: maven基础
+date: 2026-08-09 14:56:23
+permalink: /pages/50a3fd/
+categories:
+  - 后端
+  - Collection
+  - maven
+tags:
+  - 
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
 # maven
 
 ## Maven 标准项目目录详细说明

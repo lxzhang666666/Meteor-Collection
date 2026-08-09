@@ -1,3 +1,18 @@
+---
+title: vps
+date: 2026-08-09 14:56:24
+permalink: /pages/af261e/
+categories:
+  - 后端
+  - Collection
+  - 内网穿透
+  - vps
+tags:
+  - 
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
 # VPS
 > 虚拟专用服务器（Virtual Private Server，简称VPS）技术，是将一台服务器分割成多个虚拟专享服务器的优质服务。
 

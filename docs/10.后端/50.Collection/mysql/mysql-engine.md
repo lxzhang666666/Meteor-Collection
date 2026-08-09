@@ -1,3 +1,17 @@
+---
+title: mysql-engine
+date: 2026-08-09 14:56:24
+permalink: /pages/1d1600/
+categories:
+  - 后端
+  - Collection
+  - mysql
+tags:
+  - 
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
 # mysql
 ## 引擎 engine
 > MyISAM、InnoDB、MERGE、MEMORY(HEAP)、BDB(BerkeleyDB)、EXAMPLE、FEDERATED、ARCHIVE、CSV、BLACKHOLE

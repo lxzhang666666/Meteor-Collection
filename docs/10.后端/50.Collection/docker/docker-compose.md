@@ -1,3 +1,17 @@
+---
+title: docker-compose
+date: 2026-08-09 14:56:23
+permalink: /pages/37361e/
+categories:
+  - 后端
+  - Collection
+  - docker
+tags:
+  - 
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
 # Docker Compose
 
 ## docker compose 简介

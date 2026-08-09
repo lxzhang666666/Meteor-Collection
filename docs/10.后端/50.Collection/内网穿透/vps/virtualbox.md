@@ -1,3 +1,18 @@
+---
+title: virtualbox
+date: 2026-08-09 14:56:24
+permalink: /pages/893a7a/
+categories:
+  - 后端
+  - Collection
+  - 内网穿透
+  - vps
+tags:
+  - 
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
 # VirtualBox
 
 > 开源虚拟机软件

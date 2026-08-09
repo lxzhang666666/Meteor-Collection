@@ -1,3 +1,17 @@
+---
+title: java
+date: 2026-08-09 14:56:23
+permalink: /pages/920601/
+categories:
+  - 后端
+  - Collection
+  - java
+tags:
+  - 
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
 # Java
 
 ## 面向对象的三大特性

@@ -1,3 +1,17 @@
+---
+title: SaveOrUpdateBatch
+date: 2026-08-09 14:56:24
+permalink: /pages/94af7d/
+categories:
+  - 后端
+  - Collection
+  - mybatis-plus
+tags:
+  - 
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
 # mybatis-plus
 
 ## saveOrUpdateBatch

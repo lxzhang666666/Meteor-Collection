@@ -1,3 +1,17 @@
+---
+title: nginx
+date: 2026-08-09 14:56:24
+permalink: /pages/395030/
+categories:
+  - 后端
+  - Collection
+  - nginx
+tags:
+  - 
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
 # nginx
 
 ```shell

@@ -1,3 +1,17 @@
+---
+title: maven安装下载
+date: 2026-08-09 14:56:23
+permalink: /pages/6effaa/
+categories:
+  - 后端
+  - Collection
+  - maven
+tags:
+  - 
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
 # maven
 
 > Maven项目对象模型（POM）是一个项目管理工具软件，可以通过简短的信息描述来管理项目的构造，报告和文档。

@@ -1,3 +1,17 @@
+---
+title: springboot
+date: 2026-08-09 14:56:24
+permalink: /pages/daa799/
+categories:
+  - 后端
+  - Collection
+  - springboot
+tags:
+  - 
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
 # springboot
 
 > Spring Boot是由Pivotal团队提供的全新框架，其设计目的是用来简化新Spring应用的初始搭建以及开发过程。该框架使用了特定的方式来进行配置，从而使开发人员不再需要定义样板化的配置。通过这种方式，Spring

@@ -1,3 +1,17 @@
+---
+title: springboot-stater
+date: 2026-08-09 14:56:24
+permalink: /pages/267d88/
+categories:
+  - 后端
+  - Collection
+  - springboot
+tags:
+  - 
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
 # springboot-stater
 
 > Springboot的出现极大的简化了开发人员的配置，而这之中的一大利器便是springboot的starter，starter是springboot的核心组成部分，springboot官方同时也为开发人员封装了各种各样方便好用的starter模块，例如：

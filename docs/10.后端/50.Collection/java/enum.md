@@ -1,3 +1,17 @@
+---
+title: enum
+date: 2026-08-09 14:56:23
+permalink: /pages/913977/
+categories:
+  - 后端
+  - Collection
+  - java
+tags:
+  - 
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
 # Enum 使用
 
 > 使用枚举完成 多种消息参数可变发送
