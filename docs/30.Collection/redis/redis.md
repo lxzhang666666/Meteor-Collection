@@ -196,7 +196,7 @@ header是固定的10字节长度，442分别代表：ziplist总字节数、到zi
 | zlend   |	uint8_t|	255的二进制值 1111 1111 （UINT8_MAX） ，用于标记 ziplist 的末端。|
 
 ziplist的entry的内存结构比较复杂，分为pre_entry_length、encoding、length、content4个部分
-![redis数据结构](../assets/redis/zipList-entry.png)
+![redis数据结构](../assets/redis/ziplist-entry.png)
 
 - skiplist跳表
 
