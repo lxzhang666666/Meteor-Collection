@@ -48,7 +48,21 @@ export default [
       ]
     },
     {
-      text: 'Collection', link: '/collection/'
+      text: 'Collection', link: '/collection/',
+        items: [
+            { text: 'Clash', link: '/pages/9888bf/' },
+            { text: 'Docker', link: '/pages/37361e/' },
+            { text: 'Elasticsearch', link: '/pages/12c11d/' },
+            { text: 'Git', link: '/pages/095d29/' },
+            { text: 'Java', link: '/pages/920601/' },
+            { text: 'Maven', link: '/pages/50a3fd/' },
+            { text: 'MQ', link: '/pages/e154af/' },
+            { text: 'MySQL', link: '/pages/80c0db/' },
+            { text: 'Nginx', link: '/pages/395030/' },
+            { text: 'Redis', link: '/pages/e34ed7/' },
+            { text: 'Spring', link: '/pages/c3caec/' },
+            { text: 'Zookeeper', link: '/pages/9e7ab2/' },
+        ]
     },
     {
       text: '前端', link: '/frontend/',
