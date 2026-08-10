@@ -160,6 +160,7 @@ function mapTocToSidebar(root, collapsable, prefix = '') {
 
     if (isDir) { // 是文件夹目录
       const item = {
+        type: 'group', // 标记为分组类型，使SidebarLinks正确识别
         title,
         collapsable, // 是否可折叠，默认true
         children: mapTocToSidebar(file, collapsable, fullPath + '/').sidebar
