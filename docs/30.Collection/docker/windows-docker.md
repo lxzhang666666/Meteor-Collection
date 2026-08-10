@@ -41,7 +41,7 @@ cmd /c mklink /J "C:\Program Files\Docker" "E:\Docker\docker"
 
 安装后启动报错
 
-![img.png](assets/img.png)
+![img.png](../assets/docker/img.png)
 
 ```shell
 Description
@@ -129,7 +129,7 @@ exit
 
 Need to install tap driver tap-windows from OpenVPN. Download the latest version https://build.openvpn.net/downloads/releases/tap-windows-9.24.7-I601-Win10.exe and install.
 
-[tap-windows-9.24.7-I601-Win10.exe](../assets/tap-windows-9.24.7-I601-Win10.exe)
+[tap-windows-9.24.7-I601-Win10.exe](../assets/docker/tap-windows-9.24.7-I601-Win10.exe)
 
 执行以下命令安装服务，把所有需要访问的Bridge子网地址按照route 172.17.0.0/16的格式写入options.conf
 

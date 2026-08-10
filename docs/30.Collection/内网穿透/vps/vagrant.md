@@ -185,19 +185,19 @@ PermitRootLogin yes
 # 末尾抛出一个 “vboxsf” 的异常
 mount: unknown filesystem type ‘vboxsf’
 ```
-![](assets/vboxsf.png)
+![](../../assets/vps/vboxsf.png)
 输入命令关闭虚拟机
 ```shell
 vagrant halt
 ```
 查看磁盘镜像文件，这里显示未能插入VBoxGuestAdditions.iso镜像，关闭即可(PS:虚拟机是启动状态)
-![](assets/2020031321515869.png)
+![](../../assets/vps/2020031321515869.png)
 
 找到光驱并添加(PS:虚拟机是关闭状态)
 > VB提供了一个增强工具的镜像
 默认安装位置位于C:\Program Files\Oracle\VirtualBox\VBoxGuestAdditions.iso,选中添加
 
-![](assets/20200313215321595.png)
+![](../../assets/vps/20200313215321595.png)
 
 再次启动虚拟机
 ```shell
@@ -224,4 +224,4 @@ cd /mnt
 vagrant reload
 ```
 共享文件夹就ok了
-![](assets/finish.png)
+![](../../assets/vps/finish.png)

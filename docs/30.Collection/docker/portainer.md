@@ -56,7 +56,7 @@ docker run -d `
 
 汉化方式
 
-[汉化文件](assets/portainer/public.zip)
+[汉化文件](../assets/docker/portainer/public.zip)
 解压到 自定义的public目录下
 并加入参数
 ```shell
@@ -68,7 +68,7 @@ docker run -d `
 1. docker stop ${portainerid}
 2. docker inspect  ${portainerid}
 
-![img.png](assets/img.png)
+![img.png](../assets/docker/img.png)
    "Source": "/XXX/xx/data/apps/portainer/data",
 3.  docker run --rm -v /XXX/xx/data/apps/portainer/data:/data portainer/helper-reset-password
 
