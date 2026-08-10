@@ -104,9 +104,9 @@ redis-cli --cluster create 172.18.0.11:6381 172.18.0.12:6382 172.18.0.13:6383 17
 # --cluster-replicas 1  主从节点比例
 ```
 
-![img.png](assets/create-cluster.png)`
+![add-node.png](../assets/redis/add-node.png)
 提示是否看到上面的配置  输入 yes
-![img.png](assets/img.png)
+![img.png](../assets/redis/img.png)
 3主3从已经创建好了
 
 ### 检查
@@ -115,7 +115,7 @@ redis-cli --cluster create 172.18.0.11:6381 172.18.0.12:6382 172.18.0.13:6383 17
 redis-cli --cluster check 172.18.0.11:6381
 ```
 
-![img.png](assets/cluater-check.png)
+![img.png](../assets/redis/cluater-check.png)
 
 ### 连接进redis查询
 
@@ -124,12 +124,12 @@ cluster nodes
 cluster info
 ```
 
-![img.png](assets/nodes.png)
-![img.png](assets/info.png)
+![img.png](../assets/redis/nodes.png)
+![img.png](../assets/redis/info.png)
 
 ### set key
 
-![img.png](assets/setkey.png)
+![img.png](../assets/redis/setkey.png)
 报错 因为k1的slot值为12706不在当前节点
 
 ```
@@ -157,16 +157,16 @@ OK
 redis-cli --cluster add-node 172.18.0.8:6387 172.18.0.2:6381
 ```
 
-![img.png](assets/add-node.png)
+![img.png](../assets/redis/add-node.png)
 再次check 发现新的主节点中没有slot
-![img.png](assets/增加节点后check.png)
+![img.png](../assets/redis/增加节点后check.png)
 重新分配hash槽
 
 ```shell
 redis-cli --cluster reshard 172.18.0.2:6381
 ```
 
-![img.png](assets/询问分配hash槽数.png)
+![img.png](../assets/redis/询问分配hash槽数.png)
 设置hash槽数为 16384 % nodes
 
 ```shell

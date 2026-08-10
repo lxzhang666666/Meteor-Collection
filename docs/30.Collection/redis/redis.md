@@ -17,7 +17,7 @@ author:
 ## 数据结构
 > redis 9种数据结构由5种最基本的数据结构（String、List、Hash、Set、Sorted Set（zset）） 加 bitmap、geohash、hyperloglog、streams 组成
 
-![redis数据结构](assets/redis数据结构.jpg)
+![redis数据结构](../assets/redis/redis数据结构.jpg)
 
 String: 一般用于缓存、限流、计数器、分布式锁、分布式Session。    
 ~~~java
@@ -183,8 +183,8 @@ SDS使用len属性的值判断字符串是否结束，而不是空字符，即SD
 - ziplist压缩表
 
 ziplist主要是为了节约内存，他将元素存储在一块连续的内存空间中，这样在查询数据的时候也可以利用CPU的缓存访问数据，加快查询的效率
-![redis数据结构](assets/zipList图例.jpeg)
-![redis数据结构](assets/zipList.png)
+![redis数据结构](../assets/redis/zipList图例.jpeg)
+![redis数据结构](../assets/redis/zipList.png)
 header是固定的10字节长度，442分别代表：ziplist总字节数、到ziplist表尾的字节数即指向ziplist_entry_end的偏移量、ziplist元素数量      
 
 | 域       |长度/类型|域的值|
@@ -196,15 +196,15 @@ header是固定的10字节长度，442分别代表：ziplist总字节数、到zi
 | zlend   |	uint8_t|	255的二进制值 1111 1111 （UINT8_MAX） ，用于标记 ziplist 的末端。|
 
 ziplist的entry的内存结构比较复杂，分为pre_entry_length、encoding、length、content4个部分
-![redis数据结构](assets/zipList-entry.png)
+![redis数据结构](../assets/redis/zipList-entry.png)
 
 - skiplist跳表
 
 跳表(skip list) 对标的是平衡树(AVL Tree)，红黑树，是一种 插入/删除/搜索 都是 O(log n) 的数据结构。这两个查询效率差不多，
  - 跳表它最大的优势是原理简单、容易实现、效率更高。
  - 在并发的情况下，红黑树在插入删除的时候可能需要做数的平衡的操作，即树的左旋和右旋来保证树的平衡，会影响其他部分树的节点，而跳表只会影响局部，不会影响其他的节点
- ![redis数据结构](assets/skiplist-图例.png)
-![redis数据结构](assets/skipList.jpeg)
+ ![redis数据结构](../assets/redis/skiplist-图例.png)
+![redis数据结构](../assets/redis/skipList.jpeg)
 
 ## redis为什么那么快
 1. 基于内存机制：     
@@ -214,7 +214,7 @@ ziplist的entry的内存结构比较复杂，分为pre_entry_length、encoding�
    Redis内置了多种高效的数据结构，如字符串、哈希表、列表、集合和有序集合等。 
    这些数据结构都经过优化，能够在时间复杂度为O(1)的情况下完成大部分操作。
    例如，通过使用哈希表存储数据，Redis能够快速地进行读写操作，而不需要像传统数据库那样进行磁盘的随机访问。
-![redis数据结构](assets/redis数据结构.png)
+![redis数据结构](../assets/redis/redis数据结构.png)
 3. 合理的数据编码：
    Redis支持多种数据基本类型，每种基本类型对应不同的数据结构，每种数据结构对应不一样的编码。为了提高性能，Redis设计者总结出，数据结构最适合的编码搭配。     
    String：如果存储数字的话，是用int类型的编码;如果存储非数字，小于等于39字节的字符串，是embstr；大于39个字节，则是raw编码。      
@@ -222,7 +222,7 @@ ziplist的entry的内存结构比较复杂，分为pre_entry_length、encoding�
    Hash：哈希类型元素个数小于512个，所有值小于64字节的话，使用ziplist编码,否则使用hashtable编码。      
    Set：如果集合中的元素都是整数且元素个数小于512个，使用intset编码，否则使用hashtable编码。     
    Zset：当有序集合的元素个数小于128个，每个元素的值小于64字节时，使用ziplist编码，否则使用skiplist（跳跃表）编码  
- ![redis数据结构](assets/redis数据结构.jpg)
+ ![redis数据结构](../assets/redis/redis数据结构.jpg)
 4. 合理的线程模型： 
    1. 单线程模型：避免了上下文切换：      
    Redis是单线程的，其实是指Redis的网络IO和键值对读写是由一个线程来完成的。但Redis的其他功能，比如持久化、异步删除、集群数据同步等等，实际是由额外的线程执行的。      
@@ -232,7 +232,7 @@ ziplist的entry的内存结构比较复杂，分为pre_entry_length、encoding�
    多路 ：多个网络连接     
    复用：复用同一个线程。    
    IO多路复用其实就是一种同步IO模型，它实现了一个线程可以监视多个文件句柄；一旦某个文件句柄就绪，就能够通知应用程序进行相应的读写操作；而没有文件句柄就绪时,就会阻塞应用程序，交出cpu。
-![IO多路复用](assets/IO多路复用.png)
+![IO多路复用](../assets/redis/IO多路复用.png)
 
 ## redis的优缺点
 ### 优点:

@@ -13,9 +13,9 @@ author:
   name: lxzhang666666
   link: https://github.com/lxzhang666666
 ---
-#HashMap
+# HashMap
 
-#HashMap的数据结构
+# HashMap的数据结构
 数组+链表+红黑树
 
 > 默认初始容量(数组默认大小):16，2的整数次方static final int DEFAULT_INITIAL_CAPACITY = 1 << 4;   最大容量static final int MAXIMUM_CAPACITY = 1 << 30; 默认负载因子static final float DEFAULT_LOAD_FACTOR = 0.75f;装载因子用来衡量HashMap满的程度，表示当map集合中存储的数据达到当前数组大小的75%则需要进行扩容;链表转红黑树边界static final int TREEIFY_THRESHOLD = 8; 红黑树转离链表边界static final int UNTREEIFY_THRESHOLD = 6; 树化最小表容量  static final int MIN_TREEIFY_CAPACITY = 64;哈希桶数组transient Node<K,V>[] table; 实际存储的元素个数transient int size; 当map里面的数据大于这个threshold就会进行扩容int threshold   阈值 = table.length * loadFactor
@@ -25,7 +25,7 @@ author:
 > Hash冲突指的是在向Hash表中存数据时，首先要用Hash函数计算出该数据要存放的地址。但是在这个地址中已经有值存在，所以这个时候就发生了Hash冲突。也就是一句话：key值不同的元素可能会映象到哈希表的同一地址上
 ##hash闭环
 
-###get
+### get
 
 ~~~
 public V get(Object key) {
@@ -60,7 +60,7 @@ final Node<K,V> getNode(int hash, Object key) {
 }
 ~~~
 
-###put
+### put
 
 ```
 #put
@@ -76,7 +76,7 @@ static final int hash(Object key) {
 1、如果key为空，那么hash值置为0。HashMap允许null作为键，虽然这样，因为null的hash值一定是0，而且null==null为真，所以HashMap里面最多只会有一个null键。而且这个null键一定是放在数组的第一个位置上。但是如果存在hash碰撞，该位置上形成链表了，那么null键对应的节点就不确定在链表中的哪个位置了（取决于插入顺序，并且每次扩容其在链表中的位置都可能会改变）。
 2、如果key是个不为空的对象，那么将key的hashCode值h和h无符号右移16位后的值做异或运算，得到最终的hash值。
 
-#putVal
+# putVal
 final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
                boolean evict) {
     Node<K,V>[] tab; Node<K,V> p; int n, i; // 定义元素数组、当前元素变量
