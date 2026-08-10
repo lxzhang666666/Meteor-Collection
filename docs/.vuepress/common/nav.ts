@@ -45,10 +45,10 @@ export default [
             { text: '架构', link: '/pages/1c4157/' }
           ],
         },
-        {
-          text: 'Collection', link: '/collection/'
-        },
       ]
+    },
+    {
+      text: 'Collection', link: '/collection/'
     },
     {
       text: '前端', link: '/frontend/',
