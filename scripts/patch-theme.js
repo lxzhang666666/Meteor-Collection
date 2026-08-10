@@ -1,5 +1,5 @@
 /**
- * 构建前脚本：自动修改 vuepress-theme-vdoing 以排除 Collection 下的 assets 目录
+ * 构建前脚本：自动修改 vuepress-theme-vdoing 以支持无序号目录排序和排除 assets 目录
  */
 const fs = require('fs');
 const path = require('path');
@@ -13,23 +13,152 @@ if (!fs.existsSync(themeFile)) {
 
 let content = fs.readFileSync(themeFile, 'utf8');
 
-// 检查是否已经打过补丁
-if (content.includes("name !== 'assets'")) {
-  console.log('Theme already patched, skipping');
+// 检查是否已经打过完整补丁
+if (content.includes('orderedItems') && content.includes('unorderedItems')) {
+  console.log('Theme already fully patched, skipping');
   process.exit(0);
 }
 
-// 在 readTocs 函数中添加 assets 排除
-content = content.replace(
-  "name !== '.vuepress' && name !== '@pages'",
-  "name !== '.vuepress' && name !== '@pages' && name !== 'assets'"
-);
+// 1. 在 readTocs 函数中添加 assets 排除（如果还没有）
+if (content.includes("name !== '.vuepress' && name !== '@pages'")) {
+  content = content.replace(
+    "name !== '.vuepress' && name !== '@pages'",
+    "name !== '.vuepress' && name !== '@pages' && name !== 'assets'"
+  );
+  console.log('Added assets exclusion in readTocs');
+}
 
-// 在 mapTocToSidebar 函数中添加 assets 排除
-content = content.replace(
-  "if (filename === '.DS_Store') { // 过滤.DS_Store文件\n      return\n    }",
-  "if (filename === '.DS_Store') { // 过滤.DS_Store文件\n      return\n    }\n    if (filename === 'assets') { // 过滤assets文件夹\n      return\n    }"
-);
+// 2. 替换 mapTocToSidebar 函数中的序号逻辑，支持无序号目录排序
+// 找到原始函数的起始位置
+const funcStart = content.indexOf('function mapTocToSidebar(root, collapsable, prefix = \'\') {');
+if (funcStart === -1) {
+  console.log('Could not find mapTocToSidebar function');
+  process.exit(0);
+}
+
+// 找到函数结束位置（下一个 function 或 module.exports）
+let braceCount = 0;
+let inFunction = false;
+let funcEnd = funcStart;
+for (let i = funcStart; i < content.length; i++) {
+  if (content[i] === '{') {
+    braceCount++;
+    inFunction = true;
+  } else if (content[i] === '}') {
+    braceCount--;
+    if (inFunction && braceCount === 0) {
+      funcEnd = i + 1;
+      break;
+    }
+  }
+}
+
+const newFunction = `function mapTocToSidebar(root, collapsable, prefix = '') {
+  let sidebar = []; // 结构化文章侧边栏数据
+  const files = fs.readdirSync(root); // 读取目录（文件和文件夹）,返回数组
+
+  // 收集有有效序号和无效序号的条目
+  let orderedItems = [];
+  let unorderedItems = [];
+
+  files.forEach(filename => {
+    const file = path.resolve(root, filename); // 方法：将路径或路径片段的序列解析为绝对路径
+    const stat = fs.statSync(file); // 文件信息
+    if (filename === '.DS_Store') { // 过滤.DS_Store文件
+      return
+    }
+    if (filename === 'assets') { // 过滤assets文件夹
+      return
+    }
+
+    const fileNameArr = filename.split('.')
+    const isDir = stat.isDirectory()
+    let order = '', title = '', type = '';
+    if (isDir) {
+      // 目录：取最后一个点之后的部分作为"类型"（用于提取标题），但实际不用于类型判断
+      const firstDotIndex = filename.indexOf('.');
+      title = firstDotIndex > 0 ? filename.substring(firstDotIndex + 1) : filename;
+    } else {
+      // 文件：用 lastIndexOf 正确提取扩展名
+      const lastDotIndex = filename.lastIndexOf('.');
+      if (lastDotIndex <= 0) {
+        // 没有扩展名或第一个字符就是点
+        log(chalk.yellow(\`warning: 该文件 "\${file}" 没有有效的扩展名\`))
+        return;
+      }
+      type = filename.substring(lastDotIndex + 1);
+      // 标题：去掉最后一个点之后的扩展名
+      title = filename.substring(0, lastDotIndex);
+    }
+
+    // 提取序号：从文件名开头到第一个点之间的部分
+    const firstDotIndex = filename.indexOf('.');
+    if (firstDotIndex > 0) {
+      order = filename.substring(0, firstDotIndex);
+    } else {
+      order = '';
+    }
+    const hasOrder = !isNaN(order) && order >= 0;
+
+    // 构建完整路径前缀
+    const fullPath = prefix + filename;
+
+    if (isDir) { // 是文件夹目录
+      const item = {
+        title,
+        collapsable, // 是否可折叠，默认true
+        children: mapTocToSidebar(file, collapsable, fullPath + '/').sidebar // 子栏路径添加前缀
+      };
+      if (hasOrder) {
+        orderedItems.push({ order, item, type: 'dir' });
+      } else {
+        unorderedItems.push({ title: filename.toLowerCase(), item, type: 'dir' });
+      }
+    } else { // 是文件
+      if (type !== 'md') {
+        log(chalk.yellow(\`warning: 该文件 "\${file}" 非.md格式文件，不支持该文件类型\`))
+        return;
+      }
+      const contentStr = fs.readFileSync(file, 'utf8') // 读取md文件内容，返回字符串
+      const { data } = matter(contentStr, {}) // 解析出front matter数据
+      const { permalink = '', titleTag = '' } = data || {}
+
+      // 目录页对应的永久链接，用于给面包屑提供链接
+      const { pageComponent } = data
+      if (pageComponent && pageComponent.name === "Catalogue") {
+        catalogueData[title] = permalink
+      }
+
+      if (data.title) {
+        title = data.title
+      }
+      const item = [fullPath, title, permalink]
+      if (titleTag) item.push(titleTag)
+      if (hasOrder) {
+        orderedItems.push({ order, item, type: 'file' });
+      } else {
+        unorderedItems.push({ title: filename.toLowerCase(), item, type: 'file' });
+      }
+    }
+  })
+
+  // 有效序号的项目按序号排序
+  orderedItems.sort((a, b) => a.order - b.order);
+  // 无效序号的项目按名称字母顺序排序
+  unorderedItems.sort((a, b) => a.title.localeCompare(b.title, 'zh-CN'));
+
+  // 合并：先有序号的项目，再有无序号的项目
+  orderedItems.forEach(i => sidebar.push(i.item));
+  unorderedItems.forEach(i => sidebar.push(i.item));
+
+  return {
+    sidebar,
+    catalogueData
+  };
+}`;
+
+// 替换函数
+content = content.substring(0, funcStart) + newFunction + content.substring(funcEnd);
 
 fs.writeFileSync(themeFile, content, 'utf8');
-console.log('Theme patched successfully - assets directory excluded from sidebar');
+console.log('Theme patched successfully - assets directory excluded and no-order directories sorted');

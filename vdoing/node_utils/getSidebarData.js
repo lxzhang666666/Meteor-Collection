@@ -112,6 +112,10 @@ function mapTocToSidebar(root, collapsable, prefix = '') {
   let sidebar = []; // 结构化文章侧边栏数据
   const files = fs.readdirSync(root); // 读取目录（文件和文件夹）,返回数组
 
+  // 收集有有效序号和无效序号的条目
+  let orderedItems = [];
+  let unorderedItems = [];
+
   files.forEach(filename => {
     const file = path.resolve(root, filename); // 方法：将路径或路径片段的序列解析为绝对路径
     const stat = fs.statSync(file); // 文件信息
@@ -121,39 +125,49 @@ function mapTocToSidebar(root, collapsable, prefix = '') {
     if (filename === 'assets') { // 过滤assets文件夹
       return
     }
-    // let [order, title, type] = filename.split('.');
 
     const fileNameArr = filename.split('.')
     const isDir = stat.isDirectory()
     let order = '', title = '', type = '';
-    if (fileNameArr.length === 2) {
-      order = fileNameArr[0];
-      title = fileNameArr[1];
-    } else {
+    if (isDir) {
+      // 目录：取最后一个点之后的部分作为"类型"（用于提取标题），但实际不用于类型判断
       const firstDotIndex = filename.indexOf('.');
+      title = firstDotIndex > 0 ? filename.substring(firstDotIndex + 1) : filename;
+    } else {
+      // 文件：用 lastIndexOf 正确提取扩展名
       const lastDotIndex = filename.lastIndexOf('.');
-      order = filename.substring(0, firstDotIndex);
-      type = filename.substring(lastDotIndex + 1);
-      if (isDir) {
-        title = filename.substring(firstDotIndex + 1);
-      } else {
-        title = filename.substring(firstDotIndex + 1, lastDotIndex);
+      if (lastDotIndex <= 0) {
+        // 没有扩展名或第一个字符就是点
+        log(chalk.yellow(`warning: 该文件 "${file}" 没有有效的扩展名`))
+        return;
       }
+      type = filename.substring(lastDotIndex + 1);
+      // 标题：去掉最后一个点之后的扩展名
+      title = filename.substring(0, lastDotIndex);
     }
 
-    order = parseInt(order, 10);
-    if (isNaN(order) || order < 0) {
-      log(chalk.yellow(`warning: 该文件 "${file}" 序号出错，请填写正确的序号`))
-      return;
+    // 提取序号：从文件名开头到第一个点之间的部分
+    const firstDotIndex = filename.indexOf('.');
+    if (firstDotIndex > 0) {
+      order = filename.substring(0, firstDotIndex);
+    } else {
+      order = '';
     }
-    if (sidebar[order]) { // 判断序号是否已经存在
-      log(chalk.yellow(`warning: 该文件 "${file}" 的序号在同一级别中重复出现，将会被覆盖`))
-    }
+    const hasOrder = order !== '' && !isNaN(order) && order >= 0;
+
+    // 构建完整路径前缀
+    const fullPath = prefix + filename;
+
     if (isDir) { // 是文件夹目录
-      sidebar[order] = {
+      const item = {
         title,
         collapsable, // 是否可折叠，默认true
-        children: mapTocToSidebar(file, collapsable, prefix + filename + '/').sidebar // 子栏路径添加前缀
+        children: mapTocToSidebar(file, collapsable, fullPath + '/').sidebar
+      };
+      if (hasOrder) {
+        orderedItems.push({ order, item, type: 'dir' });
+      } else {
+        unorderedItems.push({ title: filename.toLowerCase(), item, type: 'dir' });
       }
     } else { // 是文件
       if (type !== 'md') {
@@ -167,20 +181,32 @@ function mapTocToSidebar(root, collapsable, prefix = '') {
       // 目录页对应的永久链接，用于给面包屑提供链接
       const { pageComponent } = data
       if (pageComponent && pageComponent.name === "Catalogue") {
-        catalogueData[title] = permalink
+        // 优先使用frontmatter中的title，其次用文件名提取的title
+        catalogueData[data.title || title] = permalink
       }
 
       if (data.title) {
         title = data.title
       }
-      const item = [prefix + filename, title, permalink]
+      const item = [fullPath, title, permalink]
       if (titleTag) item.push(titleTag)
-      sidebar[order] = item;  // [<路径>, <标题>, <永久链接>, <?标题标签>]
-
+      if (hasOrder) {
+        orderedItems.push({ order, item, type: 'file' });
+      } else {
+        unorderedItems.push({ title: filename.toLowerCase(), item, type: 'file' });
+      }
     }
   })
 
-  sidebar = sidebar.filter(item => item !== null && item !== undefined);
+  // 有效序号的项目按序号排序
+  orderedItems.sort((a, b) => a.order - b.order);
+  // 无效序号的项目按名称字母顺序排序
+  unorderedItems.sort((a, b) => a.title.localeCompare(b.title, 'zh-CN'));
+
+  // 合并：先有序号的项目，再有无序号的项目
+  orderedItems.forEach(i => sidebar.push(i.item));
+  unorderedItems.forEach(i => sidebar.push(i.item));
+
   return {
     sidebar,
     catalogueData
