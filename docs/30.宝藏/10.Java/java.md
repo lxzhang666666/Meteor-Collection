@@ -107,7 +107,7 @@ author:
 
 ## Java类加载的过程
 
-![image](../../assets/类加载基本流程.png)
+![image](../assets/类加载基本流程.png)
 
 ## JVM中提供了三层的[ClassLoader](https://so.csdn.net/so/search?q=ClassLoader&spm=1001.2101.3001.7020)
 
@@ -119,11 +119,11 @@ AppClassLoader：主要负责加载应用程序的主函数类
 
 ### 双亲委派加载原理
 
-![image](../../assets/双亲委托机制.png)
+![image](../assets/双亲委托机制.png)
 
 ## JDK的双亲委派模型
 
-![image](../../assets/JDK双亲委托模型.png)
+![image](../assets/JDK双亲委托模型.png)
 
 ## 怎么打破类加载机制
 
@@ -165,7 +165,7 @@ AppClassLoader：主要负责加载应用程序的主函数类
 
 ### Tomcat的类加载器层次结构
 
-![image](../../assets/tomcat-打破双亲委托机制.png)
+![image](../assets/tomcat-打破双亲委托机制.png)
 
 ### WebAppClassLoader
 
