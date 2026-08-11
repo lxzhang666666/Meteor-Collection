@@ -102,6 +102,27 @@ yarn baiduPush <域名>
 
 提交代码时使用 `/git-commit` 技能，会自动分析暂存区变更并生成符合 Conventional Commits 规范的 commit message。
 
+## 技能使用规范
+
+每次对话开始前，必须先调用 `using-superpowers` 技能（`/using-superpowers`），以确保正确加载技能使用规则。
+
+### 核心原则
+
+- **1% 规则**：任何任务，哪怕只有 1% 的可能性有适用技能，都必须先调用 Skill 工具检查
+- **红线意识**：禁止用"简单问题""先了解一下"等理由跳过技能检查
+- **优先级**：用户明确指令 > 技能规则 > 默认系统提示
+- **流程优先**：先调用流程类技能（头脑风暴、调试），再调用实现类技能
+
+### 本项目适用的技能
+
+| 场景 | 技能 |
+|------|------|
+| 开始对话 / 任何任务 | `using-superpowers` |
+| 创建功能、修改行为 | `brainstorming` |
+| 编写中文 commit message | `chinese-commit-conventions` |
+| 编写中文技术文档 | `chinese-documentation` |
+| 完成任务后验证 | `verification-before-completion` |
+
 ## 注意事项
 
 - 编辑笔记时确保 front matter 中 `permalink` 字段正确设置（控制百度推送的 URL）
