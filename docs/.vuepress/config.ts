@@ -128,7 +128,7 @@ export default defineConfig4CustomTheme<VdoingThemeConfig>({
 
     // 博主信息 (显示在首页侧边栏)
     blogger: {
-      avatar: 'https://mine-bed.oss-cn-hangzhou.aliyuncs.com/avatar1.jpg',
+      avatar: 'https://testingcf.jsdelivr.net/gh/lxzhang666666/img-bed@main/images/%E5%8D%9A%E4%B8%BB%E7%AE%80%E7%94%BB.jpg',
       name: 'Meteor',
       slogan: '吾必当乘此羽葆盖车',
     },
@@ -150,7 +150,7 @@ export default defineConfig4CustomTheme<VdoingThemeConfig>({
         {
           iconClass: 'icon-csdn',
           title: 'CSDN',
-          link: 'https://blog.csdn.net/See_Star',
+          link: 'https://blog.csdn.net/weixin_43748329',
         },
       ],
     },
