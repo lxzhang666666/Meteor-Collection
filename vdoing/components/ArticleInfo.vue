@@ -117,6 +117,11 @@ export default {
       // 获取页面frontmatter的分类（碎片化文章使用）
       const { categories } = this.$frontmatter
 
+      // 如果当前页面在目录页下，跳过第一级目录名（如"宝藏"），避免面包屑重复
+      if (cataloguePermalink && this.classifyList.length > 1) {
+        this.classifyList.shift()
+      }
+
       this.date = date
       this.cataloguePermalink = cataloguePermalink
       this.author = author
