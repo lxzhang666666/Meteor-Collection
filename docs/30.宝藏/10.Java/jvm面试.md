@@ -586,8 +586,8 @@ Object load(Object* ref) {
         if (is_from_space(ref)) {  // 对象在from-space
             heal(ref);             // 自愈：更新指针到新地址
         }
-}
-return *ref;
+    }
+    return *ref;
 }
 ~~~
 效果：应用线程在读取对象时自动完成指针修复，GC线程不需要STW来更新所有引用
@@ -653,28 +653,28 @@ public synchronized void increment() {
 // 方案2：AtomicInteger（无锁，基于CAS）
 private AtomicInteger count = new AtomicInteger(0);
 public void increment() {
-count.incrementAndGet();  // 内部使用Unsafe.compareAndSwapInt
+    count.incrementAndGet();  // 内部使用Unsafe.compareAndSwapInt
 }
 
 // 方案3：LongAdder（JDK8+，高并发下比AtomicLong更优）
 private LongAdder count = new LongAdder();
 public void increment() {
-count.increment();  // 分段累加，最后sum()汇总
+    count.increment();  // 分段累加，最后sum()汇总
 }
 
 AtomicInteger的incrementAndGet()源码：
 
 public final int incrementAndGet() {
-return unsafe.getAndAddInt(this, valueOffset, 1) + 1;
+    return unsafe.getAndAddInt(this, valueOffset, 1) + 1;
 }
 
 // Unsafe.getAndAddInt（JDK8）
 public final int getAndAddInt(Object obj, long offset, int delta) {
-int v;
-do {
-    v = getIntVolatile(obj, offset);  //  volatile读，获取最新值
-} while (!compareAndSwapInt(obj, offset, v, v + delta));  // CAS尝试更新
-return v;
+    int v;
+    do {
+        v = getIntVolatile(obj, offset);  //  volatile读，获取最新值
+    } while (!compareAndSwapInt(obj, offset, v, v + delta));  // CAS尝试更新
+    return v;
 }
 // 自旋CAS：如果失败（其他线程已修改），重新读取最新值再尝试
 ~~~
@@ -925,43 +925,44 @@ public void transfer(Account from, Account to, BigDecimal amount) {
         first = to;
         second = from;
     }
-synchronized (first) {
-    // 哈希冲突时，用额外的"领带锁"（tie-break lock）
-    if (System.identityHashCode(from) == System.identityHashCode(to)) {
-        synchronized (TIE_LOCK) {
+    synchronized (first) {
+        // 哈希冲突时，用额外的"领带锁"（tie-break lock）
+        if (System.identityHashCode(from) == System.identityHashCode(to)) {
+            synchronized (TIE_LOCK) {
+                synchronized (second) {
+                    doTransfer(from, to, amount);
+                }
+            }
+        } else {
             synchronized (second) {
                 doTransfer(from, to, amount);
             }
+        }
     }
-} else {
-synchronized (second) {
-    doTransfer(from, to, amount);
-}
-}
 }
 }
 
 // 方案2：ReentrantLock + tryLock超时（更健壮）
 public boolean transfer(Account from, Account to, BigDecimal amount, long timeoutMs) {
-ReentrantLock fromLock = from.getLock();
-ReentrantLock toLock = to.getLock();
-long deadline = System.currentTimeMillis() + timeoutMs;
-while (true) {
-    if (!fromLock.tryLock()) return false;
-    try {
-        if (!toLock.tryLock(timeoutMs, TimeUnit.MILLISECONDS)) {
-            return false;  // 获取第二个锁超时，放弃并释放第一个锁
+    ReentrantLock fromLock = from.getLock();
+    ReentrantLock toLock = to.getLock();
+    long deadline = System.currentTimeMillis() + timeoutMs;
+    while (true) {
+        if (!fromLock.tryLock()) return false;
+        try {
+            if (!toLock.tryLock(timeoutMs, TimeUnit.MILLISECONDS)) {
+                return false;  // 获取第二个锁超时，放弃并释放第一个锁
+            }
+            try {
+                from.debit(amount);
+                to.credit(amount);
+                return true;
+            } finally {
+            toLock.unlock();
         }
-    try {
-        from.debit(amount);
-        to.credit(amount);
-        return true;
-    } finally {
-    toLock.unlock();
-}
-} catch (InterruptedException e) {
-Thread.currentThread().interrupt();
-return false;
+    } catch (InterruptedException e) {
+    Thread.currentThread().interrupt();
+    return false;
 } finally {
 fromLock.unlock();  // 确保释放
 }
@@ -1098,48 +1099,48 @@ public ThreadPoolExecutor orderProcessPool() {
     .setUncaughtExceptionHandler((t, e) -> {
         log.error("线程{}未捕获异常", t.getName(), e);  // 全局异常兜底
     })
-.build(),
-new ThreadPoolExecutor.CallerRunsPolicy()  // 拒绝策略：调用者线程执行（背压）
-);
+    .build(),
+    new ThreadPoolExecutor.CallerRunsPolicy()  // 拒绝策略：调用者线程执行（背压）
+    );
 }
 
 // 任务异常处理（关键！）
 // 方式1：execute() + try-catch
 pool.execute(() -> {
-try {
-    doTask();
-} catch (Exception e) {
-log.error("任务执行失败", e);
+    try {
+        doTask();
+    } catch (Exception e) {
+    log.error("任务执行失败", e);
 }
 });
 
 // 方式2：submit() + Future.get()（异常会封装在ExecutionException中）
 Future<?> future = pool.submit(() -> doTask());
 try {
-future.get();  // 不调用get()，异常会被吞掉！
+    future.get();  // 不调用get()，异常会被吞掉！
 } catch (ExecutionException e) {
 log.error("任务异常", e.getCause());  // 真实异常在getCause()中
 }
 
 // 方式3：自定义ThreadPoolExecutor，重写afterExecute
 public class TraceableThreadPoolExecutor extends ThreadPoolExecutor {
-@Override
-protected void afterExecute(Runnable r, Throwable t) {
-    super.afterExecute(r, t);
-    if (t == null && r instanceof Future<?>) {
-        try {
-            Future<?> future = (Future<?>) r;
-            if (future.isDone()) future.get();
-        } catch (CancellationException ce) {
-        t = ce;
-    } catch (ExecutionException ee) {
-    t = ee.getCause();
-} catch (InterruptedException ie) {
-Thread.currentThread().interrupt();
+    @Override
+    protected void afterExecute(Runnable r, Throwable t) {
+        super.afterExecute(r, t);
+        if (t == null && r instanceof Future<?>) {
+            try {
+                Future<?> future = (Future<?>) r;
+                if (future.isDone()) future.get();
+            } catch (CancellationException ce) {
+            t = ce;
+        } catch (ExecutionException ee) {
+        t = ee.getCause();
+    } catch (InterruptedException ie) {
+    Thread.currentThread().interrupt();
 }
 }
 if (t != null) {
-log.error("线程池任务异常", t);
+    log.error("线程池任务异常", t);
 }
 }
 }
@@ -1198,37 +1199,37 @@ public class MonitoredThreadPoolExecutor extends ThreadPoolExecutor {
         registerMetrics();
     }
 
-private void registerMetrics() {
-    // 活跃线程数
-    registry.gauge("threadpool.active.threads", Tags.of("pool", poolName),
-    this, ThreadPoolExecutor::getActiveCount);
-    // 队列大小
-    registry.gauge("threadpool.queue.size", Tags.of("pool", poolName),
-    this, e -> e.getQueue().size());
-    // 已完成任务数
-    registry.gauge("threadpool.completed.tasks", Tags.of("pool", poolName),
-    this, ThreadPoolExecutor::getCompletedTaskCount);
-}
+    private void registerMetrics() {
+        // 活跃线程数
+        registry.gauge("threadpool.active.threads", Tags.of("pool", poolName),
+        this, ThreadPoolExecutor::getActiveCount);
+        // 队列大小
+        registry.gauge("threadpool.queue.size", Tags.of("pool", poolName),
+        this, e -> e.getQueue().size());
+        // 已完成任务数
+        registry.gauge("threadpool.completed.tasks", Tags.of("pool", poolName),
+        this, ThreadPoolExecutor::getCompletedTaskCount);
+    }
 
-@Override
-protected void beforeExecute(Thread t, Runnable r) {
-// 记录任务开始时间，用于计算执行耗时
-((TraceableTask) r).setStartTime(System.currentTimeMillis());
-}
+    @Override
+    protected void beforeExecute(Thread t, Runnable r) {
+        // 记录任务开始时间，用于计算执行耗时
+        ((TraceableTask) r).setStartTime(System.currentTimeMillis());
+    }
 
-@Override
-protected void afterExecute(Runnable r, Throwable t) {
-long duration = System.currentTimeMillis() - ((TraceableTask) r).getStartTime();
-registry.timer("threadpool.task.duration", Tags.of("pool", poolName))
-.record(duration, TimeUnit.MILLISECONDS);
-}
+    @Override
+    protected void afterExecute(Runnable r, Throwable t) {
+        long duration = System.currentTimeMillis() - ((TraceableTask) r).getStartTime();
+        registry.timer("threadpool.task.duration", Tags.of("pool", poolName))
+        .record(duration, TimeUnit.MILLISECONDS);
+    }
 }
 
 // 动态调整线程池参数（无需重启）
 public void adjustPoolSize(int newCoreSize, int newMaxSize) {
-executor.setCorePoolSize(newCoreSize);   // 会立即创建/回收线程
-executor.setMaximumPoolSize(newMaxSize);
-// 注意：setCorePoolSize可能导致正在运行的线程被中断
+    executor.setCorePoolSize(newCoreSize);   // 会立即创建/回收线程
+    executor.setMaximumPoolSize(newMaxSize);
+    // 注意：setCorePoolSize可能导致正在运行的线程被中断
 }
 ~~~
 **【线程池优雅关闭】**
@@ -1247,9 +1248,9 @@ public void shutdown() {
             // 可选：将丢弃任务持久化，下次启动恢复
             saveDroppedTasks(droppedTasks);
         }
-} catch (InterruptedException e) {
-Thread.currentThread().interrupt();
-executor.shutdownNow();
+    } catch (InterruptedException e) {
+    Thread.currentThread().interrupt();
+    executor.shutdownNow();
 }
 }
 ~~~
@@ -1267,10 +1268,10 @@ while (task != null || (task = getTask()) != null) {
     try {
         task.run();    // 执行任务
     } finally {
-    task = null;
-    w.unlock();    // 解锁，表示空闲
-}
-completedTasks++;
+        task = null;
+        w.unlock();    // 解锁，表示空闲
+    }
+    completedTasks++;
 }
 // 退出循环 → 线程结束（getTask返回null的条件：
 //   1. 线程数超过maximumPoolSize
@@ -1279,9 +1280,9 @@ completedTasks++;
 
 getTask()中的超时等待：
 if (wc > corePoolSize || allowCoreThreadTimeOut) {
-Runnable r = workQueue.poll(keepAliveTime, TimeUnit.NANOSECONDS);
-if (r != null) return r;
-timedOut = true;  // 超时，下一轮可能退出
+    Runnable r = workQueue.poll(keepAliveTime, TimeUnit.NANOSECONDS);
+    if (r != null) return r;
+    timedOut = true;  // 超时，下一轮可能退出
 } else {
 return workQueue.take();  // 核心线程无限等待
 }
@@ -1836,9 +1837,9 @@ public boolean createOrder(Long productId, Long userId) {
         redisTemplate.opsForValue().increment("seckill:stock:" + productId);
         return false;
     }
-// 2. 创建订单
-orderMapper.insert(new Order(productId, userId));
-return true;
+    // 2. 创建订单
+    orderMapper.insert(new Order(productId, userId));
+    return true;
 }
 
 // SQL：带条件的原子扣减
@@ -1850,17 +1851,17 @@ WHERE id = #{productId} AND stock > 0
 // 兜底对账：定时任务对比Redis库存和数据库库存
 @Scheduled(fixedRate = 60000)
 public void reconcileStock() {
-List<Product> products = productMapper.selectAll();
-for (Product p : products) {
-    Integer redisStock = redisTemplate.opsForValue()
-    .get("seckill:stock:" + p.getId());
-    if (redisStock != null && !redisStock.equals(p.getStock())) {
-        log.warn("库存不一致，productId={}, redis={}, db={}",
-        p.getId(), redisStock, p.getStock());
-        // 以数据库为准，修正Redis
-        redisTemplate.opsForValue().set("seckill:stock:" + p.getId(), p.getStock());
+    List<Product> products = productMapper.selectAll();
+    for (Product p : products) {
+        Integer redisStock = redisTemplate.opsForValue()
+        .get("seckill:stock:" + p.getId());
+        if (redisStock != null && !redisStock.equals(p.getStock())) {
+            log.warn("库存不一致，productId={}, redis={}, db={}",
+            p.getId(), redisStock, p.getStock());
+            // 以数据库为准，修正Redis
+            redisTemplate.opsForValue().set("seckill:stock:" + p.getId(), p.getStock());
+        }
     }
-}
 }
 ~~~
 **【底层原理】**
@@ -1927,13 +1928,13 @@ private void addUser() {  // ✗ private方法事务不生效
 // 2. 同类中方法调用（this调用绕过代理）
 @Service
 public class UserService {
-public void methodA() {
-    this.methodB();  // ✗ this调用，不走代理，事务不生效
-}
-@Transactional
-public void methodB() {
-userMapper.insert(user);
-}
+    public void methodA() {
+        this.methodB();  // ✗ this调用，不走代理，事务不生效
+    }
+    @Transactional
+    public void methodB() {
+        userMapper.insert(user);
+    }
 }
 // 解决：注入自己（@Autowired UserService self），用self.methodB()
 //      或用AopContext.currentProxy()获取代理对象
@@ -1941,11 +1942,11 @@ userMapper.insert(user);
 // 3. 异常被捕获（catch后没有重新抛出）
 @Transactional
 public void addUser() {
-try {
-    userMapper.insert(user);
-    int i = 1 / 0;
-} catch (Exception e) {
-log.error("异常", e);  // ✗ 捕获后没抛出，事务不回滚
+    try {
+        userMapper.insert(user);
+        int i = 1 / 0;
+    } catch (Exception e) {
+    log.error("异常", e);  // ✗ 捕获后没抛出，事务不回滚
 }
 }
 // 解决：catch后throw new RuntimeException(e); 或手动回滚
@@ -1954,8 +1955,8 @@ log.error("异常", e);  // ✗ 捕获后没抛出，事务不回滚
 // 4. 抛出的是受检异常（默认只回滚RuntimeException和Error）
 @Transactional
 public void addUser() throws IOException {
-userMapper.insert(user);
-throw new IOException("文件异常");  // ✗ 默认不回滚
+    userMapper.insert(user);
+    throw new IOException("文件异常");  // ✗ 默认不回滚
 }
 // 解决：@Transactional(rollbackFor = Exception.class)
 
@@ -1965,17 +1966,17 @@ throw new IOException("文件异常");  // ✗ 默认不回滚
 
 // 6. 没有被Spring管理（没有加@Service等注解）
 public class UserService {  // ✗ 没有@Service，不是Spring Bean
-@Transactional
-public void addUser() { ... }
+    @Transactional
+    public void addUser() { ... }
 }
 
 // 7. 多线程中调用（事务基于线程绑定的Connection）
 @Transactional
 public void addUser() {
-userMapper.insert(user);
-new Thread(() -> {
-    otherMapper.insert(other);  // ✗ 新线程没有事务上下文
-}).start();
+    userMapper.insert(user);
+    new Thread(() -> {
+        otherMapper.insert(other);  // ✗ 新线程没有事务上下文
+    }).start();
 }
 // 原因：事务的Connection绑定在ThreadLocal中，新线程获取不到
 
@@ -1987,8 +1988,8 @@ public void addUser() { ... }
 // CGLIB代理无法继承final类或重写final方法
 @Service
 public final class UserService {  // ✗ final类无法被CGLIB代理
-@Transactional
-public final void addUser() { ... }  // ✗ final方法无法被重写
+    @Transactional
+    public final void addUser() { ... }  // ✗ final方法无法被重写
 }
 ~~~
 **▶ 资深回答**
@@ -2043,11 +2044,11 @@ public abstract class TransactionSynchronizationManager {
         map.put(key, value);
     }
 
-// 获取连接（MyBatis/Spring JDBC都会从这里获取）
-public static Object getResource(Object key) {
-    Map<Object, Object> map = resources.get();
-    return map != null ? map.get(key) : null;
-}
+    // 获取连接（MyBatis/Spring JDBC都会从这里获取）
+    public static Object getResource(Object key) {
+        Map<Object, Object> map = resources.get();
+        return map != null ? map.get(key) : null;
+    }
 }
 ~~~
 // 流程：
@@ -2072,33 +2073,33 @@ public class UserService {
     public void methodA() {
         self.methodB();  // ✓ 通过代理对象调用
     }
-@Transactional
-public void methodB() { ... }
+    @Transactional
+    public void methodB() { ... }
 }
 
 // 方案2：AopContext（需要开启exposeProxy=true）
 // @EnableAspectJAutoProxy(exposeProxy = true)
 @Service
 public class UserService {
-public void methodA() {
-    ((UserService) AopContext.currentProxy()).methodB();  // ✓
-}
+    public void methodA() {
+        ((UserService) AopContext.currentProxy()).methodB();  // ✓
+    }
 }
 
 // 方案3：拆分到不同的Service（最优雅）
 @Service
 public class UserService {
-@Autowired
-private UserTxService userTxService;
+    @Autowired
+    private UserTxService userTxService;
 
-public void methodA() {
-    userTxService.methodB();  // ✓ 不同Bean，天然走代理
-}
+    public void methodA() {
+        userTxService.methodB();  // ✓ 不同Bean，天然走代理
+    }
 }
 @Service
 public class UserTxService {
-@Transactional
-public void methodB() { ... }
+    @Transactional
+    public void methodB() { ... }
 }
 ~~~
 **【底层原理】**
@@ -2195,57 +2196,57 @@ public Product getProduct(Long id) {
     if (product != null) {
         return product;
     }
-// 查询数据库
-product = productMapper.selectById(id);
-if (product == null) {
-    // 缓存空值，设置较短过期时间（防止内存浪费）
-    redisTemplate.opsForValue().set(key, NULL_PRODUCT, 5, TimeUnit.MINUTES);
-    return null;
-}
-redisTemplate.opsForValue().set(key, product, 30, TimeUnit.MINUTES);
-return product;
+    // 查询数据库
+    product = productMapper.selectById(id);
+    if (product == null) {
+        // 缓存空值，设置较短过期时间（防止内存浪费）
+        redisTemplate.opsForValue().set(key, NULL_PRODUCT, 5, TimeUnit.MINUTES);
+        return null;
+    }
+    redisTemplate.opsForValue().set(key, product, 30, TimeUnit.MINUTES);
+    return product;
 }
 
 // 2. 缓存穿透：布隆过滤器（更高效，适合海量数据）
 // 初始化：将所有存在的商品ID加入布隆过滤器
 @PostConstruct
 public void initBloomFilter() {
-List<Long> ids = productMapper.selectAllIds();
-for (Long id : ids) {
-    bloomFilter.add(id);
-}
+    List<Long> ids = productMapper.selectAllIds();
+    for (Long id : ids) {
+        bloomFilter.add(id);
+    }
 }
 
 public Product getProductWithBloom(Long id) {
-// 布隆过滤器判断：不存在则一定不存在；存在则可能存在
-if (!bloomFilter.mightContain(id)) {
-    return null;  // 直接返回，不查缓存和数据库
-}
-// 继续查缓存和数据库...
+    // 布隆过滤器判断：不存在则一定不存在；存在则可能存在
+    if (!bloomFilter.mightContain(id)) {
+        return null;  // 直接返回，不查缓存和数据库
+    }
+    // 继续查缓存和数据库...
 }
 
 // 3. 缓存击穿：互斥锁（mutex key）
 public Product getProductWithLock(Long id) {
-String key = "product:" + id;
-Product product = redisTemplate.opsForValue().get(key);
-if (product != null) return product;
+    String key = "product:" + id;
+    Product product = redisTemplate.opsForValue().get(key);
+    if (product != null) return product;
 
-String lockKey = "lock:product:" + id;
-// 尝试获取锁
-Boolean locked = redisTemplate.opsForValue()
-.setIfAbsent(lockKey, "1", 10, TimeUnit.SECONDS);
-if (Boolean.TRUE.equals(locked)) {
-    try {
-        // 双重检查：获取锁后再查一次缓存（可能其他线程已重建）
-        product = redisTemplate.opsForValue().get(key);
-        if (product != null) return product;
-        // 查询数据库并重建缓存
-        product = productMapper.selectById(id);
-        redisTemplate.opsForValue().set(key, product, 30, TimeUnit.MINUTES);
-        return product;
-    } finally {
-    redisTemplate.delete(lockKey);  // 释放锁
-}
+    String lockKey = "lock:product:" + id;
+    // 尝试获取锁
+    Boolean locked = redisTemplate.opsForValue()
+    .setIfAbsent(lockKey, "1", 10, TimeUnit.SECONDS);
+    if (Boolean.TRUE.equals(locked)) {
+        try {
+            // 双重检查：获取锁后再查一次缓存（可能其他线程已重建）
+            product = redisTemplate.opsForValue().get(key);
+            if (product != null) return product;
+            // 查询数据库并重建缓存
+            product = productMapper.selectById(id);
+            redisTemplate.opsForValue().set(key, product, 30, TimeUnit.MINUTES);
+            return product;
+        } finally {
+        redisTemplate.delete(lockKey);  // 释放锁
+    }
 } else {
 // 未获取到锁，等待后重试
 try { Thread.sleep(50); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
@@ -2255,10 +2256,10 @@ return getProductWithLock(id);  // 递归重试
 
 // 4. 缓存雪崩：过期时间加随机值
 public void setProductCache(Product product) {
-String key = "product:" + product.getId();
-// 基础过期时间30分钟 + 随机0-5分钟，避免同时过期
-int ttl = 30 + ThreadLocalRandom.current().nextInt(0, 6);
-redisTemplate.opsForValue().set(key, product, ttl, TimeUnit.MINUTES);
+    String key = "product:" + product.getId();
+    // 基础过期时间30分钟 + 随机0-5分钟，避免同时过期
+    int ttl = 30 + ThreadLocalRandom.current().nextInt(0, 6);
+    redisTemplate.opsForValue().set(key, product, ttl, TimeUnit.MINUTES);
 }
 ~~~
 **▶ 资深回答**
@@ -2319,32 +2320,32 @@ public class CacheData<T> {
 }
 
 public Product getProductWithLogicalExpire(Long id) {
-String key = "product:" + id;
-CacheData<Product> cacheData = redisTemplate.opsForValue().get(key);
+    String key = "product:" + id;
+    CacheData<Product> cacheData = redisTemplate.opsForValue().get(key);
 
-if (cacheData == null) return null;  // 缓存未命中（理论上热点key都预热了）
+    if (cacheData == null) return null;  // 缓存未命中（理论上热点key都预热了）
 
-// 未过期，直接返回
-if (cacheData.getExpireTime().isAfter(LocalDateTime.now())) {
-    return cacheData.getData();
-}
+    // 未过期，直接返回
+    if (cacheData.getExpireTime().isAfter(LocalDateTime.now())) {
+        return cacheData.getData();
+    }
 
-// 已过期，尝试异步重建缓存（用线程池，不阻塞当前请求）
-String lockKey = "lock:product:" + id;
-if (Boolean.TRUE.equals(redisTemplate.opsForValue()
-.setIfAbsent(lockKey, "1", 10, TimeUnit.SECONDS))) {
-// 获取锁成功，异步重建
-rebuildCacheExecutor.submit(() -> {
-    try {
-        Product dbProduct = productMapper.selectById(id);
-        CacheData<Product> newData = new CacheData<>();
-        newData.setData(dbProduct);
-        newData.setExpireTime(LocalDateTime.now().plusMinutes(30));
-        redisTemplate.opsForValue().set(key, newData);  // 无TTL，永不过期
-    } finally {
-    redisTemplate.delete(lockKey);
-}
-});
+    // 已过期，尝试异步重建缓存（用线程池，不阻塞当前请求）
+    String lockKey = "lock:product:" + id;
+    if (Boolean.TRUE.equals(redisTemplate.opsForValue()
+    .setIfAbsent(lockKey, "1", 10, TimeUnit.SECONDS))) {
+        // 获取锁成功，异步重建
+        rebuildCacheExecutor.submit(() -> {
+            try {
+                Product dbProduct = productMapper.selectById(id);
+                CacheData<Product> newData = new CacheData<>();
+                newData.setData(dbProduct);
+                newData.setExpireTime(LocalDateTime.now().plusMinutes(30));
+                redisTemplate.opsForValue().set(key, newData);  // 无TTL，永不过期
+            } finally {
+            redisTemplate.delete(lockKey);
+        }
+    });
 }
 // 返回旧数据（过期但仍可用，保证可用性）
 return cacheData.getData();
@@ -2459,36 +2460,36 @@ public boolean lock(String key) {
     return redisTemplate.opsForValue().setIfAbsent(key, "1");  // 没有过期时间！
 }
 public void unlock(String key) {
-redisTemplate.delete(key);  // 可能删除别人的锁
+    redisTemplate.delete(key);  // 可能删除别人的锁
 }
 // 问题：①获取锁后服务宕机，锁永远不释放（死锁）
 //      ②delete不判断锁的持有者，可能误删
 
 // 版本2：加过期时间 + 唯一标识
 public boolean lock(String key, String requestId, int expireSeconds) {
-// SET key value NX EX seconds：原子操作
-return redisTemplate.opsForValue()
-.setIfAbsent(key, requestId, expireSeconds, TimeUnit.SECONDS);
+    // SET key value NX EX seconds：原子操作
+    return redisTemplate.opsForValue()
+    .setIfAbsent(key, requestId, expireSeconds, TimeUnit.SECONDS);
 }
 public void unlock(String key, String requestId) {
-// 先判断是不是自己的锁
-if (requestId.equals(redisTemplate.opsForValue().get(key))) {
-    redisTemplate.delete(key);  // 非原子！判断和删除之间可能过期被别人获取
-}
+    // 先判断是不是自己的锁
+    if (requestId.equals(redisTemplate.opsForValue().get(key))) {
+        redisTemplate.delete(key);  // 非原子！判断和删除之间可能过期被别人获取
+    }
 }
 // 问题：unlock的判断和删除不是原子操作
 
 // 版本3：Lua脚本保证释放锁原子性
 public void unlock(String key, String requestId) {
-String script = """
-if redis.call('get', KEYS[1]) == ARGV[1] then
-return redis.call('del', KEYS[1])
-else
-return 0
-end
-""";
-redisTemplate.execute(new DefaultRedisScript<>(script, Long.class),
-Collections.singletonList(key), requestId);
+    String script = """
+    if redis.call('get', KEYS[1]) == ARGV[1] then
+    return redis.call('del', KEYS[1])
+    else
+    return 0
+    end
+    """;
+    redisTemplate.execute(new DefaultRedisScript<>(script, Long.class),
+    Collections.singletonList(key), requestId);
 }
 
 // 版本4：Redisson（生产级方案）
@@ -2496,15 +2497,15 @@ Collections.singletonList(key), requestId);
 private RedissonClient redissonClient;
 
 public void doWithLock() {
-RLock lock = redissonClient.getLock("order:lock:123");
-try {
-    // 尝试加锁：等待100秒，锁持有时间10秒（不设则自动续期）
-    boolean locked = lock.tryLock(100, 10, TimeUnit.SECONDS);
-    if (locked) {
-        // 业务逻辑
-    }
-} catch (InterruptedException e) {
-Thread.currentThread().interrupt();
+    RLock lock = redissonClient.getLock("order:lock:123");
+    try {
+        // 尝试加锁：等待100秒，锁持有时间10秒（不设则自动续期）
+        boolean locked = lock.tryLock(100, 10, TimeUnit.SECONDS);
+        if (locked) {
+            // 业务逻辑
+        }
+    } catch (InterruptedException e) {
+    Thread.currentThread().interrupt();
 } finally {
 if (lock.isHeldByCurrentThread()) {
     lock.unlock();
@@ -2554,7 +2555,7 @@ private void scheduleExpirationRenewal(long threadId) {
             evalWriteAsync(..., "if (redis.call('hexists', KEYS[1], ARGV[2]) == 1) then " +
             "redis.call('pexpire', KEYS[1], ARGV[1]); return 1; end; return 0;", ...);
         }
-}, internalLockLeaseTime / 3, TimeUnit.MILLISECONDS);
+    }, internalLockLeaseTime / 3, TimeUnit.MILLISECONDS);
 }
 ~~~
 **【RedLock算法（多节点分布式锁）】**
@@ -2716,14 +2717,14 @@ public Product getProduct(Long id) {
     if (product != null) {
         redisTemplate.opsForValue().set(key, product, 30, TimeUnit.MINUTES);  // 回填缓存
     }
-return product;
+    return product;
 }
 
 // Cache-Aside模式（写）
 @Transactional
 public void updateProduct(Product product) {
-productMapper.updateById(product);          // 1. 更新数据库
-redisTemplate.delete("product:" + product.getId());  // 2. 删除缓存
+    productMapper.updateById(product);          // 1. 更新数据库
+    redisTemplate.delete("product:" + product.getId());  // 2. 删除缓存
 }
 ~~~
 // 问题：如果第2步删除缓存失败怎么办？
@@ -2819,8 +2820,8 @@ public class ProductCacheListener {
                 // 删除缓存
                 redisTemplate.delete("product:" + productId);
             }
+        }
     }
-}
 }
 ~~~
 // 优点：
@@ -2948,25 +2949,25 @@ public class ServiceA {
 }
 @Service
 public class ServiceB {
-private ServiceA serviceA;
-@Autowired
-public void setServiceA(ServiceA serviceA) { this.serviceA = serviceA; }
+    private ServiceA serviceA;
+    @Autowired
+    public void setServiceA(ServiceA serviceA) { this.serviceA = serviceA; }
 }
 
 // 构造器注入（Spring无法解决）
 @Service
 public class ServiceA {
-private final ServiceB serviceB;
-public ServiceA(ServiceB serviceB) { this.serviceB = serviceB; }  // ✗ 失败
+    private final ServiceB serviceB;
+    public ServiceA(ServiceB serviceB) { this.serviceB = serviceB; }  // ✗ 失败
 }
 
 // 解决方案：@Lazy延迟注入
 @Service
 public class ServiceA {
-private final ServiceB serviceB;
-public ServiceA(@Lazy ServiceB serviceB) {  // ✓ 注入代理对象，延迟加载
-    this.serviceB = serviceB;
-}
+    private final ServiceB serviceB;
+    public ServiceA(@Lazy ServiceB serviceB) {  // ✓ 注入代理对象，延迟加载
+        this.serviceB = serviceB;
+    }
 }
 
 // 原型Bean循环依赖（Spring无法解决）
@@ -3071,23 +3072,23 @@ protected Object getSingleton(String beanName, boolean allowEarlyReference) {
                             // 从三级缓存移除
                             this.singletonFactories.remove(beanName);
                         }
+                    }
                 }
+            }
         }
-}
-}
-}
-return singletonObject;
+    }
+    return singletonObject;
 }
 
 // 添加三级缓存（在doCreateBean中，实例化后、属性注入前调用）
 protected void addSingletonFactory(String beanName, ObjectFactory<?> singletonFactory) {
-synchronized (this.singletonObjects) {
-    if (!this.singletonObjects.containsKey(beanName)) {
-        this.singletonFactories.put(beanName, singletonFactory);
-        this.earlySingletonObjects.remove(beanName);
-        this.registeredSingletons.add(beanName);
+    synchronized (this.singletonObjects) {
+        if (!this.singletonObjects.containsKey(beanName)) {
+            this.singletonFactories.put(beanName, singletonFactory);
+            this.earlySingletonObjects.remove(beanName);
+            this.registeredSingletons.add(beanName);
+        }
     }
-}
 }
 
 // ObjectFactory的实现（在AbstractAutowireCapableBeanFactory中）
@@ -3096,11 +3097,11 @@ addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean));
 // getEarlyBeanReference：遍历SmartInstantiationAwareBeanPostProcessor
 // 其中AnnotationAwareAspectJAutoProxyCreator会在这里生成AOP代理对象
 protected Object getEarlyBeanReference(String beanName, RootBeanDefinition mbd, Object bean) {
-Object exposedObject = bean;
-for (SmartInstantiationAwareBeanPostProcessor bp : getSmartInstantiationAwareBeanPostProcessors()) {
-    exposedObject = bp.getEarlyBeanReference(exposedObject, beanName);
-}
-return exposedObject;
+    Object exposedObject = bean;
+    for (SmartInstantiationAwareBeanPostProcessor bp : getSmartInstantiationAwareBeanPostProcessors()) {
+        exposedObject = bp.getEarlyBeanReference(exposedObject, beanName);
+    }
+    return exposedObject;
 }
 ~~~
 
@@ -3212,57 +3213,57 @@ ApplicationContextAware, InitializingBean, DisposableBean {
         System.out.println("1. 构造方法执行");
     }
 
-// 属性注入（@Autowired）
-@Autowired
-private OtherBean otherBean;
+    // 属性注入（@Autowired）
+    @Autowired
+    private OtherBean otherBean;
 
-// Aware回调
-@Override public void setBeanName(String name) {
-    this.beanName = name;
-    System.out.println("2. BeanNameAware: " + name);
-}
-@Override public void setBeanFactory(BeanFactory beanFactory) {
-this.beanFactory = beanFactory;
-System.out.println("3. BeanFactoryAware");
-}
-@Override public void setApplicationContext(ApplicationContext ctx) {
-this.applicationContext = ctx;
-System.out.println("4. ApplicationContextAware");
-}
+    // Aware回调
+    @Override public void setBeanName(String name) {
+        this.beanName = name;
+        System.out.println("2. BeanNameAware: " + name);
+    }
+    @Override public void setBeanFactory(BeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
+        System.out.println("3. BeanFactoryAware");
+    }
+    @Override public void setApplicationContext(ApplicationContext ctx) {
+        this.applicationContext = ctx;
+        System.out.println("4. ApplicationContextAware");
+    }
 
-// @PostConstruct（初始化前）
-@PostConstruct
-public void postConstruct() {
-System.out.println("5. @PostConstruct");
-}
+    // @PostConstruct（初始化前）
+    @PostConstruct
+    public void postConstruct() {
+        System.out.println("5. @PostConstruct");
+    }
 
-// InitializingBean
-@Override
-public void afterPropertiesSet() {
-System.out.println("6. InitializingBean.afterPropertiesSet");
-}
+    // InitializingBean
+    @Override
+    public void afterPropertiesSet() {
+        System.out.println("6. InitializingBean.afterPropertiesSet");
+    }
 
-// init-method
-public void initMethod() {
-System.out.println("7. init-method");
-}
+    // init-method
+    public void initMethod() {
+        System.out.println("7. init-method");
+    }
 
-// @PreDestroy（销毁前）
-@PreDestroy
-public void preDestroy() {
-System.out.println("8. @PreDestroy");
-}
+    // @PreDestroy（销毁前）
+    @PreDestroy
+    public void preDestroy() {
+        System.out.println("8. @PreDestroy");
+    }
 
-// DisposableBean
-@Override
-public void destroy() {
-System.out.println("9. DisposableBean.destroy");
-}
+    // DisposableBean
+    @Override
+    public void destroy() {
+        System.out.println("9. DisposableBean.destroy");
+    }
 
-// destroy-method
-public void destroyMethod() {
-System.out.println("10. destroy-method");
-}
+    // destroy-method
+    public void destroyMethod() {
+        System.out.println("10. destroy-method");
+    }
 }
 ~~~
 ```text
@@ -3311,12 +3312,12 @@ public interface BeanPostProcessor {
         return bean;
     }
 
-// 初始化后执行（init-method之后）
-// AOP代理在这里创建！返回代理对象替换原始Bean
-default Object postProcessAfterInitialization(Object bean, String beanName)
-throws BeansException {
-    return bean;
-}
+    // 初始化后执行（init-method之后）
+    // AOP代理在这里创建！返回代理对象替换原始Bean
+    default Object postProcessAfterInitialization(Object bean, String beanName)
+    throws BeansException {
+        return bean;
+    }
 }
 
 // 注意：postProcessBeforeInstantiation（实例化前）
@@ -3326,31 +3327,31 @@ throws BeansException {
 
 // AOP代理创建（AnnotationAwareAspectJAutoProxyCreator）
 public Object postProcessAfterInitialization(Object bean, String beanName) {
-if (bean != null) {
-    Object cacheKey = getCacheKey(bean.getClass(), beanName);
-    // 检查是否需要代理（是否有匹配的切面）
-    if (this.earlyProxyReferences.remove(cacheKey) != bean) {
-        // 如果需要代理，创建代理对象
-        return wrapIfNecessary(bean, beanName, cacheKey);
+    if (bean != null) {
+        Object cacheKey = getCacheKey(bean.getClass(), beanName);
+        // 检查是否需要代理（是否有匹配的切面）
+        if (this.earlyProxyReferences.remove(cacheKey) != bean) {
+            // 如果需要代理，创建代理对象
+            return wrapIfNecessary(bean, beanName, cacheKey);
+        }
     }
-}
-return bean;
+    return bean;
 }
 
 // wrapIfNecessary：创建AOP代理
 protected Object wrapIfNecessary(Object bean, String beanName, Object cacheKey) {
-// 获取匹配的切面通知（Advisor列表）
-Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName, null);
-if (specificInterceptors != DO_NOT_PROXY) {
-    this.advisedBeans.put(cacheKey, Boolean.TRUE);
-    // 创建代理：JDK动态代理（有接口）或CGLIB代理（无接口）
-    Object proxy = createProxy(bean.getClass(), beanName, specificInterceptors,
-    new SingletonTargetSource(bean));
-    this.proxyTypes.put(cacheKey, proxy.getClass());
-    return proxy;
-}
-this.advisedBeans.put(cacheKey, Boolean.FALSE);
-return bean;
+    // 获取匹配的切面通知（Advisor列表）
+    Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName, null);
+    if (specificInterceptors != DO_NOT_PROXY) {
+        this.advisedBeans.put(cacheKey, Boolean.TRUE);
+        // 创建代理：JDK动态代理（有接口）或CGLIB代理（无接口）
+        Object proxy = createProxy(bean.getClass(), beanName, specificInterceptors,
+        new SingletonTargetSource(bean));
+        this.proxyTypes.put(cacheKey, proxy.getClass());
+        return proxy;
+    }
+    this.advisedBeans.put(cacheKey, Boolean.FALSE);
+    return bean;
 }
 ~~~
 **【Spring事务代理的创建时机】**
@@ -3498,26 +3499,26 @@ public class XAConfig {
         ds.setMaxPoolSize(10);
         return ds;
     }
-// dataSource2类似...
+    // dataSource2类似...
 
-@Bean
-public JtaTransactionManager transactionManager() {
-    UserTransactionManager utm = new UserTransactionManager();
-    UserTransactionImp ut = new UserTransactionImp();
-    return new JtaTransactionManager(ut, utm);
-}
+    @Bean
+    public JtaTransactionManager transactionManager() {
+        UserTransactionManager utm = new UserTransactionManager();
+        UserTransactionImp ut = new UserTransactionImp();
+        return new JtaTransactionManager(ut, utm);
+    }
 }
 
 @Service
 public class TransferService {
-@Transactional(transactionManager = "transactionManager")
-public void transfer(Long fromId, Long toId, BigDecimal amount) {
-    // 操作DB1：扣款
-    accountMapper1.debit(fromId, amount);
-    // 操作DB2：加款
-    accountMapper2.credit(toId, amount);
-}
-// Spring的JtaTransactionManager会自动使用XA两阶段提交
+    @Transactional(transactionManager = "transactionManager")
+    public void transfer(Long fromId, Long toId, BigDecimal amount) {
+        // 操作DB1：扣款
+        accountMapper1.debit(fromId, amount);
+        // 操作DB2：加款
+        accountMapper2.credit(toId, amount);
+    }
+    // Spring的JtaTransactionManager会自动使用XA两阶段提交
 }
 ~~~
 
@@ -3666,56 +3667,56 @@ public interface InventoryTccService {
 // 实现类
 @Service
 public class InventoryTccServiceImpl implements InventoryTccService {
-@Autowired
-private InventoryMapper inventoryMapper;
+    @Autowired
+    private InventoryMapper inventoryMapper;
 
-@Override
-public boolean tryFreeze(Long productId, Integer count) {
-    // 幂等检查：防止重复Try
-    if (tccLogService.exists(productId, "TRY")) return true;
+    @Override
+    public boolean tryFreeze(Long productId, Integer count) {
+        // 幂等检查：防止重复Try
+        if (tccLogService.exists(productId, "TRY")) return true;
 
-    // 冻结库存：stock - count, frozen + count
-    int rows = inventoryMapper.freeze(productId, count);
-    if (rows == 0) throw new RuntimeException("库存不足");
+        // 冻结库存：stock - count, frozen + count
+        int rows = inventoryMapper.freeze(productId, count);
+        if (rows == 0) throw new RuntimeException("库存不足");
 
-    // 记录Try日志（用于幂等和空回滚判断）
-    tccLogService.save(productId, "TRY", "SUCCESS");
-    return true;
-}
+        // 记录Try日志（用于幂等和空回滚判断）
+        tccLogService.save(productId, "TRY", "SUCCESS");
+        return true;
+    }
 
-@Override
-public boolean confirm(BusinessActionContext context) {
-Long productId = (Long) context.getActionContext("productId");
-Integer count = (Integer) context.getActionContext("count");
+    @Override
+    public boolean confirm(BusinessActionContext context) {
+        Long productId = (Long) context.getActionContext("productId");
+        Integer count = (Integer) context.getActionContext("count");
 
-// 幂等检查
-if (tccLogService.exists(productId, "CONFIRM")) return true;
+        // 幂等检查
+        if (tccLogService.exists(productId, "CONFIRM")) return true;
 
-// 扣减冻结库存：frozen - count
-inventoryMapper.confirmFreeze(productId, count);
-tccLogService.save(productId, "CONFIRM", "SUCCESS");
-return true;
-}
+        // 扣减冻结库存：frozen - count
+        inventoryMapper.confirmFreeze(productId, count);
+        tccLogService.save(productId, "CONFIRM", "SUCCESS");
+        return true;
+    }
 
-@Override
-public boolean cancel(BusinessActionContext context) {
-Long productId = (Long) context.getActionContext("productId");
-Integer count = (Integer) context.getActionContext("count");
+    @Override
+    public boolean cancel(BusinessActionContext context) {
+        Long productId = (Long) context.getActionContext("productId");
+        Integer count = (Integer) context.getActionContext("count");
 
-// 空回滚处理：Try没执行就收到Cancel（网络超时导致Try没到达）
-if (!tccLogService.exists(productId, "TRY")) {
-    tccLogService.save(productId, "CANCEL", "EMPTY_ROLLBACK");
-    return true;  // 直接返回成功，不执行实际回滚
-}
+        // 空回滚处理：Try没执行就收到Cancel（网络超时导致Try没到达）
+        if (!tccLogService.exists(productId, "TRY")) {
+            tccLogService.save(productId, "CANCEL", "EMPTY_ROLLBACK");
+            return true;  // 直接返回成功，不执行实际回滚
+        }
 
-// 幂等检查
-if (tccLogService.exists(productId, "CANCEL")) return true;
+        // 幂等检查
+        if (tccLogService.exists(productId, "CANCEL")) return true;
 
-// 释放冻结库存：stock + count, frozen - count
-inventoryMapper.cancelFreeze(productId, count);
-tccLogService.save(productId, "CANCEL", "SUCCESS");
-return true;
-}
+        // 释放冻结库存：stock + count, frozen - count
+        inventoryMapper.cancelFreeze(productId, count);
+        tccLogService.save(productId, "CANCEL", "SUCCESS");
+        return true;
+    }
 }
 ~~~
 
@@ -3814,43 +3815,43 @@ public class OrderTccServiceImpl implements OrderTccService {
         return true;
     }
 
-@Override
-public boolean commit(BusinessActionContext context) {
-    String orderNo = context.getActionContext("orderNo").toString();
-    // Confirm：更新订单为已确认
-    orderMapper.updateStatus(orderNo, "CONFIRMED");
-    return true;
-}
+    @Override
+    public boolean commit(BusinessActionContext context) {
+        String orderNo = context.getActionContext("orderNo").toString();
+        // Confirm：更新订单为已确认
+        orderMapper.updateStatus(orderNo, "CONFIRMED");
+        return true;
+    }
 
-@Override
-public boolean rollback(BusinessActionContext context) {
-String orderNo = context.getActionContext("orderNo").toString();
-// Cancel：更新订单为已取消（或删除）
-orderMapper.updateStatus(orderNo, "CANCELLED");
-return true;
-}
+    @Override
+    public boolean rollback(BusinessActionContext context) {
+        String orderNo = context.getActionContext("orderNo").toString();
+        // Cancel：更新订单为已取消（或删除）
+        orderMapper.updateStatus(orderNo, "CANCELLED");
+        return true;
+    }
 }
 
 // 全局事务发起方
 @Service
 public class OrderService {
-@Autowired
-private InventoryTccService inventoryTccService;
-@Autowired
-private OrderTccService orderTccService;
-@Autowired
-private AccountTccService accountTccService;
+    @Autowired
+    private InventoryTccService inventoryTccService;
+    @Autowired
+    private OrderTccService orderTccService;
+    @Autowired
+    private AccountTccService accountTccService;
 
-@GlobalTransactional(rollbackFor = Exception.class)  // 全局事务
-public void createOrder(String orderNo, Long userId, Long productId,
-Integer count, BigDecimal amount) {
-    // Try阶段：依次调用各服务的Try
-    inventoryTccService.tryFreeze(productId, count);
-    accountTccService.tryFreeze(userId, amount);
-    orderTccService.prepareCreateOrder(orderNo, userId, amount);
-    // 全部成功后，Seata TC自动调用各服务的Confirm
-    // 有异常则自动调用各服务的Cancel
-}
+    @GlobalTransactional(rollbackFor = Exception.class)  // 全局事务
+    public void createOrder(String orderNo, Long userId, Long productId,
+    Integer count, BigDecimal amount) {
+        // Try阶段：依次调用各服务的Try
+        inventoryTccService.tryFreeze(productId, count);
+        accountTccService.tryFreeze(userId, amount);
+        orderTccService.prepareCreateOrder(orderNo, userId, amount);
+        // 全部成功后，Seata TC自动调用各服务的Confirm
+        // 有异常则自动调用各服务的Cancel
+    }
 }
 ~~~
 
@@ -3961,43 +3962,43 @@ public class OrderSagaDefinition {
 // 每个步骤的实现
 @Service
 public class OrderSagaSteps {
-@Autowired
-private OrderService orderService;
-@Autowired
-private InventoryService inventoryService;
-@Autowired
-private PaymentService paymentService;
+    @Autowired
+    private OrderService orderService;
+    @Autowired
+    private InventoryService inventoryService;
+    @Autowired
+    private PaymentService paymentService;
 
-// T1：创建订单
-@SagaStep(action = "createOrder", compensation = "cancelOrder")
-public void createOrder(SagaContext context) {
-    Order order = orderService.create(context.getOrderRequest());
-    context.setOrderId(order.getId());
-}
-// C1：取消订单（补偿）
-public void cancelOrder(SagaContext context) {
-orderService.cancel(context.getOrderId());
-}
+    // T1：创建订单
+    @SagaStep(action = "createOrder", compensation = "cancelOrder")
+    public void createOrder(SagaContext context) {
+        Order order = orderService.create(context.getOrderRequest());
+        context.setOrderId(order.getId());
+    }
+    // C1：取消订单（补偿）
+    public void cancelOrder(SagaContext context) {
+        orderService.cancel(context.getOrderId());
+    }
 
-// T2：预留库存
-@SagaStep(action = "reserveInventory", compensation = "releaseInventory")
-public void reserveInventory(SagaContext context) {
-inventoryService.reserve(context.getProductId(), context.getCount());
-}
-// C2：释放库存
-public void releaseInventory(SagaContext context) {
-inventoryService.release(context.getProductId(), context.getCount());
-}
+    // T2：预留库存
+    @SagaStep(action = "reserveInventory", compensation = "releaseInventory")
+    public void reserveInventory(SagaContext context) {
+        inventoryService.reserve(context.getProductId(), context.getCount());
+    }
+    // C2：释放库存
+    public void releaseInventory(SagaContext context) {
+        inventoryService.release(context.getProductId(), context.getCount());
+    }
 
-// T3：扣款
-@SagaStep(action = "chargePayment", compensation = "refundPayment")
-public void chargePayment(SagaContext context) {
-paymentService.charge(context.getUserId(), context.getAmount());
-}
-// C3：退款
-public void refundPayment(SagaContext context) {
-paymentService.refund(context.getUserId(), context.getAmount());
-}
+    // T3：扣款
+    @SagaStep(action = "chargePayment", compensation = "refundPayment")
+    public void chargePayment(SagaContext context) {
+        paymentService.charge(context.getUserId(), context.getAmount());
+    }
+    // C3：退款
+    public void refundPayment(SagaContext context) {
+        paymentService.refund(context.getUserId(), context.getAmount());
+    }
 }
 ~~~
 
@@ -4091,48 +4092,48 @@ public class SagaExecutor {
             instanceMapper.update(instance);
             return;
         }
-}
-// 全部成功
-instance.setStatus("COMPLETED");
-instanceMapper.update(instance);
+    }
+    // 全部成功
+    instance.setStatus("COMPLETED");
+    instanceMapper.update(instance);
 }
 
 private void compensate(String sagaId, SagaDefinition definition, SagaContext context, int failedStep) {
-// 从失败步骤的前一步开始，按相反顺序补偿
-for (int i = failedStep - 1; i >= 0; i--) {
-    SagaStep step = definition.getSteps().get(i);
-    int retry = 0;
-    while (retry < 3) {  // 补偿失败重试3次
-        try {
-            step.getCompensation().execute(context);
-            stepLogMapper.insert(new SagaStepLog(sagaId, step.getName(), "COMPENSATION", "SUCCESS"));
-            break;
-        } catch (Exception e) {
-        retry++;
-        if (retry >= 3) {
-            // 补偿失败：记录，人工介入或定时任务重试
-            stepLogMapper.insert(new SagaStepLog(sagaId, step.getName(), "COMPENSATION", "FAILED"));
-            // 发送告警
-            alertService.sendAlert("SAGA补偿失败", sagaId, step.getName());
+    // 从失败步骤的前一步开始，按相反顺序补偿
+    for (int i = failedStep - 1; i >= 0; i--) {
+        SagaStep step = definition.getSteps().get(i);
+        int retry = 0;
+        while (retry < 3) {  // 补偿失败重试3次
+            try {
+                step.getCompensation().execute(context);
+                stepLogMapper.insert(new SagaStepLog(sagaId, step.getName(), "COMPENSATION", "SUCCESS"));
+                break;
+            } catch (Exception e) {
+            retry++;
+            if (retry >= 3) {
+                // 补偿失败：记录，人工介入或定时任务重试
+                stepLogMapper.insert(new SagaStepLog(sagaId, step.getName(), "COMPENSATION", "FAILED"));
+                // 发送告警
+                alertService.sendAlert("SAGA补偿失败", sagaId, step.getName());
+            }
         }
-}
-}
+    }
 }
 }
 
 // 定时任务：恢复宕机时未完成的SAGA
 @Scheduled(fixedRate = 30000)
 public void recoverRunningSagas() {
-List<SagaInstance> runningInstances = instanceMapper.selectByStatus("RUNNING");
-for (SagaInstance instance : runningInstances) {
-    // 从currentStep继续执行
-    executeFromStep(instance.getSagaId(), instance.getCurrentStep());
-}
-List<SagaInstance> compensatingInstances = instanceMapper.selectByStatus("COMPENSATING");
-for (SagaInstance instance : compensatingInstances) {
-// 继续补偿
-continueCompensation(instance.getSagaId());
-}
+    List<SagaInstance> runningInstances = instanceMapper.selectByStatus("RUNNING");
+    for (SagaInstance instance : runningInstances) {
+        // 从currentStep继续执行
+        executeFromStep(instance.getSagaId(), instance.getCurrentStep());
+    }
+    List<SagaInstance> compensatingInstances = instanceMapper.selectByStatus("COMPENSATING");
+    for (SagaInstance instance : compensatingInstances) {
+        // 继续补偿
+        continueCompensation(instance.getSagaId());
+    }
 }
 }
 ~~~
@@ -4315,37 +4316,37 @@ public void sendPendingMessages() {
 
 // 2. 直接发送+定时补偿（减少延迟）
 public void registerUser(UserRequest request) {
-String msgId = UUID.randomUUID().toString();
-// 1. 业务+消息表（本地事务）
-userService.registerWithMsg(request, msgId);
-// 2. 立即尝试发送MQ（减少延迟，不用等定时任务）
-try {
-    mq.send("user.register", buildMsg(request, msgId));
-    msgMapper.updateStatus(msgId, "SENT");
-} catch (Exception e) {
-// 发送失败没关系，定时任务会兜底
-log.warn("MQ发送失败，等待定时任务重试，msgId={}", msgId);
+    String msgId = UUID.randomUUID().toString();
+    // 1. 业务+消息表（本地事务）
+    userService.registerWithMsg(request, msgId);
+    // 2. 立即尝试发送MQ（减少延迟，不用等定时任务）
+    try {
+        mq.send("user.register", buildMsg(request, msgId));
+        msgMapper.updateStatus(msgId, "SENT");
+    } catch (Exception e) {
+    // 发送失败没关系，定时任务会兜底
+    log.warn("MQ发送失败，等待定时任务重试，msgId={}", msgId);
 }
 }
 
 // 3. 消息表清理（避免数据膨胀）
 @Scheduled(cron = "0 0 2 * * ?")  // 每天凌晨2点
 public void cleanSentMessages() {
-// 删除7天前已发送的消息
-msgMapper.deleteSentBefore(LocalDateTime.now().minusDays(7));
+    // 删除7天前已发送的消息
+    msgMapper.deleteSentBefore(LocalDateTime.now().minusDays(7));
 }
 
 // 4. 监控告警
 @Scheduled(fixedRate = 60000)
 public void monitorMessageBacklog() {
-long pendingCount = msgMapper.countByStatus("PENDING");
-if (pendingCount > 1000) {
-    alertService.sendAlert("消息表积压", "待发送消息数：" + pendingCount);
-}
-long failedCount = msgMapper.countByStatus("FAILED");
-if (failedCount > 0) {
-alertService.sendAlert("消息发送失败", "失败消息数：" + failedCount);
-}
+    long pendingCount = msgMapper.countByStatus("PENDING");
+    if (pendingCount > 1000) {
+        alertService.sendAlert("消息表积压", "待发送消息数：" + pendingCount);
+    }
+    long failedCount = msgMapper.countByStatus("FAILED");
+    if (failedCount > 0) {
+        alertService.sendAlert("消息发送失败", "失败消息数：" + failedCount);
+    }
 }
 ~~~
 
@@ -4396,19 +4397,19 @@ process(content);
 
 // 方式2：Redis SETNX
 public void onMessage(String msgId, String content) {
-Boolean firstTime = redisTemplate.opsForValue()
-.setIfAbsent("msg:consume:" + msgId, "1", 24, TimeUnit.HOURS);
-if (Boolean.FALSE.equals(firstTime)) return;  // 重复消息
-process(content);
+    Boolean firstTime = redisTemplate.opsForValue()
+    .setIfAbsent("msg:consume:" + msgId, "1", 24, TimeUnit.HOURS);
+    if (Boolean.FALSE.equals(firstTime)) return;  // 重复消息
+    process(content);
 }
 
 // 方式3：业务状态机（天然幂等）
 // 例：订单状态只能从 PENDING → PAID → SHIPPED → COMPLETED
 // 重复收到"支付成功"消息，订单已经是PAID，更新影响行数=0，直接返回
 public void handlePaymentSuccess(String orderNo) {
-int rows = orderMapper.updateStatusIf(orderNo, "PAID", "PENDING");
-if (rows == 0) return;  // 状态不匹配，可能是重复消息
-// 后续逻辑
+    int rows = orderMapper.updateStatusIf(orderNo, "PAID", "PENDING");
+    if (rows == 0) return;  // 状态不匹配，可能是重复消息
+    // 后续逻辑
 }
 ~~~
 
