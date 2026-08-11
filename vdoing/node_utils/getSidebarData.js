@@ -184,10 +184,7 @@ function mapTocToSidebar(root, collapsable, prefix = '') {
       if (pageComponent && pageComponent.name === "Catalogue") {
         // 优先使用frontmatter中的title，其次用文件名提取的title
         catalogueData[data.title || title] = permalink
-      }
-
-      // 跳过目录页文件（00.index.md），它们不应出现在侧边栏中
-      if (filename === '00.index.md') {
+        // 跳过目录页文件，它们不应出现在侧边栏中
         return
       }
 
