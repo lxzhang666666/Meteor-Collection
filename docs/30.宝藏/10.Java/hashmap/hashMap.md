@@ -376,7 +376,7 @@ public boolean replace(K key, V oldValue, V newValue) {
 
 ## 红黑树特性
 
-[红黑树.webp](../../../assets/hashMap/%E7%BA%A2%E9%BB%91%E6%A0%91.webp)  
+[红黑树.webp](../../assets/hashMap/%E7%BA%A2%E9%BB%91%E6%A0%91.webp)  
 ![红黑树](https://testingcf.jsdelivr.net/gh/lxzhang666666/img-bed@main/images/%E7%BA%A2%E9%BB%91%E6%A0%91.webp)
 1. 每个节点要么是黑色 要么是红色
 2. 跟节点是黑色
@@ -395,7 +395,7 @@ public boolean replace(K key, V oldValue, V newValue) {
 
 ## 注意debug验证 HashMap 扩容 树化 退树时 需要配置debug
 需要关闭以下配置
-![HashMap-debug配置.png](../../../assets/hashMap/HashMap-debug%E9%85%8D%E7%BD%AE.png)
+![HashMap-debug配置.png](../../assets/hashMap/HashMap-debug%E9%85%8D%E7%BD%AE.png)
 
 > 需要保证 key的hashcode相同 这样才能制造hash冲突
 
@@ -433,21 +433,21 @@ public boolean replace(K key, V oldValue, V newValue) {
 
 验证jdk8 尾插法
 
-![验证尾插法.png](../../../assets/hashMap/%E9%AA%8C%E8%AF%81%E5%B0%BE%E6%8F%92%E6%B3%95.png)
+![验证尾插法.png](../../assets/hashMap/%E9%AA%8C%E8%AF%81%E5%B0%BE%E6%8F%92%E6%B3%95.png)
 
 验证jdk8 尾插法 可见第二个元素 放到了了next上 方便后续树化
 
-![验证尾插法视图.png](../../../assets/hashMap/%E9%AA%8C%E8%AF%81%E5%B0%BE%E6%8F%92%E6%B3%95%E8%A7%86%E5%9B%BE.png)
+![验证尾插法视图.png](../../assets/hashMap/%E9%AA%8C%E8%AF%81%E5%B0%BE%E6%8F%92%E6%B3%95%E8%A7%86%E5%9B%BE.png)
 
 树化
 
-![树化.png](../../../assets/hashMap/%E6%A0%91%E5%8C%96.png)
-![树化时链表个数.png](../../../assets/hashMap/%E6%A0%91%E5%8C%96%E6%97%B6%E9%93%BE%E8%A1%A8%E4%B8%AA%E6%95%B0.png)
-![树化隐藏为null的元素.png](../../../assets/hashMap/%E6%A0%91%E5%8C%96%E9%9A%90%E8%97%8F%E4%B8%BAnull%E7%9A%84%E5%85%83%E7%B4%A0.png)
+![树化.png](../../assets/hashMap/%E6%A0%91%E5%8C%96.png)
+![树化时链表个数.png](../../assets/hashMap/%E6%A0%91%E5%8C%96%E6%97%B6%E9%93%BE%E8%A1%A8%E4%B8%AA%E6%95%B0.png)
+![树化隐藏为null的元素.png](../../assets/hashMap/%E6%A0%91%E5%8C%96%E9%9A%90%E8%97%8F%E4%B8%BAnull%E7%9A%84%E5%85%83%E7%B4%A0.png)
 
 退树
 
-![退树.png](../../../assets/hashMap/%E9%80%80%E6%A0%91.png)
-![退树时元素个数.png](../../../assets/hashMap/%E9%80%80%E6%A0%91%E6%97%B6%E5%85%83%E7%B4%A0%E4%B8%AA%E6%95%B0.png)
-![退树隐藏为null的元素.png](../../../assets/hashMap/%E9%80%80%E6%A0%91%E9%9A%90%E8%97%8F%E4%B8%BAnull%E7%9A%84%E5%85%83%E7%B4%A0.png)
+![退树.png](../../assets/hashMap/%E9%80%80%E6%A0%91.png)
+![退树时元素个数.png](../../assets/hashMap/%E9%80%80%E6%A0%91%E6%97%B6%E5%85%83%E7%B4%A0%E4%B8%AA%E6%95%B0.png)
+![退树隐藏为null的元素.png](../../assets/hashMap/%E9%80%80%E6%A0%91%E9%9A%90%E8%97%8F%E4%B8%BAnull%E7%9A%84%E5%85%83%E7%B4%A0.png)
 
