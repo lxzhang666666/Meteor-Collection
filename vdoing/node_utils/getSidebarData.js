@@ -155,11 +155,6 @@ function mapTocToSidebar(root, collapsable, prefix = '') {
     }
     const hasOrder = order !== '' && !isNaN(order) && order >= 0;
 
-    // 跳过目录页文件（00.index.md），它们不应出现在侧边栏中
-    if (!isDir && filename === '00.index.md') {
-      return
-    }
-
     // 构建完整路径前缀
     const fullPath = prefix + filename;
 
@@ -189,6 +184,11 @@ function mapTocToSidebar(root, collapsable, prefix = '') {
       if (pageComponent && pageComponent.name === "Catalogue") {
         // 优先使用frontmatter中的title，其次用文件名提取的title
         catalogueData[data.title || title] = permalink
+      }
+
+      // 跳过目录页文件（00.index.md），它们不应出现在侧边栏中
+      if (filename === '00.index.md') {
+        return
       }
 
       if (data.title) {
