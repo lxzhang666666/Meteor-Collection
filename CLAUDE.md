@@ -98,6 +98,10 @@ yarn baiduPush <域名>
 - 社交图标：邮件、GitHub、CSDN
 - 页脚：创建年份 2022，版权信息
 
+## Git 提交规范
+
+提交代码时使用 `/git-commit` 技能，会自动分析暂存区变更并生成符合 Conventional Commits 规范的 commit message。
+
 ## 注意事项
 
 - 编辑笔记时确保 front matter 中 `permalink` 字段正确设置（控制百度推送的 URL）
