@@ -63,17 +63,74 @@ export default [
     { text: '宝藏', link: '/collection/',
       items: [
         {
-          text: 'Java 相关',
+          text: 'Java',
           link: '/collection/java/',
           items: [
             { text: 'Java', link: '/pages/920601/' },
-            { text: 'Java枚举', link: '/pages/913977/' },
+            { text: '枚举', link: '/pages/913977/' },
             { text: 'HashMap', link: '/pages/7640d6/' },
             { text: '红黑树', link: '/pages/b6a3c6/' },
-            { text: 'Maven', link: '/pages/50a3fd/' },
+          ],
+        },
+        {
+          text: '计算机基础',
+          link: '/collection/cs/',
+          items: [
+            { text: '计算机网络', link: '/pages/4e9070/' },
+            { text: '操作系统', link: '/pages/27935a/' },
+            { text: 'Linux', link: '/pages/a766e8/' },
+          ],
+        },
+        {
+          text: '框架',
+          link: '/collection/framework/',
+          items: [
             { text: 'Spring', link: '/pages/c3caec/' },
             { text: 'SpringBoot', link: '/pages/daa799/' },
             { text: 'MyBatis-Plus', link: '/pages/94af7d/' },
+          ],
+        },
+        {
+          text: '中间件',
+          link: '/collection/middleware/',
+          items: [
+            { text: 'MySQL', link: '/pages/80c0db/' },
+            { text: 'Redis', link: '/pages/e34ed7/' },
+            { text: 'Elasticsearch', link: '/pages/12c11d/' },
+            { text: 'Kibana', link: '/pages/95ca7d/' },
+            { text: 'Logstash', link: '/pages/d7861d/' },
+            { text: 'ELK', link: '/pages/0da7a3/' },
+            { text: 'Nginx', link: '/pages/395030/' },
+          ],
+        },
+        {
+          text: '微服务',
+          link: '/collection/microservice/',
+          items: [
+            { text: 'Nacos', link: '/pages/3cd2b1/' },
+            { text: 'Zookeeper', link: '/pages/9e7ab2/' },
+          ],
+        },
+        {
+          text: '消息队列',
+          link: '/collection/mq/',
+          items: [
+            { text: 'Kafka', link: '/pages/e154af/' },
+            { text: 'RabbitMQ', link: '/pages/430f07/' },
+          ],
+        },
+        {
+          text: '数据结构与算法',
+          link: '/collection/ds-algo/',
+          items: [
+            { text: '数据结构', link: '/pages/6c6c61/' },
+            { text: '红黑树', link: '/pages/8ea3f8/' },
+            { text: '算法复杂度', link: '/pages/7f453c/' },
+            { text: '排序算法', link: '/pages/5830fa/' },
+            { text: '背包问题', link: '/pages/671288/' },
+            { text: '并查集', link: '/pages/457448/' },
+            { text: '最小生成树', link: '/pages/5951ec/' },
+            { text: '最短路径', link: '/pages/1f3b89/' },
           ],
         },
         {
@@ -84,18 +141,16 @@ export default [
             { text: 'Git', link: '/pages/095d29/' },
             { text: 'GitLab', link: '/pages/263c7e/' },
             { text: 'Jenkins', link: '/pages/4c06f3/' },
+            { text: 'Maven', link: '/pages/50a3fd/' },
+            { text: 'Ignore', link: '/pages/68370b/' },
           ],
         },
         {
-          text: '数据库',
-          link: '/collection/database/',
+          text: '开发工具',
+          link: '/collection/tools/',
           items: [
-            { text: 'MySQL', link: '/pages/80c0db/' },
-            { text: 'Redis', link: '/pages/e34ed7/' },
-            { text: 'Elasticsearch', link: '/pages/12c11d/' },
-            { text: 'Kibana', link: '/pages/95ca7d/' },
-            { text: 'Logstash', link: '/pages/d7861d/' },
-            { text: 'ELK', link: '/pages/0da7a3/' },
+            { text: 'IDEA', link: '/pages/57681c/' },
+            { text: 'Node.js', link: '/pages/eec41d/' },
           ],
         },
         {
@@ -104,26 +159,17 @@ export default [
           items: [
             { text: 'Clash', link: '/pages/9888bf/' },
             { text: 'Frp', link: '/pages/921198/' },
-            { text: 'Nginx', link: '/pages/395030/' },
             { text: '内网穿透', link: '/pages/af261e/' },
           ],
         },
         {
-          text: '其他工具',
+          text: '其他',
           link: '/collection/others/',
           items: [
-            { text: 'Zookeeper', link: '/pages/9e7ab2/' },
-            { text: 'Nacos', link: '/pages/3cd2b1/' },
-            { text: 'Kafka', link: '/pages/e154af/' },
-            { text: 'RabbitMQ', link: '/pages/430f07/' },
-            { text: 'IDEA', link: '/pages/57681c/' },
             { text: 'Markdown', link: '/pages/ef9a4f/' },
-            { text: 'Node.js', link: '/pages/eec41d/' },
           ],
         },
       ],
-    },
-    { text: '快速笔记', link: '/快速笔记/'
     },
     { text: '配置及工具', link: '/tools/',
       items: [
