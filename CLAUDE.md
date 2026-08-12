@@ -107,9 +107,32 @@ yarn baiduPush <域名>
 仓库使用 GitHub Actions（`.github/workflows/ci.yml`）在 `push` 到 `master` 时触发构建部署。
 工作流会检查 commit message 是否包含 `[deploy]` 标记：**有则部署，无则跳过**。
 
-**提交时务必询问用户是否需要触发部署：**
-- 需要部署 → commit message 中加入 `[deploy]`，例如 `[deploy] docs: xxx`
-- 不需要部署 → 不加标记，正常提交
+**⚠️ 红线：每次提交代码前，必须先询问用户是否需要触发部署，不得自行决定。**
+
+执行流程：
+1. 完成代码修改后，展示本次提交的变更摘要
+2. 明确询问用户："这个提交需要触发部署吗？"
+3. 等待用户明确回复（需要/不需要）
+4. 根据用户回复决定是否添加 `[deploy]` 标记
+5. 执行 git commit
+
+**禁止行为：**
+- 未经询问直接提交包含 `[deploy]` 标记的 commit
+- 未经询问直接执行 `git push`
+- 假设用户想要部署而自行添加 `[deploy]`
+
+正确示例：
+```
+✅ "已修改了 package.json 移除了不需要的脚本。这个提交需要触发部署吗？"
+✅ 用户回答"需要" → git commit -m "[deploy] fix(config): ..."
+✅ 用户回答"不需要" → git commit -m "fix(config): ..."
+```
+
+错误示例：
+```
+❌ 直接执行 git commit -m "[deploy] fix: xxx" （未询问用户）
+❌ 直接执行 git push origin master （未告知用户）
+```
 
 ## 技能使用规范
 
