@@ -18,11 +18,12 @@ jobs:
         node-version: [14.x] # 使用 Node.js 14.x 版本
 
     steps:
-      # 步骤1：拉取代码
+      # 步骤1：拉取代码（拉取完整历史，确保 git log 能正常工作）
       - name: Checkout
         uses: actions/checkout@v3
         with:
           persist-credentials: false # 不持久化 Git 凭证
+          fetch-depth: 0 # 拉取所有 commit 历史
 
       # 步骤2：配置 Git 用户信息
       - name: Configure Git
@@ -36,12 +37,16 @@ jobs:
       - name: Check deploy marker
         id: check
         run: |
-          # 获取本次 push 的最近 10 条 commit message
-          MSGS=$(git log $(git merge-base HEAD~10 origin/master)..HEAD --pretty=format:'%s' 2>/dev/null || git log --pretty=format:'%s' -10)
-          echo "Commit messages received:"
-          echo "$MSGS"
+          # 找出本次 push 新增的 commit（与 origin/master 的对比范围）
+          NEW_COMMITS=$(git log origin/master..HEAD --pretty=format:'%s' 2>/dev/null)
+          # 若对比失败（首次 push），则取最近 10 条作为备选
+          if [ -z "$NEW_COMMITS" ]; then
+            NEW_COMMITS=$(git log --pretty=format:'%s' -10 2>/dev/null)
+          fi
+          echo "New commit messages:"
+          echo "$NEW_COMMITS"
           # 检查 message 中是否包含 [deploy] 标记
-          if echo "$MSGS" | grep -q '\[deploy\]'; then
+          if echo "$NEW_COMMITS" | grep -q '\[deploy\]'; then
             echo "trigger=true" >> $GITHUB_OUTPUT
             echo "✅ 检测到 [deploy] 标记，开始构建部署"
           else
