@@ -1,3 +1,16 @@
+---
+title: Spring 事务底层全解析
+date: 2026-08-09 14:56:24
+permalink: /pages/1774ff/
+categories:
+  - 后端
+  - Collection
+tags: []
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
+
 # Spring @Transactional 事务底层全解析：TransactionInterceptor 完整源码拆解 + 执行链路 + 高频面试题
 
 ## 前置整体架构总览

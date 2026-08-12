@@ -1,3 +1,16 @@
+---
+title: Spring 循环依赖三级缓存源码
+date: 2026-08-09 14:56:24
+permalink: /pages/cc005f/
+categories:
+  - 后端
+  - Collection
+tags: []
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
+
 # Spring IoC 循环依赖 三级缓存 完整源码级拆解（独立模块）
 
 ## 1. 先明确概念

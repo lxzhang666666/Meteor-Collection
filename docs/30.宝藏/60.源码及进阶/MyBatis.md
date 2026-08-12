@@ -1,3 +1,16 @@
+---
+title: MyBatis 核心源码解析
+date: 2026-08-09 14:56:24
+permalink: /pages/276aed/
+categories:
+  - 后端
+  - Collection
+tags: []
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
+
 # MyBatis 三大核心深度源码解析
 
 ## 一、MyBatis Mapper 动态代理完整源码（MapperProxy、MapperProxyFactory）

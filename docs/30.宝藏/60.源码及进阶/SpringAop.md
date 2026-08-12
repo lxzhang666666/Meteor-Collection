@@ -1,3 +1,16 @@
+---
+title: Spring AOP 源码深度解析
+date: 2026-08-09 14:56:24
+permalink: /pages/8cc949/
+categories:
+  - 后端
+  - Collection
+tags: []
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
+
 # Spring AOP JDK动态代理 & CGLIB代理 完整源码拆解 + 选择判定逻辑 + 面试深度题
 
 ## 前置核心基础

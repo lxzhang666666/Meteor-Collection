@@ -1,3 +1,16 @@
+---
+title: ThreadPoolExecutor 线程池源码解析
+date: 2026-08-09 14:56:24
+permalink: /pages/fb0ea5/
+categories:
+  - 后端
+  - Collection
+tags: []
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
+
 # ThreadPoolExecutor 线程池 完整源码级深度解析（独立模块）
 
 ## 1. 类顶层结构与核心成员变量（JDK8）

@@ -1,3 +1,16 @@
+---
+title: Sharding-JDBC 完整解析
+date: 2026-08-09 14:56:24
+permalink: /pages/68cdfe/
+categories:
+  - 后端
+  - Collection
+tags: []
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
+
 # Sharding-JDBC 完整版深度解析（全案例+表结构+配置+跨表JOIN落地+源码+面试）
 
 ## 总大纲

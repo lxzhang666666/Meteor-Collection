@@ -1,3 +1,16 @@
+---
+title: HashMap 与 ConcurrentHashMap 源码解析
+date: 2026-08-09 14:56:24
+permalink: /pages/d53a9f/
+categories:
+  - 后端
+  - Collection
+tags: []
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
+
 # JDK8 HashMap 与 ConcurrentHashMap 完整源码深度解析 + 高频面试题大全
 
 ## 总前置基础

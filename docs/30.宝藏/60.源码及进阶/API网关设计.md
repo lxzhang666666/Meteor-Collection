@@ -1,3 +1,16 @@
+---
+title: API 网关设计
+date: 2026-08-09 14:56:24
+permalink: /pages/efecf3/
+categories:
+  - 后端
+  - Collection
+tags: []
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
+
 # 高可用企业级API网关完整架构设计（生产落地版）
 ## 一、需求背景与设计目标
 ### 1. 业务定位
