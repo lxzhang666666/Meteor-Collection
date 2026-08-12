@@ -34,8 +34,6 @@ export default [
                     {text: 'MySQL', link: '/pages/23bee8/'},
                     {text: 'Redis', link: '/pages/258dd8/'},
                     {text: 'MQ', link: '/pages/6bb532/'},
-                    {text: 'Zookeeper', link: '/pages/d3943f/'},
-                    {text: 'Git', link: '/pages/a1762f/'},
                 ],
             },
             {
@@ -96,7 +94,6 @@ export default [
                     {text: 'Redis', link: '/pages/e34ed7/'},
                     {text: 'Nginx', link: '/pages/395030/'},
                     {text: 'Kafka', link: '/pages/e154af/'},
-                    {text: 'RabbitMQ', link: '/pages/430f07/'},
                 ],
             },
             {
@@ -111,10 +108,7 @@ export default [
                 link: '/collection/sd-advance/',
                 items: [
                     {text: 'Spring 循环依赖三级缓存源码', link: '/pages/cc005f/'},
-                    {text: 'Spring AOP 源码深度解析', link: '/pages/8cc949/'},
-                    {text: 'HashMap 与 ConcurrentHashMap 源码解析', link: '/pages/d53a9f/'},
                     {text: 'Java JUC 核心类深度源码解析', link: '/pages/d3aa38/'},
-                    {text: '自研 RPC 框架架构设计', link: '/pages/441515/'},
                     {text: '分布式秒杀系统设计', link: '/pages/99a556/'},
                     {text: '高并发短链接系统设计', link: '/pages/0b8a9c/'},
                 ],
@@ -133,9 +127,6 @@ export default [
                 items: [
                     {text: '算法复杂度', link: '/pages/7f453c/'},
                     {text: '排序算法', link: '/pages/5830fa/'},
-                    {text: '背包问题', link: '/pages/671288/'},
-                    {text: '并查集', link: '/pages/457448/'},
-                    {text: '最小生成树', link: '/pages/5951ec/'},
                     {text: '最短路径', link: '/pages/1f3b89/'},
                 ],
             },
