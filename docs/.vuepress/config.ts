@@ -190,6 +190,7 @@ export default defineConfig4CustomTheme<VdoingThemeConfig>({
     ['link', { rel: 'stylesheet', href: '//at.alicdn.com/t/font_3114978_qe0b39no76.css' }], // 代码块折叠需要的图标，别人的cdn
     ['meta', { name: 'referrer', content: 'no-referrer-when-downgrade' }],  // 占中统计需要修改的地方，防止Chrome保护隐私统计数据错误
     ['script', { src: 'https://lib.baomitu.com/twikoo/1.5.11/twikoo.all.min.js' }],  // twikoo依赖
+    ['script', { src: 'https://cdn.jsdelivr.net/npm/marked@9/marked.min.js' }],  // ArticleEditor 依赖
     // [
     //   'script',
     //   {
@@ -308,7 +309,7 @@ export default defineConfig4CustomTheme<VdoingThemeConfig>({
     [
     	{
         	name: 'custom-plugins', // 自定义插件：网站信息统计、修改代码块显示
-        	globalUIComponents: ["PageInfo", "BlockToggle", "Twikoo"] // ArticleEditor 将在后续任务中添加
+        	globalUIComponents: ["PageInfo", "BlockToggle", "Twikoo", "ArticleEditor"]
     	}
     ],
     require('./plugins/fix-chinese-image'), // 修复含中文图片路径被 URL 编码的问题
