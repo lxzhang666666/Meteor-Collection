@@ -18,35 +18,28 @@ jobs:
         node-version: [14.x] # 使用 Node.js 14.x 版本
 
     steps:
-      # 步骤1：拉取代码（拉取完整历史，确保 git log 能正常工作）
+      # 步骤1：拉取代码（只需1条commit，快速获取本次push的文件）
       - name: Checkout
         uses: actions/checkout@v3
         with:
           persist-credentials: false # 不持久化 Git 凭证
-          fetch-depth: 0 # 拉取所有 commit 历史
+          fetch-depth: 1 # 只拉取最新1条commit，节省时间和存储
 
-      # 步骤2：配置 Git 用户信息
-      - name: Configure Git
-        run: |
-          git config --global user.name "lxzhang666666"
-          git config --global user.email "1870287706@qq.com"
-          git config --global credential.helper ""
-          git config --global url."https://github.com/".insteadOf "git@github.com:"
-
-      # 步骤3：检查本次 push 的 commit message 是否包含 [deploy] 标记
+      # 步骤2：检查本次 push 的 commit message 是否包含 [deploy] 标记
       - name: Check deploy marker
         id: check
         run: |
-          # 找出本次 push 新增的 commit（与 origin/master 的对比范围）
-          NEW_COMMITS=$(git log origin/master..HEAD --pretty=format:'%s' 2>/dev/null)
-          # 若对比失败（首次 push），则取最近 10 条作为备选
-          if [ -z "$NEW_COMMITS" ]; then
-            NEW_COMMITS=$(git log --pretty=format:'%s' -10 2>/dev/null)
+          # 获取本次 push 的 commit message
+          # ${{ github.event.after }} 是当前 push 的 HEAD，固定为 40 位完整 SHA
+          MSGS=$(git log --format='%s' "${{ github.event.before }}".."${{ github.event.after }}" 2>/dev/null)
+          # 若为空（首次 push），fallback 到最近 1 条
+          if [ -z "$MSGS" ]; then
+            MSGS=$(git log --format='%s' -1 2>/dev/null)
           fi
-          echo "New commit messages:"
-          echo "$NEW_COMMITS"
+          echo "This push commit messages:"
+          echo "$MSGS"
           # 检查 message 中是否包含 [deploy] 标记
-          if echo "$NEW_COMMITS" | grep -q '\[deploy\]'; then
+          if echo "$MSGS" | grep -q '\[deploy\]'; then
             echo "trigger=true" >> $GITHUB_OUTPUT
             echo "✅ 检测到 [deploy] 标记，开始构建部署"
           else
@@ -54,23 +47,28 @@ jobs:
             echo "⏭️ 未检测到 [deploy] 标记，跳过部署"
           fi
 
-      # 步骤4：安装 Node.js（仅在有 [deploy] 标记时执行）
+      # 步骤3：安装 Node.js（仅在有 [deploy] 标记时执行）
       - name: Use Node.js
         if: steps.check.outputs.trigger == 'true'
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
 
-      # 步骤5：安装依赖并构建静态文件（仅在有 [deploy] 标记时执行）
+      # 步骤4：安装依赖并构建静态文件（仅在有 [deploy] 标记时执行）
       - name: Install & Build
         if: steps.check.outputs.trigger == 'true'
         run: |
           npm install
           npm run build
 
-      # 步骤6：部署到 gh-pages 分支（仅在有 [deploy] 标记时执行）
+      # 步骤5：配置 Git 用户信息并部署到 gh-pages 分支（仅在有 [deploy] 标记时执行）
       - name: Deploy to gh-pages
         if: steps.check.outputs.trigger == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-        run: npm run deploy
+        run: |
+          git config --global user.name "lxzhang666666"
+          git config --global user.email "1870287706@qq.com"
+          git config --global credential.helper ""
+          git config --global url."https://github.com/".insteadOf "git@github.com:"
+          npm run deploy
