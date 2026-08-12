@@ -308,7 +308,7 @@ export default defineConfig4CustomTheme<VdoingThemeConfig>({
     [
     	{
         	name: 'custom-plugins', // 自定义插件：网站信息统计、修改代码块显示
-        	globalUIComponents: ["PageInfo", "BlockToggle", "Twikoo"] // 2.x 版本 globalUIComponents 改名为 clientAppRootComponentFiles
+        	globalUIComponents: ["PageInfo", "BlockToggle", "Twikoo"] // ArticleEditor 将在后续任务中添加
     	}
     ],
     require('./plugins/fix-chinese-image'), // 修复含中文图片路径被 URL 编码的问题
