@@ -1,46 +1,71 @@
-name: CI
+name: CI # 工作流名称
 
-#on: [push]
-
-# 在 master 分支发生 push 事件时触发。
-on: 
+# master 分支发生 push 时触发
+on:
   push:
     branches:
       - master
 
 env: # 设置环境变量
-  TZ: Asia/Shanghai # 时区（设置时区可使页面中的 最近更新时间 使用时区时间）
+  TZ: Asia/Shanghai # 时区（设置时区可使页面中的最近更新时间使用时区时间）
 
-jobs: # 工作流
-  build: # 自定义名称
-    runs-on: ubuntu-latest # 必填，运行在虚拟机环境 ubuntu-latest
+jobs:
+  deploy:
+    runs-on: ubuntu-latest # 运行环境为最新版的 Ubuntu
 
     strategy:
       matrix:
-        node-version: [14.x]
+        node-version: [14.x] # 使用 Node.js 14.x 版本
 
-    steps: # 步骤1
-      - name: Checkout # 步骤1，拉取代码
-      # 使用的动作。格式：userName/repoName。作用：检出仓库，获取源码。 官方actions库：https://github.com/actions
-        uses: actions/checkout@v1
+    steps:
+      # 步骤1：拉取代码
+      - name: Checkout
+        uses: actions/checkout@v3
         with:
-          persist-credentials: false
+          persist-credentials: false # 不持久化 Git 凭证
 
-      - name: Configure Git # 配置 Git 用户信息
+      # 步骤2：配置 Git 用户信息
+      - name: Configure Git
         run: |
           git config --global user.name "lxzhang666666"
           git config --global user.email "1870287706@qq.com"
-          # 禁用凭证助手，使用内嵌 token 进行认证
           git config --global credential.helper ""
-          # 将 SSH 地址转换为 HTTPS
           git config --global url."https://github.com/".insteadOf "git@github.com:"
 
-      - name: Use Node.js ${{ matrix.node-version }} # 步骤2
-        uses: actions/setup-node@v1 # 作用：安装nodejs
-        with:
-          node-version: ${{ matrix.node-version }} # 版本
+      # 步骤3：检查本次 push 的 commit message 是否包含 [deploy] 标记
+      - name: Check deploy marker
+        id: check
+        run: |
+          # 获取本次 push 的最近 10 条 commit message
+          MSGS=$(git log $(git merge-base HEAD~10 origin/master)..HEAD --pretty=format:'%s' 2>/dev/null || git log --pretty=format:'%s' -10)
+          echo "Commit messages received:"
+          echo "$MSGS"
+          # 检查 message 中是否包含 [deploy] 标记
+          if echo "$MSGS" | grep -q '\[deploy\]'; then
+            echo "trigger=true" >> $GITHUB_OUTPUT
+            echo "✅ 检测到 [deploy] 标记，开始构建部署"
+          else
+            echo "trigger=false" >> $GITHUB_OUTPUT
+            echo "⏭️ 未检测到 [deploy] 标记，跳过部署"
+          fi
 
-      - name: run deploy.sh # 步骤3：执行脚本 deploy.sh
-        env: # 设置环境变量，未设置则不运行
-          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }} # token
-        run: npm install && npm run deploy  # 执行 deploy.sh 脚本，位于项目根目录
+      # 步骤4：安装 Node.js（仅在有 [deploy] 标记时执行）
+      - name: Use Node.js
+        if: steps.check.outputs.trigger == 'true'
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      # 步骤5：安装依赖并构建静态文件（仅在有 [deploy] 标记时执行）
+      - name: Install & Build
+        if: steps.check.outputs.trigger == 'true'
+        run: |
+          npm install
+          npm run build
+
+      # 步骤6：部署到 gh-pages 分支（仅在有 [deploy] 标记时执行）
+      - name: Deploy to gh-pages
+        if: steps.check.outputs.trigger == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        run: npm run deploy
