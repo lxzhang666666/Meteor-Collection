@@ -92,15 +92,9 @@ export default {
     showComponent() {
       // 仅在文章页显示：排除首页、article: false 的页面、404 页面
       if (this.$route.path === '/') return false
-      if (this.isFourZeroFour(this.$route)) return false
-      // 查找当前页面的 frontmatter
-      let articleFlag = true
-      this.$site.pages.forEach((page) => {
-        if (page.path === this.$route.path) {
-          articleFlag = page.frontmatter.article !== false
-        }
-      })
-      return articleFlag
+      // 如果 frontmatter 中 article 为 false，则不显示
+      if (this.$frontmatter.article === false) return false
+      return true
     },
     renderedContent() {
       if (typeof window.marked === 'function') {
