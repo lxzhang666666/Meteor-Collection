@@ -65,9 +65,7 @@
 
 <script>
 // ====== 配置区 ======
-// 部署后替换为实际的 Vercel API 地址
-// 例如：'https://meteor-blog.vercel.app'
-const API_BASE = typeof __VUE_API_BASE__ !== 'undefined' ? __VUE_API_BASE__ : '__API_BASE__'
+const API_BASE = 'https://meteor-collection.vercel.app'
 const DEFAULT_PASSWORD = 'meteor2024'
 
 // 默认文章模板
