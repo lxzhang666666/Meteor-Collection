@@ -102,6 +102,15 @@ yarn baiduPush <域名>
 
 提交代码时使用 `/git-commit` 技能，会自动分析暂存区变更并生成符合 Conventional Commits 规范的 commit message。
 
+### 部署控制（[deploy] 标记）
+
+仓库使用 GitHub Actions（`.github/workflows/ci.yml`）在 `push` 到 `master` 时触发构建部署。
+工作流会检查 commit message 是否包含 `[deploy]` 标记：**有则部署，无则跳过**。
+
+**提交时务必询问用户是否需要触发部署：**
+- 需要部署 → commit message 中加入 `[deploy]`，例如 `[deploy] docs: xxx`
+- 不需要部署 → 不加标记，正常提交
+
 ## 技能使用规范
 
 每次对话开始前，必须先调用 `using-superpowers` 技能（`/using-superpowers`），以确保正确加载技能使用规则。
