@@ -64,7 +64,7 @@
 </template>
 
 <script>
-const API_BASE = '__API_BASE__'
+const API_BASE = typeof __VUE_API_BASE__ !== 'undefined' ? __VUE_API_BASE__ : '__API_BASE__'
 const DEFAULT_PASSWORD = 'meteor2024'
 
 // 默认文章模板
