@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "node scripts/patch-theme.js && vuepress dev docs",
-    "build": "node scripts/replace-api-base.js && node scripts/patch-theme.js && vuepress build docs",
+    "build": "node scripts/patch-theme.js && vuepress build docs",
     "deploy": "bash deploy.sh",
     "editFm": "node utils/editFrontmatter.js",
     "publish": "cd ./vdoing && npm publish && cd .. && yarn updateTheme",
