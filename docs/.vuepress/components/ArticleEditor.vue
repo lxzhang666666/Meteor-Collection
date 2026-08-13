@@ -1,10 +1,15 @@
 <template>
-  <div class="article-editor" v-show="showComponent">
+  <div
+    class="article-editor"
+    :style="{ bottom: pos.bottom + 'px', right: pos.right + 'px' }"
+    v-show="showComponent"
+    @mousedown.self="startDrag"
+  >
     <!-- 悬浮按钮 -->
     <button
       class="ae-toggle-btn"
       :class="{ 'ae-active': isOpen }"
-      @click="toggleEditor"
+      @click="!dragging && toggleEditor()"
     >
       {{ isOpen ? "✕" : "✏️" }}
     </button>
@@ -12,29 +17,13 @@
     <!-- 编辑面板 -->
     <div class="ae-panel" v-show="isOpen">
       <!-- 头部 -->
-      <div class="ae-header">
+      <div class="ae-header" @mousedown.self="startDrag">
         <span class="ae-title">编辑文章</span>
         <button class="ae-close" @click="closePanel">×</button>
       </div>
 
-      <!-- 密码输入（未认证时显示） -->
-      <div class="ae-auth" v-if="!authenticated">
-        <input
-          v-model="password"
-          type="password"
-          placeholder="请输入编辑密码"
-          class="ae-input"
-          @keyup.enter="checkPassword"
-        />
-        <button class="ae-btn ae-confirm" @click="checkPassword" :disabled="checking">
-          {{ checking ? '验证中...' : '确认' }}
-        </button>
-        <p class="ae-hint">密码由博主提供</p>
-        <p v-if="saveStatus" class="ae-status">{{ saveStatus }}</p>
-      </div>
-
-      <!-- 编辑表单（已认证后显示） -->
-      <div class="ae-form" v-else>
+      <!-- 编辑表单 -->
+      <div class="ae-form">
         <input
           v-model="article.title"
           class="ae-input ae-title-input"
@@ -58,7 +47,7 @@
       </div>
 
       <!-- 预览区 -->
-      <div class="ae-preview" v-if="authenticated && !editing">
+      <div class="ae-preview" v-if="!editing">
         <div class="ae-preview-header">预览</div>
         <div v-html="renderedContent" class="ae-preview-content"></div>
       </div>
@@ -69,7 +58,6 @@
 <script>
 // ====== 配置区 ======
 const API_BASE = 'https://meteor-collection.vercel.app'
-const DEFAULT_PASSWORD = 'meteor5201314'
 
 // 默认文章模板
 const DEFAULT_ARTICLE = {
@@ -82,23 +70,22 @@ export default {
   data() {
     return {
       isOpen: false,
-      authenticated: false,
-      password: '',
-      checking: false,
       saving: false,
       saveStatus: '',
       article: { ...DEFAULT_ARTICLE },
       rawContent: '',
       editing: false,
+      writeKey: '',   // 用户输入的写入密钥（仅用于 POST）
+      showKeyInput: false, // 是否显示密钥输入框
+      pos: { bottom: 40, right: 40 }, // 按钮位置（距底部、右侧像素）
+      dragging: false,
     }
   },
   computed: {
     showComponent() {
-      // 仅在文章页显示：排除首页、article: false 的页面、404 页面
+      // 仅在标注了 source: db 的动态文章页面显示编辑按钮
       if (this.$route.path === '/') return false
-      // 如果 frontmatter 中 article 为 false，则不显示
       if (this.$frontmatter.article === false) return false
-      // 只在标注了 source: db 的动态文章页面显示编辑按钮
       if (this.$frontmatter.source !== 'db') return false
       return true
     },
@@ -111,8 +98,7 @@ export default {
   },
   watch: {
     rawContent() {
-      // 内容变化时自动进入编辑模式
-      if (this.authenticated && !this.editing) {
+      if (!this.editing) {
         this.editing = true
       }
     }
@@ -128,21 +114,31 @@ export default {
     },
     closePanel() {
       this.isOpen = false
-    },
-    async checkPassword() {
-      this.checking = true
       this.saveStatus = ''
-      await new Promise(r => setTimeout(r, 300)) // 模拟短暂验证延迟，给用户反馈
-      if (this.password === DEFAULT_PASSWORD) {
-        this.authenticated = true
-        this.password = ''
-        this.editing = false
-        this.loadArticle()
-      } else {
-        this.saveStatus = '密码错误'
-        setTimeout(() => { this.saveStatus = '' }, 2000)
+    },
+    startDrag(e) {
+      this.dragging = true
+      const startX = e.clientX
+      const startY = e.clientY
+      const startBottom = this.pos.bottom
+      const startRight = this.pos.right
+      const winW = window.innerWidth
+      const winH = window.innerHeight
+      const btnSize = 50
+
+      const onMove = (ev) => {
+        const dx = startX - ev.clientX
+        const dy = ev.clientY - startY
+        this.pos.right = Math.max(0, Math.min(winW - btnSize, startRight + dx))
+        this.pos.bottom = Math.max(0, Math.min(winH - btnSize, startBottom + dy))
       }
-      this.checking = false
+      const onUp = () => {
+        this.dragging = false
+        document.removeEventListener('mousemove', onMove)
+        document.removeEventListener('mouseup', onUp)
+      }
+      document.addEventListener('mousemove', onMove)
+      document.addEventListener('mouseup', onUp)
     },
     async loadArticle() {
       try {
@@ -158,14 +154,13 @@ export default {
         if (data.slug && data.content !== undefined) {
           this.article = { title: data.title || '', content: data.content || '' }
           this.rawContent = this.article.content || ''
-        } else if (data.notFound) {
-          // 文章不存在于数据库中，使用默认模板
-          this.article = { ...DEFAULT_ARTICLE }
-          this.rawContent = ''
         } else {
           this.article = { ...DEFAULT_ARTICLE }
           this.rawContent = ''
         }
+        this.editing = false
+        this.showKeyInput = false
+        this.writeKey = ''
       } catch (e) {
         this.saveStatus = '网络错误'
         setTimeout(() => { this.saveStatus = '' }, 3000)
@@ -174,6 +169,12 @@ export default {
       }
     },
     async saveArticle() {
+      // 首次保存或密钥未输入时，弹出密钥输入框
+      if (!this.writeKey) {
+        this.showKeyInput = true
+        return
+      }
+
       this.saving = true
       this.saveStatus = ''
       try {
@@ -187,7 +188,7 @@ export default {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${DEFAULT_PASSWORD}`
+            'Authorization': `Bearer ${this.writeKey}`
           },
           body: JSON.stringify({
             slug,
@@ -199,10 +200,17 @@ export default {
         if (data.success) {
           this.saveStatus = '保存成功'
           this.editing = false
+          this.showKeyInput = false
           setTimeout(() => { this.loadArticle() }, 500)
           setTimeout(() => { this.saveStatus = '' }, 3000)
         } else {
-          this.saveStatus = data.error || '保存失败'
+          if (res.status === 401) {
+            this.saveStatus = '密钥无效，请重新输入'
+            this.showKeyInput = true
+            this.writeKey = ''
+          } else {
+            this.saveStatus = data.error || '保存失败'
+          }
           setTimeout(() => { this.saveStatus = '' }, 3000)
         }
       } catch (e) {
@@ -211,21 +219,17 @@ export default {
       }
       this.saving = false
     },
+    confirmKey() {
+      // 用户输入密钥后点击确认，再次触发保存
+      this.showKeyInput = false
+      this.saveArticle()
+    },
     cancelEdit() {
       this.loadArticle()
       this.editing = false
     },
     getPermalink() {
       return this.$frontmatter.permalink || this.$route.path
-    },
-    isFourZeroFour(route) {
-      let flag = true
-      this.$site.pages.forEach((item) => {
-        if (item.path === route.path) {
-          flag = false
-        }
-      })
-      return flag
     }
   }
 }
@@ -307,14 +311,28 @@ export default {
   padding: 0 4px;
 }
 
-/* 密码区 */
-.ae-auth {
-  padding: 20px 16px;
+/* 密钥输入区 */
+.ae-key-input {
+  padding: 12px 16px;
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  gap: 8px;
+  align-items: center;
+  border-bottom: 1px solid #eee;
 }
 
+.ae-key-input .ae-input {
+  flex: 1;
+}
+
+.ae-hint {
+  font-size: 0.75rem;
+  color: #999;
+  margin: 0;
+  width: 100%;
+  text-align: center;
+}
+
+/* 输入框通用样式 */
 .ae-input {
   padding: 8px 12px;
   border: 1px solid #ddd;
@@ -350,13 +368,6 @@ export default {
 
 .ae-textarea:focus {
   border-color: #11a8cd;
-}
-
-.ae-hint {
-  font-size: 0.8rem;
-  color: #999;
-  margin: 0;
-  text-align: center;
 }
 
 /* 按钮通用样式 */
