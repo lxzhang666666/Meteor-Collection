@@ -4,7 +4,7 @@ const { MongoClient } = require('mongodb');
 const MONGODB_URI = process.env.MONGODB_URI;
 const DB_NAME = process.env.DB_NAME || 'blog';
 const COLLECTION = process.env.COLLECTION || 'articles';
-const WRITE_SECRET = process.env.WRITE_SECRET || 'meteor2024';
+const WRITE_SECRET = process.env.WRITE_SECRET;
 const SLUG_REGEX = /^[\w\-\/]+$/;
 
 function isValidSlug(slug) {

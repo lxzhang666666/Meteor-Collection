@@ -69,7 +69,7 @@
 <script>
 // ====== 配置区 ======
 const API_BASE = 'https://meteor-collection.vercel.app'
-const DEFAULT_PASSWORD = 'meteor2024'
+const DEFAULT_PASSWORD = 'meteor5201314'
 
 // 默认文章模板
 const DEFAULT_ARTICLE = {
@@ -98,6 +98,8 @@ export default {
       if (this.$route.path === '/') return false
       // 如果 frontmatter 中 article 为 false，则不显示
       if (this.$frontmatter.article === false) return false
+      // 只在标注了 source: db 的动态文章页面显示编辑按钮
+      if (this.$frontmatter.source !== 'db') return false
       return true
     },
     renderedContent() {
