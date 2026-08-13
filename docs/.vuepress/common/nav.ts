@@ -74,8 +74,7 @@ export default [
             },
             {
                 text: '计算机基础',
-                link: '/collection/cs/',
-                items: [],
+                link: '/collection/cs/'
             },
             {
                 text: '框架',
@@ -142,18 +141,15 @@ export default [
             },
             {
                 text: '开发工具',
-                link: '/collection/tools/',
-                items: [],
+                link: '/collection/tools/'
             },
             {
                 text: '网络工具',
-                link: '/collection/network/',
-                items: [],
+                link: '/collection/network/'
             },
             {
                 text: '其他',
-                link: '/collection/others/',
-                items: [],
+                link: '/collection/others/'
             },
         ],
     },
