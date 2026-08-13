@@ -1,0 +1,28 @@
+name = "meteor-blog-api"
+main = "index.js"
+compatibility_date = "2024-01-01"
+node_compat = false
+
+# ---------------------------------------------------------------------------
+# 环境变量（用于本地开发）
+# 实际部署时请在 Cloudflare Workers 面板的 "Variables" 中配置，更安全。
+# ---------------------------------------------------------------------------
+
+[vars]
+# MongoDB Atlas Data API 凭证（在 Atlas 控制台的 API Keys 页面获取）
+# 获取步骤：Atlas → API → Enable Data API → API Keys → Add New API Key
+ATLAS_DATA_API_PUBLIC_KEY  = "your-public-key-here"
+ATLAS_DATA_API_PRIVATE_KEY = "your-private-key-here"
+
+# MongoDB Atlas Group ID（在集群详情页顶部可以看到）
+ATLAS_GROUP_ID = "your-group-id-here"
+
+# Data API App ID（Enable Data API 时生成，形如 myapp-xxxxx）
+ATLAS_APP_ID = "your-app-id-here"
+
+# 写操作密钥（任意字符串，用于 POST /api/article 的 Bearer Token 验证）
+WRITE_SECRET = "change-this-to-a-random-string"
+
+# 数据库和集合名称（与 Atlas 中的实际名称一致）
+DB_NAME = "blog"
+COLLECTION = "articles"

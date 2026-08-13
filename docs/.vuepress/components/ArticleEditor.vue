@@ -26,8 +26,11 @@
           class="ae-input"
           @keyup.enter="checkPassword"
         />
-        <button class="ae-btn ae-confirm" @click="checkPassword">确认</button>
+        <button class="ae-btn ae-confirm" @click="checkPassword" :disabled="checking">
+          {{ checking ? '验证中...' : '确认' }}
+        </button>
         <p class="ae-hint">密码由博主提供</p>
+        <p v-if="saveStatus" class="ae-status">{{ saveStatus }}</p>
       </div>
 
       <!-- 编辑表单（已认证后显示） -->
@@ -81,6 +84,7 @@ export default {
       isOpen: false,
       authenticated: false,
       password: '',
+      checking: false,
       saving: false,
       saveStatus: '',
       article: { ...DEFAULT_ARTICLE },
@@ -123,7 +127,10 @@ export default {
     closePanel() {
       this.isOpen = false
     },
-    checkPassword() {
+    async checkPassword() {
+      this.checking = true
+      this.saveStatus = ''
+      await new Promise(r => setTimeout(r, 300)) // 模拟短暂验证延迟，给用户反馈
       if (this.password === DEFAULT_PASSWORD) {
         this.authenticated = true
         this.password = ''
@@ -133,22 +140,33 @@ export default {
         this.saveStatus = '密码错误'
         setTimeout(() => { this.saveStatus = '' }, 2000)
       }
+      this.checking = false
     },
     async loadArticle() {
       try {
         const permalink = this.getPermalink()
         if (!permalink) return
         const res = await fetch(`${API_BASE}/api/article${permalink}`)
+        if (!res.ok) {
+          this.saveStatus = '获取文章失败'
+          setTimeout(() => { this.saveStatus = '' }, 3000)
+          return
+        }
         const data = await res.json()
-        if (data.success && data.data) {
-          this.article = { title: data.data.title || '', content: data.data.content || '' }
+        if (data.slug && data.content !== undefined) {
+          this.article = { title: data.title || '', content: data.content || '' }
           this.rawContent = this.article.content || ''
+        } else if (data.notFound) {
+          // 文章不存在于数据库中，使用默认模板
+          this.article = { ...DEFAULT_ARTICLE }
+          this.rawContent = ''
         } else {
-          // 未找到文章，使用默认模板
           this.article = { ...DEFAULT_ARTICLE }
           this.rawContent = ''
         }
       } catch (e) {
+        this.saveStatus = '网络错误'
+        setTimeout(() => { this.saveStatus = '' }, 3000)
         this.article = { ...DEFAULT_ARTICLE }
         this.rawContent = ''
       }
@@ -165,7 +183,10 @@ export default {
         }
         const res = await fetch(`${API_BASE}/api/article`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${DEFAULT_PASSWORD}`
+          },
           body: JSON.stringify({
             slug,
             title: this.article.title,
@@ -179,7 +200,7 @@ export default {
           setTimeout(() => { this.loadArticle() }, 500)
           setTimeout(() => { this.saveStatus = '' }, 3000)
         } else {
-          this.saveStatus = data.message || '保存失败'
+          this.saveStatus = data.error || '保存失败'
           setTimeout(() => { this.saveStatus = '' }, 3000)
         }
       } catch (e) {
