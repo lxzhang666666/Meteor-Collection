@@ -146,7 +146,7 @@ export default {
       try {
         const permalink = this.getPermalink()
         if (!permalink) return
-        const res = await fetch(`${API_BASE}/api/article${permalink}`)
+        const res = await fetch(`${API_BASE}/api/article?slug=${encodeURIComponent(permalink)}`)
         if (!res.ok) {
           this.saveStatus = '获取文章失败'
           setTimeout(() => { this.saveStatus = '' }, 3000)
