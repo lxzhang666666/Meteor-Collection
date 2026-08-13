@@ -1,15 +1,8 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/build-static",
-      "config": { "distDir": "docs/.vuepress/dist" }
-    },
-    { "src": "api/**/*.js", "use": "@vercel/node" }
-  ],
+  "buildCommand": "npm run build",
+  "outputDirectory": "docs/.vuepress/dist",
+  "installCommand": "npm install",
   "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1" },
-    { "src": "/(.*)", "dest": "/$1" }
+    { "src": "/api/(.*)", "dest": "/api/$1" }
   ]
 }
