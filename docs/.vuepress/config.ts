@@ -313,6 +313,7 @@ export default defineConfig4CustomTheme<VdoingThemeConfig>({
     	}
     ],
     require('./plugins/fix-chinese-image'), // 修复含中文图片路径被 URL 编码的问题
+    require('./plugins/hide-edit-link-for-db-sources'), // 隐藏 source: db 动态文章的 GitHub 编辑按钮
   ],
 
   markdown: {
