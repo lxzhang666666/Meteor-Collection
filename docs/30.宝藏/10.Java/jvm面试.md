@@ -1,3 +1,16 @@
+---
+title: jvm面试
+date: 2026-08-12 22:23:44
+permalink: /pages/06b1d1/
+categories:
+  - 宝藏
+  - Java
+tags:
+  - 
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
 # Java后端资深工程师面试高频场景题深度文稿
 
 **Java后端资深工程师**

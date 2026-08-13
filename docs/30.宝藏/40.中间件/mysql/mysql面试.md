@@ -1,3 +1,17 @@
+---
+title: mysql面试
+date: 2026-08-12 22:23:44
+permalink: /pages/0a2d6b/
+categories:
+  - 宝藏
+  - 中间件
+  - mysql
+tags:
+  - 
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
 # MySQL 后端高频核心面试题完整版（原理+标准答案 可直接复制）
 ## 目录
 1. MySQL 架构分层（连接层、服务层、引擎层、存储层）

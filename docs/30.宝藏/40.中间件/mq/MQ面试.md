@@ -1,3 +1,17 @@
+---
+title: MQ面试
+date: 2026-08-12 22:23:44
+permalink: /pages/fd8a27/
+categories:
+  - 宝藏
+  - 中间件
+  - mq
+tags:
+  - 
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
 # Java后端MQ高频面试题（8年资深开发面试完整版·原理+标准答案）
 ## 目录
 1. MQ是什么？核心三大作用

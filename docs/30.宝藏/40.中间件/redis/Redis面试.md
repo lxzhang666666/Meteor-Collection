@@ -1,3 +1,17 @@
+---
+title: Redis面试
+date: 2026-08-12 22:23:44
+permalink: /pages/0f2971/
+categories:
+  - 宝藏
+  - 中间件
+  - redis
+tags:
+  - 
+author: 
+  name: lxzhang666666
+  link: https://github.com/lxzhang666666
+---
 # Redis 资深Java后端高频面试题（8年开发完整版·原理+标准答案 可直接复制）
 ## 目录
 1. Redis 是什么？为什么要用Redis？使用场景
