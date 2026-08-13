@@ -90,10 +90,11 @@ export default {
       return true
     },
     renderedContent() {
-      if (typeof window.marked === 'function') {
-        return window.marked(this.rawContent || '')
+      // SSR 时 window 不可用，直接返回原始内容
+      if (typeof window === 'undefined' || typeof window.marked !== 'function') {
+        return this.rawContent || ''
       }
-      return '<p>未加载 marked 库</p>'
+      return window.marked(this.rawContent || '')
     }
   },
   watch: {
