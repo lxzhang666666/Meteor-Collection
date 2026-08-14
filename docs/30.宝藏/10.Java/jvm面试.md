@@ -17,31 +17,11 @@ author:
 **面试高频场景题深度文稿**
 
 覆盖 JVM · 并发 · MySQL · Redis · Spring · 分布式一致性
-六大核心模块 · 底层原理深挖 · 面试官追问预判
-面向：5-8年以上资深工程师 / 技术专家面试准备
-版本：2026年8月
 
 ---
 
 # **使用说明**
 
-本文档按照"场景驱动"的方式组织，每道题目均遵循统一结构：
-
-- 场景描述：还原真实生产环境中的问题背景
-
-- 故障现象：描述问题的外在表现和监控告警
-
-- 解决方案：分初级 / 中级 / 资深三个层次给出回答
-
-- 底层原理：深入到JVM源码、数据结构、硬件指令级别
-
-- 代码示例：带详细注释的生产级代码
-
-- 面试官追问：预判后续深挖方向，提前准备
-
-建议复习方式：先通读每个场景的"资深回答"建立体系，再用"面试官追问"自测，最后默写核心ASCII图和参数配置。
-
----
 
 # **模块一：JVM性能故障场景**
 
@@ -4498,9 +4478,307 @@ A: ①加索引（status+next_retry_time）；②分页批量处理（每次100�
 
 - 关注新技术：ZGC、虚拟线程（Loom）、Spring Boot 3.x、Seata、PolarDB等
 
+# jcmd 完整使用手册 + 高频面试题
 
+## 一、jcmd 基础认知
 
-**—— 全文完 ——**
+### 1. 是什么
 
-本文档覆盖Java后端资深工程师面试6大核心模块，建议结合实际项目经验反复研读，将理论知识转化为自己的项目案例，在面试中做到"有场景、有数据、有原理、有深度"。
+`jcmd` 是 JDK 自带的**全能 JVM 故障排查命令行工具**，JDK7 开始引入，替代了零散的 `jstack`、`jmap`、`jinfo`、`jstat`、`jhat`、
+`jfr` 等工具，**一个命令搞定所有 JVM 运维排查**。
+底层原理：Attach API 附加到目标 Java 进程，发送指令执行对应操作。
 
+### 2. 前置条件
+
+1. JDK 环境（不要只用 JRE，没有 jcmd）
+2. 执行用户和 Java 进程**同一个操作系统用户**（权限问题最常见坑）
+3. 目标 JVM 开启 Attach 机制（默认开启，除非参数禁用）
+
+### 3. 基础语法
+
+```
+# 查看所有java进程（等同于jps）
+jcmd
+
+# 通用格式
+jcmd <PID> <command> [参数]
+
+# 查看某个进程支持的所有命令
+jcmd <PID> help
+
+# 查看某个具体命令的帮助
+jcmd <PID> help <command_name>
+
+# 远程JVM（极少用，一般本地排查）
+jcmd <host>:<port> <command>
+```
+
+## 二、核心常用命令分类（实操版）
+
+先获取 PID：直接敲 `jcmd` 列出所有 Java 进程，第一列就是 PID。
+
+### 1. 进程基础信息（替代 jinfo）
+
+#### （1）打印 JVM 启动参数
+
+```
+jcmd 1234 VM.command_line
+```
+
+输出：`-Xms` `-Xmx` `-XX` 系列参数、系统属性、classpath。
+
+#### （2）打印 JVM 版本、系统属性、JDK 版本
+
+```
+# JVM版本
+jcmd 1234 VM.version
+
+# 系统属性（System.getProperties()）
+jcmd 1234 VM.system_properties
+
+# JVM flags（生效的XX参数）
+jcmd 1234 VM.flags
+# 包含默认值的所有参数
+jcmd 1234 VM.flags -all
+```
+
+#### （3）动态修改 JVM 参数（运行时改，无需重启）
+
+```
+# 格式：jcmd PID VM.set_flag 参数名 值
+jcmd 1234 VM.set_flag HeapDumpOnOutOfMemoryError true
+```
+
+>
+> 注意：只有 **manageable** 类型的参数支持动态修改，面试高频考点。
+
+### 2. 线程排查（替代 jstack）
+
+#### （1）导出线程堆栈（最常用）
+
+```
+# 控制台直接输出
+jcmd 1234 Thread.print
+
+# 输出到文件（推荐）
+jcmd 1234 Thread.print > thread.log
+```
+
+作用：排查死锁、死循环、CPU 飙升、阻塞、线程池耗尽。
+
+#### （2）检测死锁（内置自动查找）
+
+```
+jcmd 1234 Thread.print -l
+```
+
+`-l` 会打印锁信息，自动汇总死锁线程块。
+
+### 3. 内存排查（替代 jmap）
+
+#### （1）查看堆整体概况
+
+```
+jcmd 1234 GC.heap_info
+```
+
+输出：新生代/老年代/元空间大小、使用率、GC 收集器类型、GC 次数耗时。
+
+#### （2）生成堆 Dump 文件（OOM 必备）
+
+```
+# 完整堆dump（包含不可达对象）
+jcmd 1234 GC.dump --live=true /tmp/heapdump.hprof
+
+# 只dump存活对象
+jcmd 1234 GC.dump /tmp/heap.hprof
+```
+
+文件后续用 MAT、JProfiler、VisualVM 分析内存泄漏。
+
+#### （3）类统计、元空间信息
+
+```
+# 打印类加载统计（替代jmap -clstats）
+jcmd 1234 GC.class_stats
+
+# 元空间详细信息
+jcmd 1234 VM.metaspace
+```
+
+### 4. GC 统计与执行 GC
+
+```
+# 手动触发Full GC（谨慎使用！生产别乱执行）
+jcmd 1234 GC.run
+
+# GC 汇总统计（GC次数、总耗时）
+jcmd 1234 GC.stats
+```
+
+### 5. JFR 性能录制（重量级，生产性能分析）
+
+JFR = Java Flight Recorder，Java 飞行记录仪，JDK11+ 开源，JDK8 商业版。
+
+#### 简单录制示例
+
+```
+# 录制30秒，保存到文件
+jcmd 1234 JFR.start duration=30s filename=app.jfr
+
+# 查看正在录制的任务
+jcmd 1234 JFR.check
+
+# 手动停止录制
+jcmd 1234 JFR.stop
+```
+
+录制后的 `.jfr` 文件用 `jfr` 命令解析或用 JDK Mission Control（JMC）可视化分析：CPU、内存、IO、锁、GC、方法调用耗时。
+
+### 6. 其他实用命令
+
+```
+# 列出所有被加载的class
+jcmd 1234 VM.class_hierarchy
+
+# 打印NIO缓冲区、Direct Buffer内存
+jcmd 1234 VM.native_memory summary
+
+# 强制打印所有JVM日志
+jcmd 1234 VM.log list
+```
+
+## 三、jcmd 与传统工具对比（面试必问）
+
+| 传统工具          | jcmd 等价命令                           | 用途          |
+|---------------|-------------------------------------|-------------|
+| jps           | jcmd                                | 列出Java进程    |
+| jstack PID    | jcmd PID Thread.print               | 线程栈、死锁      |
+| jmap -heap    | jcmd PID GC.heap_info               | 堆内存概况       |
+| jmap -dump    | jcmd PID GC.dump                    | 生成hprof堆快照  |
+| jmap -clstats | jcmd PID GC.class_stats             | 类加载统计       |
+| jinfo         | jcmd PID VM.flags / VM.command_line | JVM参数查看动态修改 |
+| jstat         | jcmd PID GC.stats                   | GC统计        |
+| jfr 独立命令      | jcmd PID JFR.*                      | 飞行录制        |
+
+**核心优势一句话：**
+jcmd 单一入口，减少记一堆工具命令的成本，Attach 机制统一，稳定性更好，支持动态改参数、JFR 录制等高级能力。
+
+---
+
+# 第二部分：jcmd 高频面试题（含标准答案）
+
+## 1. 说说 jcmd 是什么，解决什么问题？
+
+**答**
+jcmd 是 JDK7 及以上自带的 JVM 诊断命令行工具，基于 Attach API 附加到运行中的 Java 进程。
+它整合了 jps、jstack、jmap、jinfo、jfr 等多款工具的能力，用于线上无停机排查：线程死锁、CPU 过高、内存泄漏、GC
+频繁、元空间溢出、方法耗时分析（JFR），还能动态修改部分 JVM 参数，是生产环境首选轻量级排查工具。
+
+## 2. jcmd 执行报错无法 attach 进程，常见原因？
+
+**答**
+
+1. **操作系统用户不一致**：启动 Java 进程是 app 用户，执行 jcmd 是 root/其他用户，权限拒绝；
+2. 使用了 JRE 而非完整 JDK，没有 jcmd 程序；
+3. JVM 启动参数关闭了 Attach 机制（`-XX:+DisableAttachMechanism`）；
+4. Linux 下 `/tmp` 目录清理导致 `.java_pidxxx` 套接字文件被删除；
+5. 容器环境（Docker）PID 命名空间隔离，宿主机无法直接 attach 容器内进程，要进入容器内部执行。
+
+## 3. jcmd 动态修改 JVM 参数有什么限制？
+
+**答**
+
+1. 只能修改被标记为 `manageable` 的参数；
+2. 像 `-Xmx`、`-Xms` 堆内存大小这类**不可动态调整**，只能启动时指定；
+3. 修改只对当前 JVM 进程生效，重启失效，如需永久生效要改启动脚本；
+4. 生产慎用 GC.run 手动 Full GC，会触发 STW，影响业务吞吐量。
+
+## 4. 排查线上 CPU 100% 飙升，用 jcmd 完整排查步骤？
+
+**标准流程**
+
+1. `top` 找到占用 CPU 最高的 Java 进程 PID；
+2. `top -Hp PID` 找到消耗 CPU 的线程 TID（十进制）；
+3. jcmd 导出线程栈：`jcmd PID Thread.print > thread.log`；
+4. 将 TID 转成十六进制，在日志中搜索对应线程，定位死循环、无限递归、大量计算的代码；
+5. 结合 GC.heap_info 看是否频繁 FullGC 导致 CPU 拉高。
+
+## 5. OOM 内存泄漏如何用 jcmd 定位？
+
+**步骤**
+
+1. 先用 `jcmd PID GC.heap_info` 查看老年代、元空间占用，判断是堆溢出还是元空间溢出；
+2. 执行堆快照导出：`jcmd PID GC.dump --live=true dump.hprof`；
+3. 下载 hprof 文件，用 Eclipse MAT 分析：查找大对象、可疑集合、ThreadLocal 未释放、静态集合内存泄露、非堆 DirectBuffer 泄漏；
+4. 辅助命令：`jcmd PID VM.metaspace` 排查类加载过多导致的元空间 OOM。
+
+## 6. JFR 在 jcmd 中起到什么作用？适用什么场景？
+
+**答**
+JFR（Java飞行记录器）是低开销的性能剖析工具，jcmd 可以直接触发录制。
+适用场景：
+
+- 偶发的卡顿、GC 停顿、接口超时、锁竞争激烈；
+- 长时间运行的性能瓶颈，需要看方法调用栈、IO、数据库、同步锁、GC 细节；
+  优点：运行时开销极低（通常 <2%），可以长期后台录制，事后用 JMC 可视化分析。
+
+## 7. Thread.print 加 `-l` 参数的意义？
+
+**答**
+`-l` 会额外打印**java.util.concurrent 锁的占用信息**，不仅仅是 synchronized 监视器锁，能完整检测 JUC
+显式锁（ReentrantLock）造成的死锁，纯 jstack 默认对 AQS 锁展示不全。
+
+## 8. jcmd GC.run 手动触发 Full GC 有什么风险？
+
+**答**
+
+1. 会触发全局 STW（Stop-The-World），所有业务线程暂停，高并发场景直接造成大量请求超时；
+2. CMS/G1/ZGC 收集器一次 Full GC 耗时不可控；
+3. 频繁手动 GC 会增加 GC 线程 CPU 消耗，加剧系统负载；
+   **结论：生产环境禁止随意执行 GC.run。**
+
+## 9. jcmd VM.native_memory 命令作用？
+
+**答**
+查看 JVM **本地内存（Native Memory）** 使用情况，用于排查堆外内存泄漏：
+
+- Direct ByteBuffer 直接内存溢出；
+- JNI 代码内存泄漏；
+- 元空间、线程栈、JVM 内部开销占用过高。
+
+## 10. jcmd 和 Arthas 定位怎么选？（延伸高频反问）
+
+**对比回答**
+
+1. **jcmd**：JDK 原生自带，无需引入任何依赖、无需启动 agent，零侵入，适合容器、受限环境、紧急故障兜底排查；缺点是交互弱，不能实时反编译类、在线热更新、方法耗时打点。
+2. **Arthas**：阿里开源诊断工具，功能更强，在线监控方法耗时、反编译、动态改日志、热修复、追踪调用链；缺点需要上传 jar 包附加
+   agent，部分严格安全环境不允许。
+   **生产最佳实践**：常备 Arthas 做日常性能分析，jcmd 作为兜底应急方案。
+
+---
+
+# 四、生产环境排查万能脚本（可直接复制）
+
+```
+#!/bin/bash
+PID=$1
+if [ -z "$PID" ];then
+  echo "Usage: sh jcmd_check.sh PID"
+  exit 1
+fi
+
+# 1. 导出线程栈
+jcmd $PID Thread.print -l > thread_dump_$(date +%Y%m%d_%H%M).log
+
+# 2. GC堆信息
+jcmd $PID GC.heap_info > gc_heap_info.log
+
+# 3. JVM启动参数
+jcmd $PID VM.command_line > jvm_args.log
+
+# 4. 生效JVM参数
+jcmd $PID VM.flags -all > jvm_flags.log
+
+echo "排查文件已生成"
+```

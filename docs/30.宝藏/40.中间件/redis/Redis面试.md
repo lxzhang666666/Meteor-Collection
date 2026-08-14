@@ -454,6 +454,70 @@ epoll可以告诉操作系统：只返回**有数据到来**的socket连接，�
 
 ---
 
+## 21. Redis线上性能优化
+
+~~~text
+内存优化:
+控制最大内存: 配置maxmemory
+选择合适的淘汰策略: 配置合理的maxmemory-policy
+
+数据结构优化:
+使用合理的数据结构
+避免大key问题： 单个String值不超过10K
+启用内存压缩:  
+hash-max-ziplist-entries   512
+hash-max-ziplist-value      64
+list-max-ziplist-size           -2
+过期键管理:
+设置合理TTL:避免数据永久堆积
+主动清理策略:
+hz                  10   # 提高清理频率       
+activedefrag yes   # 启用主动碎片整理
+
+持久化优化
+RDB:
+# 根据负载调整保存策略
+save 900 1 #900秒内1次修改
+#子进程优化
+stop-writes-on-bgsave-error yes # 保存失败时停止写入
+rdbcompression yes # 启用压缩
+rdbchecksum # 启用校验
+AOF:
+# 写入策略选择
+appendfsunc everysec  # 平衡性能与安全
+# appendfsunc  always   # 最安全但性能差
+# appendfsunc  no   # 最高性能但是可能丢数据
+
+集群高可用优化
+主从复制策略:
+# 网络与同步优化
+repl-backlog-size 1gb # 增大复制缓冲区
+repl-backlog-ttl   3600 # 缓冲区保留时间
+repl-disable-tcp-nodelay no # 启用小包合并
+
+# 从节点优化
+slave-read-only  yes  # 从节点只读
+slave-serve-stale-data  yes  # 从节点断开时仍可读旧数据
+
+集群分片策略:
+避免单个集群超过1000节点
+避免跨节点事务
+
+网络与连接优化
+连接管理:
+maxclients  10000 # 最大连接数
+timeout         300   # 闲置连接超时时间
+管道与批处理:
+监控与运维:
+关键核心指标:
+qps、延迟阈值、内存使用、连接数
+慢查询:
+slowlog-log-slower-than 10000 # 10ms 单位微妙
+slowlog-max-len    128 #
+~~~
+
+----
+
 # 面试极简背诵总结（口述版）
 1. Redis快核心三点：内存操作 + epoll IO多路复用 + 单线程无锁竞争；
 2. 过期策略：惰性删除+定期删除；内存淘汰优先allkeys-lfu；
