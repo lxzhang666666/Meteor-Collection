@@ -795,11 +795,14 @@ x86架构只有StoreLoad屏障是真正的屏障（lock addl $0x0,(%rsp)），
 **3. synchronized的锁升级过程**
 
 synchronized锁升级（JDK6+，不可逆）：
+
+~~~text
 无锁状态 ──▶ 偏向锁 ──▶ 轻量级锁 ──▶ 重量级锁
 01         01(biased)   00          10
+~~~
 
-偏向锁：Mark Word存储线程ID，同一线程重入无需CAS
-轻量级锁：CAS竞争Mark Word，失败则自旋，自旋一定次数后膨胀
+偏向锁：Mark Word存储线程ID，同一线程重入无需CAS  
+轻量级锁：CAS竞争Mark Word，失败则自旋，自旋一定次数后膨胀  
 重量级锁：依赖操作系统Mutex，线程阻塞（从用户态切换到内核态）
 
 Mark Word（64位）结构：

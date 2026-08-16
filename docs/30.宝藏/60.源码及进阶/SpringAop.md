@@ -236,6 +236,33 @@ public Object invoke(Object proxy, Method method, Object[] args) throws Throwabl
 5. 如果方法return了this，自动替换为代理对象，修复自调用问题
 6. finally释放资源、还原上下文
 
+## JDK动态代理限制原理
+
+> 核心前提：**JDK动态代理底层依靠 `java.lang.reflect.Proxy` + 生成字节码，继承 Proxy 类实现代理**。Java是单继承。
+
+### 为什么只能代理实现接口的类
+
+#### 底层原理
+
+1. JDK动态代理运行时动态生成代理类字节码，**生成的代理类固定继承 `java.lang.reflect.Proxy`**。
+
+```java
+// 伪代码：运行时生成的代理类结构
+public final class $Proxy0 extends Proxy implements UserService {
+    // 所有接口方法转发到 InvocationHandler.invoke()
+}
+```
+
+2. Java不支持多继承，代理类已经继承了`Proxy`，**不能再继承目标业务类**。
+3. 只能让代理类**实现和目标对象一样的接口**；代理类实现接口的方法，方法内部调用`InvocationHandler.invoke()`完成拦截。
+4. 如果目标类**没有实现任何接口**，运行时就没有接口可以让代理类去实现，无法生成代理类，直接抛异常。
+
+> 对比CGLIB：CGLIB生成代理类**继承目标业务类**，重写类中非final的实例方法，不需要接口，所以可以代理普通类。
+
+> 面试一句话：JDK动态代理生成的代理类必须继承Proxy，Java单继承限制，所以只能通过实现接口做代理，不能继承目标类。
+
+---
+
 ## 2.4 JDK代理硬限制（源码体现）
 
 1. 只能代理**接口里声明的public方法**，目标类普通public方法不在接口里 → 无法拦截
@@ -372,16 +399,19 @@ public Object intercept(Object proxy, Method method, Object[] args, MethodProxy 
 
 # 第四部分：JDK代理 vs CGLIB 完整横向对比（源码角度）
 
-| 对比维度 | JDK动态代理（JdkDynamicAopProxy） | CGLIB代理（CglibAopProxy） |
-| --- | --- | --- |
-| 生成对象 | 实现目标接口的新类 | 继承目标类的子类 |
-| 依赖条件 | 必须实现接口 | 不能是final类，方法不能final |
-| 核心回调 | InvocationHandler.invoke | MethodInterceptor.intercept |
-| 执行原方法 | Method.invoke() 反射 | MethodProxy.invokeSuper() 字节码直接调用，性能更高 |
-| 可拦截范围 | 仅接口public方法 | 类所有非final public方法 |
-| 有无第三方依赖 | JDK原生，无依赖 | 依赖ASM字节码框架（Spring内置） |
-| 默认策略 | Spring AOP默认优先选择 | 手动开启proxy-target-class=true才使用 |
-| 构造函数限制 | 无要求 | 原版CGLIB需要无参构造，Objenesis版本不需要 |
+| 对比维度       | JDK动态代理（JdkDynamicAopProxy） | CGLIB代理（CglibAopProxy）                 |
+|------------|-----------------------------|----------------------------------------|
+| 生成对象       | 实现目标接口的新类                   | 继承目标类的子类                               |
+| 实现原理       | 生成代理类继承Proxy，实现业务接口         | 生成代理类继承目标业务类，重写非final方法                |
+| 依赖条件       | 必须实现接口                      | 不能是final类，方法不能final                    |
+| 核心回调       | InvocationHandler.invoke    | MethodInterceptor.intercept            |
+| 执行原方法      | Method.invoke() 反射          | MethodProxy.invokeSuper() 字节码直接调用，性能更高 |
+| 可拦截范围      | 仅接口public方法                 | 类所有非final public方法                     |
+| private方法  | ❌无法拦截                       | ❌无法拦截                                  |
+| static静态方法 | ❌无法拦截                       | ❌无法拦截                                  |
+| 有无第三方依赖    | JDK原生，无依赖                   | 依赖ASM字节码框架（Spring内置）                   |
+| 默认策略       | Spring AOP默认优先选择            | 手动开启proxy-target-class=true才使用         |
+| 构造函数限制     | 无要求                         | 原版CGLIB需要无参构造，Objenesis版本不需要           |
 
 ---
 
