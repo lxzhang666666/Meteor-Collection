@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Java JUC 核心类深度源码解析 | Meteor-Collection</title>
+    <meta name="generator" content="VuePress 1.9.5">
+    <link rel="icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_3077305_pt8umhrn4k9.css">
+    <link rel="stylesheet" href="//at.alicdn.com/t/font_3114978_qe0b39no76.css">
+    <script src="https://lib.baomitu.com/twikoo/1.5.11/twikoo.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
+    <meta name="description" content="Meteor-Collection个人博客">
+    <meta name="keywords" content="后端技术学习笔记">
+    <meta name="baidu-site-verification" content="7F55weZDDc">
+    <meta name="theme-color" content="#11a8cd">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+    <link rel="preload" href="/assets/css/0.styles.069d63fd.css" as="style"><link rel="preload" href="/assets/js/app.cf853d99.js" as="script"><link rel="preload" href="/assets/js/2.65ec4fd8.js" as="script"><link rel="preload" href="/assets/js/229.6f65a22d.js" as="script"><link rel="preload" href="/assets/js/20.41b1440f.js" as="script"><link rel="preload" href="/assets/js/11.13545bd3.js" as="script"><link rel="preload" href="/assets/js/13.0be47331.js" as="script"><link rel="preload" href="/assets/js/10.f5186269.js" as="script"><link rel="prefetch" href="/assets/js/100.f82ca5b7.js"><link rel="prefetch" href="/assets/js/101.d26a2290.js"><link rel="prefetch" href="/assets/js/102.184be796.js"><link rel="prefetch" href="/assets/js/103.5cda59e7.js"><link rel="prefetch" href="/assets/js/104.77b00481.js"><link rel="prefetch" href="/assets/js/105.e23f8610.js"><link rel="prefetch" href="/assets/js/106.5a4e6a14.js"><link rel="prefetch" href="/assets/js/107.5a4ed83c.js"><link rel="prefetch" href="/assets/js/108.b498a299.js"><link rel="prefetch" href="/assets/js/109.9990830f.js"><link rel="prefetch" href="/assets/js/110.ac9ef68c.js"><link rel="prefetch" href="/assets/js/111.fd51f684.js"><link rel="prefetch" href="/assets/js/112.aa221cc1.js"><link rel="prefetch" href="/assets/js/113.69ba0016.js"><link rel="prefetch" href="/assets/js/114.7b25c046.js"><link rel="prefetch" href="/assets/js/115.be3056f1.js"><link rel="prefetch" href="/assets/js/116.1a676eb0.js"><link rel="prefetch" href="/assets/js/117.14ae1fcd.js"><link rel="prefetch" href="/assets/js/118.069f2607.js"><link rel="prefetch" href="/assets/js/119.a1ca7d7b.js"><link rel="prefetch" href="/assets/js/12.83094083.js"><link rel="prefetch" href="/assets/js/120.0b3ae2e5.js"><link rel="prefetch" href="/assets/js/121.3f07bdd5.js"><link rel="prefetch" href="/assets/js/122.c2c5adc7.js"><link rel="prefetch" href="/assets/js/123.d095daf3.js"><link rel="prefetch" href="/assets/js/124.8e4c8686.js"><link rel="prefetch" href="/assets/js/125.ed98614f.js"><link rel="prefetch" href="/assets/js/126.0834ac1f.js"><link rel="prefetch" href="/assets/js/127.02f7f228.js"><link rel="prefetch" href="/assets/js/128.022d4503.js"><link rel="prefetch" href="/assets/js/129.3de0515d.js"><link rel="prefetch" href="/assets/js/130.3bdb640c.js"><link rel="prefetch" href="/assets/js/131.f2b28ae8.js"><link rel="prefetch" href="/assets/js/132.e9603322.js"><link rel="prefetch" href="/assets/js/133.cd75a05d.js"><link rel="prefetch" href="/assets/js/134.ec1cd943.js"><link rel="prefetch" href="/assets/js/135.8d30fac0.js"><link rel="prefetch" href="/assets/js/136.e518ed08.js"><link rel="prefetch" href="/assets/js/137.fc701c27.js"><link rel="prefetch" href="/assets/js/138.12d94630.js"><link rel="prefetch" href="/assets/js/139.8e2b4f0c.js"><link rel="prefetch" href="/assets/js/14.ead89d8f.js"><link rel="prefetch" href="/assets/js/140.fd47fc51.js"><link rel="prefetch" href="/assets/js/141.b926bf1d.js"><link rel="prefetch" href="/assets/js/142.44224c57.js"><link rel="prefetch" href="/assets/js/143.09e3f8a6.js"><link rel="prefetch" href="/assets/js/144.b9e616bd.js"><link rel="prefetch" href="/assets/js/145.cdd35eec.js"><link rel="prefetch" href="/assets/js/146.bee55ee0.js"><link rel="prefetch" href="/assets/js/147.376898b9.js"><link rel="prefetch" href="/assets/js/148.51702a22.js"><link rel="prefetch" href="/assets/js/149.b6fe7ff9.js"><link rel="prefetch" href="/assets/js/15.1e16d6e3.js"><link rel="prefetch" href="/assets/js/150.fe5a41a8.js"><link rel="prefetch" href="/assets/js/151.37b95ba4.js"><link rel="prefetch" href="/assets/js/152.410caaba.js"><link rel="prefetch" href="/assets/js/153.f4e21010.js"><link rel="prefetch" href="/assets/js/154.40ea9f75.js"><link rel="prefetch" href="/assets/js/155.cb7d9f91.js"><link rel="prefetch" href="/assets/js/156.f99a03a5.js"><link rel="prefetch" href="/assets/js/157.1352afa3.js"><link rel="prefetch" href="/assets/js/158.c22a88d6.js"><link rel="prefetch" href="/assets/js/159.dc137957.js"><link rel="prefetch" href="/assets/js/16.c3c8947e.js"><link rel="prefetch" href="/assets/js/160.5874bc43.js"><link rel="prefetch" href="/assets/js/161.303d1254.js"><link rel="prefetch" href="/assets/js/162.6d32d65f.js"><link rel="prefetch" href="/assets/js/163.6c7b928e.js"><link rel="prefetch" href="/assets/js/164.06bd2f25.js"><link rel="prefetch" href="/assets/js/165.d7bb61ca.js"><link rel="prefetch" href="/assets/js/166.36446e65.js"><link rel="prefetch" href="/assets/js/167.b1c8d841.js"><link rel="prefetch" href="/assets/js/168.6cea1a20.js"><link rel="prefetch" href="/assets/js/169.3e603447.js"><link rel="prefetch" href="/assets/js/17.f6ea25c8.js"><link rel="prefetch" href="/assets/js/170.66c5ff92.js"><link rel="prefetch" href="/assets/js/171.4f0da9df.js"><link rel="prefetch" href="/assets/js/172.c611272f.js"><link rel="prefetch" href="/assets/js/173.147e8119.js"><link rel="prefetch" href="/assets/js/174.10698f3d.js"><link rel="prefetch" href="/assets/js/175.9612242f.js"><link rel="prefetch" href="/assets/js/176.9da09a09.js"><link rel="prefetch" href="/assets/js/177.abc76f43.js"><link rel="prefetch" href="/assets/js/178.a9679f84.js"><link rel="prefetch" href="/assets/js/179.20670e91.js"><link rel="prefetch" href="/assets/js/18.788c4bf3.js"><link rel="prefetch" href="/assets/js/180.2eb338cd.js"><link rel="prefetch" href="/assets/js/181.39e52d6b.js"><link rel="prefetch" href="/assets/js/182.637741c8.js"><link rel="prefetch" href="/assets/js/183.727c565e.js"><link rel="prefetch" href="/assets/js/184.9ae1df16.js"><link rel="prefetch" href="/assets/js/185.129b2d04.js"><link rel="prefetch" href="/assets/js/186.9224fb37.js"><link rel="prefetch" href="/assets/js/187.f783e2bc.js"><link rel="prefetch" href="/assets/js/188.80811612.js"><link rel="prefetch" href="/assets/js/189.16fda6fd.js"><link rel="prefetch" href="/assets/js/19.3b03acf9.js"><link rel="prefetch" href="/assets/js/190.abd447bb.js"><link rel="prefetch" href="/assets/js/191.fc79a3e5.js"><link rel="prefetch" href="/assets/js/192.d2284d9b.js"><link rel="prefetch" href="/assets/js/193.1cd6636f.js"><link rel="prefetch" href="/assets/js/194.7f3b90d8.js"><link rel="prefetch" href="/assets/js/195.25cd5f19.js"><link rel="prefetch" href="/assets/js/196.769b1e29.js"><link rel="prefetch" href="/assets/js/197.2be00ec2.js"><link rel="prefetch" href="/assets/js/198.453500b8.js"><link rel="prefetch" href="/assets/js/199.8dfd1237.js"><link rel="prefetch" href="/assets/js/200.30145f53.js"><link rel="prefetch" href="/assets/js/201.6f3012cc.js"><link rel="prefetch" href="/assets/js/202.29ea0b0a.js"><link rel="prefetch" href="/assets/js/203.40d22ddb.js"><link rel="prefetch" href="/assets/js/204.3c52f96b.js"><link rel="prefetch" href="/assets/js/205.04f233fe.js"><link rel="prefetch" href="/assets/js/206.01f9ddbf.js"><link rel="prefetch" href="/assets/js/207.61e9a167.js"><link rel="prefetch" href="/assets/js/208.a55914b6.js"><link rel="prefetch" href="/assets/js/209.93f7a3f9.js"><link rel="prefetch" href="/assets/js/21.a4ecd34f.js"><link rel="prefetch" href="/assets/js/210.9d2119bc.js"><link rel="prefetch" href="/assets/js/211.cef6044b.js"><link rel="prefetch" href="/assets/js/212.0075e6d8.js"><link rel="prefetch" href="/assets/js/213.08e7c97b.js"><link rel="prefetch" href="/assets/js/214.7f36193a.js"><link rel="prefetch" href="/assets/js/215.b0e6e8b5.js"><link rel="prefetch" href="/assets/js/216.9888beb0.js"><link rel="prefetch" href="/assets/js/217.c4517002.js"><link rel="prefetch" href="/assets/js/218.7c28b5c6.js"><link rel="prefetch" href="/assets/js/219.f26f4f2f.js"><link rel="prefetch" href="/assets/js/22.c341985c.js"><link rel="prefetch" href="/assets/js/220.4f41330e.js"><link rel="prefetch" href="/assets/js/221.edae4b5d.js"><link rel="prefetch" href="/assets/js/222.beade2e9.js"><link rel="prefetch" href="/assets/js/223.6a00b20b.js"><link rel="prefetch" href="/assets/js/224.6396a426.js"><link rel="prefetch" href="/assets/js/225.1c37d085.js"><link rel="prefetch" href="/assets/js/226.81444797.js"><link rel="prefetch" href="/assets/js/227.1a048c81.js"><link rel="prefetch" href="/assets/js/228.6e9b456e.js"><link rel="prefetch" href="/assets/js/23.f871cec6.js"><link rel="prefetch" href="/assets/js/230.b1b24c8d.js"><link rel="prefetch" href="/assets/js/231.61c7b1e0.js"><link rel="prefetch" href="/assets/js/232.484902e4.js"><link rel="prefetch" href="/assets/js/233.7eb21098.js"><link rel="prefetch" href="/assets/js/234.90c296f8.js"><link rel="prefetch" href="/assets/js/235.742c22f2.js"><link rel="prefetch" href="/assets/js/236.0e580fbf.js"><link rel="prefetch" href="/assets/js/237.af4e8885.js"><link rel="prefetch" href="/assets/js/238.1b570455.js"><link rel="prefetch" href="/assets/js/239.1db70542.js"><link rel="prefetch" href="/assets/js/24.a768df6a.js"><link rel="prefetch" href="/assets/js/240.fb1894bd.js"><link rel="prefetch" href="/assets/js/241.f134cc01.js"><link rel="prefetch" href="/assets/js/242.47747bf1.js"><link rel="prefetch" href="/assets/js/243.7923a897.js"><link rel="prefetch" href="/assets/js/244.73fa8d4d.js"><link rel="prefetch" href="/assets/js/245.23ca1c95.js"><link rel="prefetch" href="/assets/js/246.5032f8d8.js"><link rel="prefetch" href="/assets/js/247.0652e141.js"><link rel="prefetch" href="/assets/js/248.970c5ffe.js"><link rel="prefetch" href="/assets/js/249.501fbda2.js"><link rel="prefetch" href="/assets/js/25.ed37dfa8.js"><link rel="prefetch" href="/assets/js/250.ce3883eb.js"><link rel="prefetch" href="/assets/js/251.797eda73.js"><link rel="prefetch" href="/assets/js/252.a75259bd.js"><link rel="prefetch" href="/assets/js/253.6c577032.js"><link rel="prefetch" href="/assets/js/254.fc3e9743.js"><link rel="prefetch" href="/assets/js/255.b1d987d7.js"><link rel="prefetch" href="/assets/js/256.5da4d327.js"><link rel="prefetch" href="/assets/js/257.c3d1e587.js"><link rel="prefetch" href="/assets/js/258.58a30d6c.js"><link rel="prefetch" href="/assets/js/259.8c5f5ec1.js"><link rel="prefetch" href="/assets/js/26.2315a3e2.js"><link rel="prefetch" href="/assets/js/260.5729c0d2.js"><link rel="prefetch" href="/assets/js/261.2deffb38.js"><link rel="prefetch" href="/assets/js/262.2cd393be.js"><link rel="prefetch" href="/assets/js/263.e01d9ed3.js"><link rel="prefetch" href="/assets/js/264.56cb7fca.js"><link rel="prefetch" href="/assets/js/265.17698654.js"><link rel="prefetch" href="/assets/js/266.bf9d3a7a.js"><link rel="prefetch" href="/assets/js/267.f409e862.js"><link rel="prefetch" href="/assets/js/268.01183248.js"><link rel="prefetch" href="/assets/js/269.3dda098e.js"><link rel="prefetch" href="/assets/js/27.ee6a15c0.js"><link rel="prefetch" href="/assets/js/270.bb243234.js"><link rel="prefetch" href="/assets/js/271.a422f355.js"><link rel="prefetch" href="/assets/js/272.55d106b6.js"><link rel="prefetch" href="/assets/js/273.827f151b.js"><link rel="prefetch" href="/assets/js/274.ca8e32ab.js"><link rel="prefetch" href="/assets/js/275.3676489b.js"><link rel="prefetch" href="/assets/js/276.9136e1ce.js"><link rel="prefetch" href="/assets/js/28.f2719039.js"><link rel="prefetch" href="/assets/js/29.4d535eb5.js"><link rel="prefetch" href="/assets/js/3.0a28f8c5.js"><link rel="prefetch" href="/assets/js/30.f631a494.js"><link rel="prefetch" href="/assets/js/31.af638322.js"><link rel="prefetch" href="/assets/js/32.a5fb9754.js"><link rel="prefetch" href="/assets/js/33.57049ceb.js"><link rel="prefetch" href="/assets/js/34.cc14fb62.js"><link rel="prefetch" href="/assets/js/35.e250676e.js"><link rel="prefetch" href="/assets/js/36.187085f3.js"><link rel="prefetch" href="/assets/js/37.02b072fa.js"><link rel="prefetch" href="/assets/js/38.c2b91209.js"><link rel="prefetch" href="/assets/js/39.152ac9bc.js"><link rel="prefetch" href="/assets/js/4.cc9cbbf8.js"><link rel="prefetch" href="/assets/js/40.6e21c179.js"><link rel="prefetch" href="/assets/js/41.5a9c85c4.js"><link rel="prefetch" href="/assets/js/42.98ff0a48.js"><link rel="prefetch" href="/assets/js/43.fe31d0c1.js"><link rel="prefetch" href="/assets/js/44.dd973892.js"><link rel="prefetch" href="/assets/js/45.06d129ad.js"><link rel="prefetch" href="/assets/js/46.fb2e83ad.js"><link rel="prefetch" href="/assets/js/47.d6f86ade.js"><link rel="prefetch" href="/assets/js/48.cb70e237.js"><link rel="prefetch" href="/assets/js/49.ef4e2c7e.js"><link rel="prefetch" href="/assets/js/5.dc8141e0.js"><link rel="prefetch" href="/assets/js/50.0a8e8200.js"><link rel="prefetch" href="/assets/js/51.eabb079a.js"><link rel="prefetch" href="/assets/js/52.fb6e2cad.js"><link rel="prefetch" href="/assets/js/53.f634ae54.js"><link rel="prefetch" href="/assets/js/54.d7154b71.js"><link rel="prefetch" href="/assets/js/55.b22a3b4f.js"><link rel="prefetch" href="/assets/js/56.e4cd514c.js"><link rel="prefetch" href="/assets/js/57.eb5bd897.js"><link rel="prefetch" href="/assets/js/58.a62b4327.js"><link rel="prefetch" href="/assets/js/59.53d15438.js"><link rel="prefetch" href="/assets/js/6.b120ccb0.js"><link rel="prefetch" href="/assets/js/60.4fcb9e80.js"><link rel="prefetch" href="/assets/js/61.9c691081.js"><link rel="prefetch" href="/assets/js/62.dac7ab34.js"><link rel="prefetch" href="/assets/js/63.d2f203aa.js"><link rel="prefetch" href="/assets/js/64.5fc8069b.js"><link rel="prefetch" href="/assets/js/65.654a9c78.js"><link rel="prefetch" href="/assets/js/66.4247387a.js"><link rel="prefetch" href="/assets/js/67.29ba519a.js"><link rel="prefetch" href="/assets/js/68.c3109cbc.js"><link rel="prefetch" href="/assets/js/69.92e23f69.js"><link rel="prefetch" href="/assets/js/7.d0fde847.js"><link rel="prefetch" href="/assets/js/70.97f31d73.js"><link rel="prefetch" href="/assets/js/71.d88025d0.js"><link rel="prefetch" href="/assets/js/72.f512f07d.js"><link rel="prefetch" href="/assets/js/73.a000e4bc.js"><link rel="prefetch" href="/assets/js/74.c6e8b5ed.js"><link rel="prefetch" href="/assets/js/75.5416ff45.js"><link rel="prefetch" href="/assets/js/76.498733f9.js"><link rel="prefetch" href="/assets/js/77.1bd3b474.js"><link rel="prefetch" href="/assets/js/78.a5b620a2.js"><link rel="prefetch" href="/assets/js/79.72fcd216.js"><link rel="prefetch" href="/assets/js/8.403f5c6b.js"><link rel="prefetch" href="/assets/js/80.e47b7563.js"><link rel="prefetch" href="/assets/js/81.9f24c6db.js"><link rel="prefetch" href="/assets/js/82.87b6e935.js"><link rel="prefetch" href="/assets/js/83.4cd18446.js"><link rel="prefetch" href="/assets/js/84.6f61c3cc.js"><link rel="prefetch" href="/assets/js/85.a7fac81a.js"><link rel="prefetch" href="/assets/js/86.a9f9497b.js"><link rel="prefetch" href="/assets/js/87.365fa73e.js"><link rel="prefetch" href="/assets/js/88.0321fe34.js"><link rel="prefetch" href="/assets/js/89.6cc9a28b.js"><link rel="prefetch" href="/assets/js/9.99fb77e6.js"><link rel="prefetch" href="/assets/js/90.7faf90d0.js"><link rel="prefetch" href="/assets/js/91.7a44446f.js"><link rel="prefetch" href="/assets/js/92.9d3d9283.js"><link rel="prefetch" href="/assets/js/93.c6091d14.js"><link rel="prefetch" href="/assets/js/94.ef3840b4.js"><link rel="prefetch" href="/assets/js/95.3cf95e20.js"><link rel="prefetch" href="/assets/js/96.f06737bf.js"><link rel="prefetch" href="/assets/js/97.72ede509.js"><link rel="prefetch" href="/assets/js/98.dbeb26fc.js"><link rel="prefetch" href="/assets/js/99.d8d1ff9d.js">
+    <link rel="stylesheet" href="/assets/css/0.styles.069d63fd.css">
+  </head>
+  <body class="theme-mode-light">
+    <div id="app" data-server-rendered="true"><div class="theme-container sidebar-open have-rightmenu have-body-img"><header class="navbar blur"><div title="目录" class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/" class="home-link router-link-active"><img src="/img/logo.png" alt="Meteor-Collection" class="logo"> <span class="site-name can-hide">Meteor-Collection</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/" class="nav-link">首页</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="后端" class="dropdown-title"><a href="/backend/" class="link-title">后端</a> <span class="title" style="display:none;">后端</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>Java</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/pages/b68651/" class="nav-link">Java基础</a></li><li class="dropdown-subitem"><a href="/pages/079032/" class="nav-link">Java进阶</a></li><li class="dropdown-subitem"><a href="/pages/892d69/" class="nav-link">Java容器</a></li><li class="dropdown-subitem"><a href="/pages/5240d7/" class="nav-link">Java并发编程</a></li><li class="dropdown-subitem"><a href="/pages/6198af/" class="nav-link">Java虚拟机</a></li></ul></li><li class="dropdown-item"><h4>计算机基础</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/pages/7f453c/" class="nav-link">数据结构与算法</a></li><li class="dropdown-subitem"><a href="/pages/4e9070/" class="nav-link">计算机网络</a></li><li class="dropdown-subitem"><a href="/pages/27935a/" class="nav-link">操作系统</a></li><li class="dropdown-subitem"><a href="/pages/a766e8/" class="nav-link">Linux</a></li></ul></li><li class="dropdown-item"><h4>框架｜中间件</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/pages/a63f9f/" class="nav-link">Spring</a></li><li class="dropdown-subitem"><a href="/pages/23bee8/" class="nav-link">MySQL</a></li><li class="dropdown-subitem"><a href="/pages/258dd8/" class="nav-link">Redis</a></li><li class="dropdown-subitem"><a href="/pages/6bb532/" class="nav-link">MQ</a></li></ul></li><li class="dropdown-item"><h4>架构</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/pages/5d4819/" class="nav-link">分布式</a></li><li class="dropdown-subitem"><a href="/pages/ad036a/" class="nav-link">高并发</a></li><li class="dropdown-subitem"><a href="/pages/2d8d93/" class="nav-link">高可用</a></li><li class="dropdown-subitem"><a href="/pages/1c4157/" class="nav-link">架构</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="前端" class="dropdown-title"><a href="/frontend/" class="link-title">前端</a> <span class="title" style="display:none;">前端</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>框架</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/pages/1731df/" class="nav-link">React</a></li><li class="dropdown-subitem"><a href="/pages/fdd4d1/" class="nav-link">其他</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="宝藏" class="dropdown-title"><a href="/collection/" class="link-title">宝藏</a> <span class="title" style="display:none;">宝藏</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>Java</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/pages/920601/" class="nav-link">Java</a></li><li class="dropdown-subitem"><a href="/pages/7640d6/" class="nav-link">HashMap</a></li></ul></li><li class="dropdown-item"><!----> <a href="/collection/cs/" class="nav-link">计算机基础</a></li><li class="dropdown-item"><h4>框架</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/pages/c3caec/" class="nav-link">Spring</a></li><li class="dropdown-subitem"><a href="/pages/daa799/" class="nav-link">SpringBoot</a></li><li class="dropdown-subitem"><a href="/pages/94af7d/" class="nav-link">MyBatis-Plus</a></li></ul></li><li class="dropdown-item"><h4>中间件</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/pages/80c0db/" class="nav-link">MySQL</a></li><li class="dropdown-subitem"><a href="/pages/e34ed7/" class="nav-link">Redis</a></li><li class="dropdown-subitem"><a href="/pages/395030/" class="nav-link">Nginx</a></li><li class="dropdown-subitem"><a href="/pages/e154af/" class="nav-link">Kafka</a></li></ul></li><li class="dropdown-item"><h4>微服务</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/pages/3cd2b1/" class="nav-link">Nacos</a></li><li class="dropdown-subitem"><a href="/pages/9e7ab2/" class="nav-link">Zookeeper</a></li></ul></li><li class="dropdown-item"><h4>源码及进阶</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/pages/cc005f/" class="nav-link">Spring 循环依赖三级缓存源码</a></li><li class="dropdown-subitem"><a href="/pages/d3aa38/" aria-current="page" class="nav-link router-link-exact-active router-link-active">Java JUC 核心类深度源码解析</a></li><li class="dropdown-subitem"><a href="/pages/99a556/" class="nav-link">分布式秒杀系统设计</a></li><li class="dropdown-subitem"><a href="/pages/0b8a9c/" class="nav-link">高并发短链接系统设计</a></li></ul></li><li class="dropdown-item"><h4>数据结构</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/pages/6c6c61/" class="nav-link">数据结构</a></li><li class="dropdown-subitem"><a href="/pages/8ea3f8/" class="nav-link">红黑树</a></li></ul></li><li class="dropdown-item"><h4>算法</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/pages/7f453c/" class="nav-link">算法复杂度</a></li><li class="dropdown-subitem"><a href="/pages/5830fa/" class="nav-link">排序算法</a></li><li class="dropdown-subitem"><a href="/pages/1f3b89/" class="nav-link">最短路径</a></li></ul></li><li class="dropdown-item"><h4>DevOps</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/pages/37361e/" class="nav-link">Docker</a></li><li class="dropdown-subitem"><a href="/pages/095d29/" class="nav-link">Git</a></li><li class="dropdown-subitem"><a href="/pages/4c06f3/" class="nav-link">Jenkins</a></li><li class="dropdown-subitem"><a href="/pages/50a3fd/" class="nav-link">Maven</a></li></ul></li><li class="dropdown-item"><!----> <a href="/collection/tools/" class="nav-link">开发工具</a></li><li class="dropdown-item"><!----> <a href="/collection/network/" class="nav-link">网络工具</a></li><li class="dropdown-item"><!----> <a href="/collection/others/" class="nav-link">其他</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="配置及工具" class="dropdown-title"><a href="/tools/" class="link-title">配置及工具</a> <span class="title" style="display:none;">配置及工具</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/pages/59ba19/" class="nav-link">实用工具</a></li><li class="dropdown-item"><h4>安装配置</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/pages/08fe43/" class="nav-link">Linux</a></li><li class="dropdown-subitem"><a href="/pages/eae8e6/" class="nav-link">Windows</a></li><li class="dropdown-subitem"><a href="/pages/f6b314/" class="nav-link">Mac</a></li></ul></li><li class="dropdown-item"><h4>开发工具</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/pages/13c304/" class="nav-link">IDEA</a></li><li class="dropdown-subitem"><a href="/pages/3f5859/" class="nav-link">VsCode</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="更多" class="dropdown-title"><a href="/more/" class="link-title">更多</a> <span class="title" style="display:none;">更多</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/pages/ec4e5b/" class="nav-link">关于</a></li><li class="dropdown-item"><!----> <a href="/pages/732fd9/" class="nav-link">收藏</a></li><li class="dropdown-item"><!----> <a href="/pages/6b7239/" class="nav-link">草稿</a></li><li class="dropdown-item"><h4>索引</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/categories/" class="nav-link">分类</a></li><li class="dropdown-subitem"><a href="/tags/" class="nav-link">标签</a></li><li class="dropdown-subitem"><a href="/archives/" class="nav-link">归档</a></li></ul></li></ul></div></div> <a href="https://github.com/lxzhang666666/Meteor-Collection" target="_blank" rel="noopener noreferrer" class="repo-link">
+    GitHub
+    <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></nav></div></header> <div class="sidebar-mask"></div> <div class="sidebar-hover-trigger"></div> <aside class="sidebar" style="display:none;"><div class="blogger"><img src="https://testingcf.jsdelivr.net/gh/lxzhang666666/img-bed@main/images/%E5%8D%9A%E4%B8%BB%E7%AE%80%E7%94%BB.jpg"> <div class="blogger-info"><h3>Meteor</h3> <span>吾必当乘此羽葆盖车</span></div></div> <nav class="nav-links"><div class="nav-item"><a href="/" class="nav-link">首页</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="后端" class="dropdown-title"><a href="/backend/" class="link-title">后端</a> <span class="title" style="display:none;">后端</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>Java</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/pages/b68651/" class="nav-link">Java基础</a></li><li class="dropdown-subitem"><a href="/pages/079032/" class="nav-link">Java进阶</a></li><li class="dropdown-subitem"><a href="/pages/892d69/" class="nav-link">Java容器</a></li><li class="dropdown-subitem"><a href="/pages/5240d7/" class="nav-link">Java并发编程</a></li><li class="dropdown-subitem"><a href="/pages/6198af/" class="nav-link">Java虚拟机</a></li></ul></li><li class="dropdown-item"><h4>计算机基础</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/pages/7f453c/" class="nav-link">数据结构与算法</a></li><li class="dropdown-subitem"><a href="/pages/4e9070/" class="nav-link">计算机网络</a></li><li class="dropdown-subitem"><a href="/pages/27935a/" class="nav-link">操作系统</a></li><li class="dropdown-subitem"><a href="/pages/a766e8/" class="nav-link">Linux</a></li></ul></li><li class="dropdown-item"><h4>框架｜中间件</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/pages/a63f9f/" class="nav-link">Spring</a></li><li class="dropdown-subitem"><a href="/pages/23bee8/" class="nav-link">MySQL</a></li><li class="dropdown-subitem"><a href="/pages/258dd8/" class="nav-link">Redis</a></li><li class="dropdown-subitem"><a href="/pages/6bb532/" class="nav-link">MQ</a></li></ul></li><li class="dropdown-item"><h4>架构</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/pages/5d4819/" class="nav-link">分布式</a></li><li class="dropdown-subitem"><a href="/pages/ad036a/" class="nav-link">高并发</a></li><li class="dropdown-subitem"><a href="/pages/2d8d93/" class="nav-link">高可用</a></li><li class="dropdown-subitem"><a href="/pages/1c4157/" class="nav-link">架构</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="前端" class="dropdown-title"><a href="/frontend/" class="link-title">前端</a> <span class="title" style="display:none;">前端</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>框架</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/pages/1731df/" class="nav-link">React</a></li><li class="dropdown-subitem"><a href="/pages/fdd4d1/" class="nav-link">其他</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="宝藏" class="dropdown-title"><a href="/collection/" class="link-title">宝藏</a> <span class="title" style="display:none;">宝藏</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>Java</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/pages/920601/" class="nav-link">Java</a></li><li class="dropdown-subitem"><a href="/pages/7640d6/" class="nav-link">HashMap</a></li></ul></li><li class="dropdown-item"><!----> <a href="/collection/cs/" class="nav-link">计算机基础</a></li><li class="dropdown-item"><h4>框架</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/pages/c3caec/" class="nav-link">Spring</a></li><li class="dropdown-subitem"><a href="/pages/daa799/" class="nav-link">SpringBoot</a></li><li class="dropdown-subitem"><a href="/pages/94af7d/" class="nav-link">MyBatis-Plus</a></li></ul></li><li class="dropdown-item"><h4>中间件</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/pages/80c0db/" class="nav-link">MySQL</a></li><li class="dropdown-subitem"><a href="/pages/e34ed7/" class="nav-link">Redis</a></li><li class="dropdown-subitem"><a href="/pages/395030/" class="nav-link">Nginx</a></li><li class="dropdown-subitem"><a href="/pages/e154af/" class="nav-link">Kafka</a></li></ul></li><li class="dropdown-item"><h4>微服务</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/pages/3cd2b1/" class="nav-link">Nacos</a></li><li class="dropdown-subitem"><a href="/pages/9e7ab2/" class="nav-link">Zookeeper</a></li></ul></li><li class="dropdown-item"><h4>源码及进阶</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/pages/cc005f/" class="nav-link">Spring 循环依赖三级缓存源码</a></li><li class="dropdown-subitem"><a href="/pages/d3aa38/" aria-current="page" class="nav-link router-link-exact-active router-link-active">Java JUC 核心类深度源码解析</a></li><li class="dropdown-subitem"><a href="/pages/99a556/" class="nav-link">分布式秒杀系统设计</a></li><li class="dropdown-subitem"><a href="/pages/0b8a9c/" class="nav-link">高并发短链接系统设计</a></li></ul></li><li class="dropdown-item"><h4>数据结构</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/pages/6c6c61/" class="nav-link">数据结构</a></li><li class="dropdown-subitem"><a href="/pages/8ea3f8/" class="nav-link">红黑树</a></li></ul></li><li class="dropdown-item"><h4>算法</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/pages/7f453c/" class="nav-link">算法复杂度</a></li><li class="dropdown-subitem"><a href="/pages/5830fa/" class="nav-link">排序算法</a></li><li class="dropdown-subitem"><a href="/pages/1f3b89/" class="nav-link">最短路径</a></li></ul></li><li class="dropdown-item"><h4>DevOps</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/pages/37361e/" class="nav-link">Docker</a></li><li class="dropdown-subitem"><a href="/pages/095d29/" class="nav-link">Git</a></li><li class="dropdown-subitem"><a href="/pages/4c06f3/" class="nav-link">Jenkins</a></li><li class="dropdown-subitem"><a href="/pages/50a3fd/" class="nav-link">Maven</a></li></ul></li><li class="dropdown-item"><!----> <a href="/collection/tools/" class="nav-link">开发工具</a></li><li class="dropdown-item"><!----> <a href="/collection/network/" class="nav-link">网络工具</a></li><li class="dropdown-item"><!----> <a href="/collection/others/" class="nav-link">其他</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="配置及工具" class="dropdown-title"><a href="/tools/" class="link-title">配置及工具</a> <span class="title" style="display:none;">配置及工具</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/pages/59ba19/" class="nav-link">实用工具</a></li><li class="dropdown-item"><h4>安装配置</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/pages/08fe43/" class="nav-link">Linux</a></li><li class="dropdown-subitem"><a href="/pages/eae8e6/" class="nav-link">Windows</a></li><li class="dropdown-subitem"><a href="/pages/f6b314/" class="nav-link">Mac</a></li></ul></li><li class="dropdown-item"><h4>开发工具</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/pages/13c304/" class="nav-link">IDEA</a></li><li class="dropdown-subitem"><a href="/pages/3f5859/" class="nav-link">VsCode</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="更多" class="dropdown-title"><a href="/more/" class="link-title">更多</a> <span class="title" style="display:none;">更多</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/pages/ec4e5b/" class="nav-link">关于</a></li><li class="dropdown-item"><!----> <a href="/pages/732fd9/" class="nav-link">收藏</a></li><li class="dropdown-item"><!----> <a href="/pages/6b7239/" class="nav-link">草稿</a></li><li class="dropdown-item"><h4>索引</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/categories/" class="nav-link">分类</a></li><li class="dropdown-subitem"><a href="/tags/" class="nav-link">标签</a></li><li class="dropdown-subitem"><a href="/archives/" class="nav-link">归档</a></li></ul></li></ul></div></div> <a href="https://github.com/lxzhang666666/Meteor-Collection" target="_blank" rel="noopener noreferrer" class="repo-link">
+    GitHub
+    <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></nav>  <ul class="sidebar-links"><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>Java</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>计算机基础</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>框架</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>中间件</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>微服务</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading open"><span>源码及进阶</span> <span class="arrow down"></span></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/pages/c670ad/" class="sidebar-link">分布式限流组件设计</a></li><li><a href="/pages/22ce54/" class="sidebar-link">分布式消息中间件设计</a></li><li><a href="/pages/0b8a9c/" class="sidebar-link">高并发短链接系统设计</a></li><li><a href="/pages/99ca7c/" class="sidebar-link">Java 后端面试高频场景题</a></li><li><a href="/pages/99a556/" class="sidebar-link">分布式秒杀系统设计</a></li><li><a href="/pages/d3aa38/" aria-current="page" class="active sidebar-link">Java JUC 核心类深度源码解析</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header level2"><a href="/pages/d3aa38/#说明" class="sidebar-link">说明</a></li><li class="sidebar-sub-header level2"><a href="/pages/d3aa38/#_1-顶层结构与核心属性源码" class="sidebar-link">1. 顶层结构与核心属性源码</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header level3"><a href="/pages/d3aa38/#源码关键点解读" class="sidebar-link">源码关键点解读</a></li></ul></li><li class="sidebar-sub-header level2"><a href="/pages/d3aa38/#_2-aqs-独占模式获取锁-acquire-完整源码逐行拆解" class="sidebar-link">2. AQS 独占模式获取锁 acquire() 完整源码逐行拆解</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header level3"><a href="/pages/d3aa38/#入口源码" class="sidebar-link">入口源码</a></li><li class="sidebar-sub-header level4"><a href="/pages/d3aa38/#第一层-tryacquire-arg-钩子方法-留给子类实现" class="sidebar-link">第一层：tryAcquire(arg) 钩子方法（留给子类实现）</a></li><li class="sidebar-sub-header level4"><a href="/pages/d3aa38/#第二层-addwaiter-node-mode-将线程封装-node-并入队源码" class="sidebar-link">第二层：addWaiter(Node mode) 将线程封装 Node 并入队源码</a></li><li class="sidebar-sub-header level4"><a href="/pages/d3aa38/#第三层-核心阻塞自旋方法-acquirequeued-超长源码" class="sidebar-link">第三层：核心阻塞自旋方法 acquireQueued 超长源码</a></li><li class="sidebar-sub-header level5"><a href="/pages/d3aa38/#子方法-1-shouldparkafterfailedacquire-修改前驱状态为-signal" class="sidebar-link">子方法 1：shouldParkAfterFailedAcquire 修改前驱状态为 SIGNAL</a></li><li class="sidebar-sub-header level5"><a href="/pages/d3aa38/#子方法-2-parkandcheckinterrupt-阻塞线程" class="sidebar-link">子方法 2：parkAndCheckInterrupt 阻塞线程</a></li><li class="sidebar-sub-header level4"><a href="/pages/d3aa38/#第四层-selfinterrupt-补充中断" class="sidebar-link">第四层：selfInterrupt() 补充中断</a></li></ul></li><li class="sidebar-sub-header level2"><a href="/pages/d3aa38/#_3-aqs-独占锁释放-release-源码解析" class="sidebar-link">3. AQS 独占锁释放 release() 源码解析</a></li><li class="sidebar-sub-header level2"><a href="/pages/d3aa38/#_4-aqs-共享模式-acquireshared-releaseshared-简要源码" class="sidebar-link">4. AQS 共享模式 acquireShared /releaseShared 简要源码</a></li><li class="sidebar-sub-header level2"><a href="/pages/d3aa38/#_1-reentrantlock-外层类结构源码" class="sidebar-link">1. ReentrantLock 外层类结构源码</a></li><li class="sidebar-sub-header level2"><a href="/pages/d3aa38/#_2-非公平锁-nonfairsync-内部类源码-重点" class="sidebar-link">2. 非公平锁 NonfairSync 内部类源码（重点）</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header level3"><a href="/pages/d3aa38/#源码核心差异一句话" class="sidebar-link">源码核心差异一句话</a></li></ul></li><li class="sidebar-sub-header level2"><a href="/pages/d3aa38/#_3-公平锁-fairsync-内部类源码" class="sidebar-link">3. 公平锁 FairSync 内部类源码</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header level3"><a href="/pages/d3aa38/#关键方法-hasqueuedpredecessors-源码" class="sidebar-link">关键方法 hasQueuedPredecessors() 源码</a></li></ul></li><li class="sidebar-sub-header level2"><a href="/pages/d3aa38/#_4-reentrantlock-可重入源码实现总结" class="sidebar-link">4. ReentrantLock 可重入源码实现总结</a></li><li class="sidebar-sub-header level2"><a href="/pages/d3aa38/#_5-locksupport-park-底层补充源码原理" class="sidebar-link">5. LockSupport.park 底层补充源码原理</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header level3"><a href="/pages/d3aa38/#locksupport-park-大白话彻底拆解-用法-场景-代码示例-和wait区别" class="sidebar-link">LockSupport.park() 大白话彻底拆解（用法+场景+代码示例+和wait区别）</a></li><li class="sidebar-sub-header level4"><a href="/pages/d3aa38/#一、先建立最简单模型-每个线程自带一张「通行证」" class="sidebar-link">一、先建立最简单模型：每个线程自带一张「通行证」</a></li><li class="sidebar-sub-header level5"><a href="/pages/d3aa38/#两个核心方法就是操作这张通行证" class="sidebar-link">两个核心方法就是操作这张通行证</a></li><li class="sidebar-sub-header level3"><a href="/pages/d3aa38/#二、4个最直观运行案例-一看就懂" class="sidebar-link">二、4个最直观运行案例，一看就懂</a></li><li class="sidebar-sub-header level4"><a href="/pages/d3aa38/#案例1-先park-后unpark-常规阻塞唤醒" class="sidebar-link">案例1：先park，后unpark（常规阻塞唤醒）</a></li><li class="sidebar-sub-header level3"><a href="/pages/d3aa38/#案例2-先-unpark-发通行证-后-park-重点-顺序无关" class="sidebar-link">案例2：先 unpark 发通行证，后 park（重点：顺序无关）</a></li><li class="sidebar-sub-header level4"><a href="/pages/d3aa38/#案例3-unpark多次也只有1张通行证" class="sidebar-link">案例3：unpark多次也只有1张通行证</a></li><li class="sidebar-sub-header level4"><a href="/pages/d3aa38/#案例4-线程中断打断-park-阻塞" class="sidebar-link">案例4：线程中断打断 park 阻塞</a></li><li class="sidebar-sub-header level3"><a href="/pages/d3aa38/#三、park-三个重载方法完整用法" class="sidebar-link">三、park 三个重载方法完整用法</a></li><li class="sidebar-sub-header level3"><a href="/pages/d3aa38/#四、park-与-object-wait-核心区别-彻底分清" class="sidebar-link">四、park() 与 Object.wait() 核心区别（彻底分清）</a></li><li class="sidebar-sub-header level4"><a href="/pages/d3aa38/#举个反例-wait-顺序颠倒直接死锁" class="sidebar-link">举个反例：wait 顺序颠倒直接死锁</a></li><li class="sidebar-sub-header level3"><a href="/pages/d3aa38/#五、locksupport-到底用来干什么-实际业务-底层用途" class="sidebar-link">五、LockSupport 到底用来干什么？（实际业务&amp;底层用途）</a></li><li class="sidebar-sub-header level4"><a href="/pages/d3aa38/#用途1-juc-aqs-并发包底层唯一阻塞工具-最重要" class="sidebar-link">用途1：JUC AQS 并发包底层唯一阻塞工具（最重要）</a></li><li class="sidebar-sub-header level4"><a href="/pages/d3aa38/#用途2-手写简单阻塞队列、自定义同步器" class="sidebar-link">用途2：手写简单阻塞队列、自定义同步器</a></li><li class="sidebar-sub-header level4"><a href="/pages/d3aa38/#用途3-线程休眠可控工具-业务开发极少用-框架底层多" class="sidebar-link">用途3：线程休眠可控工具（业务开发极少用，框架底层多）</a></li></ul></li><li class="sidebar-sub-header level2"><a href="/pages/d3aa38/#六、极简总结背诵版" class="sidebar-link">六、极简总结背诵版</a></li><li class="sidebar-sub-header level2"><a href="/pages/d3aa38/#_1-外层类结构与-state-拆分源码" class="sidebar-link">1. 外层类结构与 state 拆分源码</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header level3"><a href="/pages/d3aa38/#state-32-位拆分源码规则-死记" class="sidebar-link">state 32 位拆分源码规则（死记）</a></li></ul></li><li class="sidebar-sub-header level2"><a href="/pages/d3aa38/#_2-writelock-写锁独占模式-tryacquire-源码" class="sidebar-link">2. WriteLock 写锁独占模式 tryAcquire 源码</a></li><li class="sidebar-sub-header level2"><a href="/pages/d3aa38/#_3-readlock-读锁共享模式-tryacquireshared-源码" class="sidebar-link">3. ReadLock 读锁共享模式 tryAcquireShared 源码</a></li><li class="sidebar-sub-header level2"><a href="/pages/d3aa38/#_4-锁降级源码官方标准实现-源码级原理" class="sidebar-link">4. 锁降级源码官方标准实现（源码级原理）</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header level3"><a href="/pages/d3aa38/#降级定义源码逻辑" class="sidebar-link">降级定义源码逻辑</a></li><li class="sidebar-sub-header level3"><a href="/pages/d3aa38/#源码层面为什么不支持锁升级" class="sidebar-link">源码层面为什么不支持锁升级？</a></li></ul></li><li class="sidebar-sub-header level2"><a href="/pages/d3aa38/#_5-读写锁源码遗留缺陷-写饥饿" class="sidebar-link">5. 读写锁源码遗留缺陷：写饥饿</a></li><li class="sidebar-sub-header level2"><a href="/pages/d3aa38/#_1-conditionobject-内部类核心结构" class="sidebar-link">1. ConditionObject 内部类核心结构</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header level3"><a href="/pages/d3aa38/#condition-完整流转源码流程" class="sidebar-link">Condition 完整流转源码流程</a></li><li class="sidebar-sub-header level3"><a href="/pages/d3aa38/#和-object-wait-notify-源码本质区别" class="sidebar-link">和 Object.wait/notify 源码本质区别</a></li></ul></li><li class="sidebar-sub-header level2"><a href="/pages/d3aa38/#前置-原生-set-nx-ex-锁的底层漏洞-redis-单命令源码" class="sidebar-link">前置：原生 SET NX EX 锁的底层漏洞（Redis 单命令源码）</a></li><li class="sidebar-sub-header level2"><a href="/pages/d3aa38/#_1-redisson-rlock-可重入锁-加锁-lua-完整源码" class="sidebar-link">1. Redisson RLock 可重入锁 加锁 Lua 完整源码</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header level3"><a href="/pages/d3aa38/#源码设计要点" class="sidebar-link">源码设计要点</a></li></ul></li><li class="sidebar-sub-header level2"><a href="/pages/d3aa38/#_2-redisson-解锁-lua-源码" class="sidebar-link">2. Redisson 解锁 Lua 源码</a></li><li class="sidebar-sub-header level2"><a href="/pages/d3aa38/#_3-watchdog-看门狗后台续期任务源码逻辑-java-层" class="sidebar-link">3. WatchDog 看门狗后台续期任务源码逻辑（Java 层）</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header level3"><a href="/pages/d3aa38/#看门狗源码规则" class="sidebar-link">看门狗源码规则</a></li></ul></li><li class="sidebar-sub-header level2"><a href="/pages/d3aa38/#_4-redisson-红锁-redlock-源码核心思想-解决主从锁丢失" class="sidebar-link">4. Redisson 红锁 RedLock 源码核心思想（解决主从锁丢失）</a></li><li class="sidebar-sub-header level2"><a href="/pages/d3aa38/#_5-redisson-读写锁-rreadwritelock-lua-源码核心" class="sidebar-link">5. Redisson 读写锁 RReadWriteLock Lua 源码核心</a></li><li class="sidebar-sub-header level2"><a href="/pages/d3aa38/#_1-countdownlatch-源码-aqs-共享模式" class="sidebar-link">1. CountDownLatch 源码（AQS 共享模式）</a></li><li class="sidebar-sub-header level2"><a href="/pages/d3aa38/#_2-semaphore-信号量源码-aqs-共享" class="sidebar-link">2. Semaphore 信号量源码（AQS 共享）</a></li><li class="sidebar-sub-header level2"><a href="/pages/d3aa38/#_3-cyclicbarrier-源码-不基于-aqs" class="sidebar-link">3. CyclicBarrier 源码（不基于 AQS）</a></li></ul></li><li><a href="/pages/efecf3/" class="sidebar-link">API 网关设计</a></li><li><a href="/pages/24a3d8/" class="sidebar-link">Claude Code 使用指南</a></li><li><a href="/pages/d53a9f/" class="sidebar-link">HashMap 与 ConcurrentHashMap 源码解析</a></li><li><a href="/pages/612345/" class="sidebar-link">MyBatis-Plus 核心源码拆解</a></li><li><a href="/pages/276aed/" class="sidebar-link">MyBatis 核心源码解析</a></li><li><a href="/pages/441515/" class="sidebar-link">自研 RPC 框架架构设计</a></li><li><a href="/pages/68cdfe/" class="sidebar-link">Sharding-JDBC 完整解析</a></li><li><a href="/pages/cc005f/" class="sidebar-link">Spring 循环依赖三级缓存源码</a></li><li><a href="/pages/1774ff/" class="sidebar-link">Spring 事务底层全解析</a></li><li><a href="/pages/8cc949/" class="sidebar-link">Spring AOP 源码深度解析</a></li><li><a href="/pages/fb0ea5/" class="sidebar-link">ThreadPoolExecutor 线程池源码解析</a></li></ul></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>数据结构</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>算法</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>devops</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>开发工具</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>网络工具</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>其他</span> <span class="arrow right"></span></p> <!----></section></li></ul> </aside> <div><main class="page"><div class="theme-vdoing-wrapper "><div class="articleInfo-wrap" data-v-06225672><div class="articleInfo" data-v-06225672><ul class="breadcrumbs" data-v-06225672><li data-v-06225672><a href="/" title="首页" class="iconfont icon-home router-link-active" data-v-06225672></a></li> <li data-v-06225672><a href="/categories/?category=%E5%AE%9D%E8%97%8F" title="分类" data-v-06225672>宝藏</a></li><li data-v-06225672><a href="/categories/?category=%E6%BA%90%E7%A0%81%E5%8F%8A%E8%BF%9B%E9%98%B6" title="分类" data-v-06225672>源码及进阶</a></li></ul> <div class="info" data-v-06225672><div title="作者" class="author iconfont icon-touxiang" data-v-06225672><a href="https://github.com/lxzhang666666" target="_blank" title="作者" class="beLink" data-v-06225672>lxzhang666666</a></div> <div title="创建时间" class="date iconfont icon-riqi" data-v-06225672><a href="javascript:;" data-v-06225672>2026-08-09</a></div> <!----></div></div></div> <!----> <div class="content-wrapper"><div class="right-menu-wrapper"><div class="right-menu-margin"><div class="right-menu-title">目录</div> <div class="right-menu-content"></div></div></div> <h1><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAAXNSR0IArs4c6QAABH1JREFUSA3tVl1oHFUUPmdmd2ltklqbpJDiNnXFmgbFktho7YMPNiJSSZM0+CAYSkUELVhM6YuwIPpgoOKDqOBDC0XE2CQoNtQXBUFTTcCi+Wlh1V2TQExsUzcltd3M9Tt3ZjZzZ2fT+OJTL8yeM+eee757fmeJbq//KQL8X3DUSFOcfr7cRsRtxNQMWueeVzOkaITIGqQHNg5y8+jNW9ldM7A6nTpAjuolUikAwq7CE3WcM2RRDz+XGVgN3FptU/aUSlvq9Pa3iZ1+sgAqJyyAFqkipd9dqiwHF3P65YycLWc/6sqGrvoEoIp6DOFaX5h6+dnfjkWprwqsPk0dUGq5vySwDImC10KxFHgGL1SWoc92O3eVht09qdXNH11I2SsTsJYqMWzihqGMi+A+Garf3BAuuLI5oGlULyNfyB/HYNujwktOfRrMr5t77NmevqaUopx0grnKAyvVpmwUDB4x6FPXuGvYLTDwWsejwgtgkYKPqRJg8SV6xaiZ3ZTppGneS4yfH5/66fZSDHv+QZci/+h5c5UHtpy67JUqGppM0sh0Nc1dW6/N1W5Yoqat8/TU/VnadmdeW2PLLSyh0cvxBs3KbqTmwYPpxN4do/mzE8nEpvX/UMu2Wbp74zUAK5q6WkHns7V0eWkdPbPzd3rxkTGybadYySumVzhcaJFbs5UrEkQ/+CK8gF5dnh/6ciIZ73gwQ927L1IitoxKLXYP3SjYdOrHHfTZhRRlFyrorafPk20B3HPD1y2G3qKZME5Jcf3t/HUC13/8tSd++vqFveMUTwAUxSUFI1QekR1+bIze3D9MF2aq6cPvG72CgnldWCFqyRw3lwH8ZMerjTD9ElRO7Gv44wNpC90aASqGfVlz/Rx17srQ57/UU26hkhQqUB7dBR71WmzQhHUnblGmVOEw0jhbV1n9OlXUDCIRGaNV5Jp43N516fN7JmnTHdfp7Hgy0luO4aMhtkLL8Bi3bUWYvzh5Mn1dTxrL6QmGuRhGL/TiTTxRoEdTszSaq9GR0NGA3KdkOz3hqSV3MIDhQ5IVX/Ivx3umBti2es2h4eZby7x8br1rkf7Mo90AqC8aQ3sJeNzqFRu+vSANAQe3PL7l0HGOAdwDCeZYvNKeoZp1Qfs6Aipndh86HmFRi0LAnEO47wsqM6cdfjh3jBPUzhZy7nvlUfFsamED1VQt6aISHVymXZ/B2aCtIG8AI8xfobj2d3en1wWVhOeHELKmLQ1s211s88comkv4UCwWyF787mJdYXtNfhKAXVqnKTq8QZvGAGGOfaTo5pGZ/PwbUCr5+DPr/1J92JNHr9aOl/F3iI5+O1nfybsGxoimvZ3ViWSluDITw3P37mypheDIPY0tw7+O/5ApbkYw+zpfaUVu32Pi98+defdUhEpZkRFq0aqyNh9FuL9hpYbEm6iwi0z2REd09ZmyENEbuhjDWzKvZXTqKYaBIr3tt5kuPtQBZFvEUwHt60vfCNu41XsksH9Ij1BMMz1Y0OOunHNShFIP5868g5zeXmuLwL9T4b6Q2+KejgAAAABJRU5ErkJggg==">Java JUC 核心类深度源码解析<!----></h1>  <div class="theme-vdoing-content content__default"><h1 id="java-juc-核心类深度源码逐行解析完整版"><a href="#java-juc-核心类深度源码逐行解析完整版" class="header-anchor">#</a> Java JUC 核心类深度源码逐行解析完整版</h1> <h2 id="说明"><a href="#说明" class="header-anchor">#</a> 说明</h2> <ol><li>全部基于 JDK8 原版源码拆解，<strong>聚焦源码逻辑、关键方法、变量、CAS 自旋、队列流转</strong>，不堆砌概念；</li> <li>覆盖：AQS 完整源码 → ReentrantLock 公平 / 非公平锁源码 → ReentrantReadWriteLock 源码 → Lock 与 Condition → Redisson 加解锁 Lua 源码 + 看门狗源码 → CountDownLatch/Semaphore/CyclicBarrier；</li> <li>每一块都贴核心源码片段 + 逐行注释 + 执行流程图文字拆解 + 面试源码追问。</li></ol> <hr> <h1 id="第一章-abstractqueuedsynchronizer-aqs-完整源码深度剖析"><a href="#第一章-abstractqueuedsynchronizer-aqs-完整源码深度剖析" class="header-anchor">#</a> 第一章 AbstractQueuedSynchronizer（AQS）完整源码深度剖析</h1> <h2 id="_1-顶层结构与核心属性源码"><a href="#_1-顶层结构与核心属性源码" class="header-anchor">#</a> 1. 顶层结构与核心属性源码</h2> <div class="language- line-numbers-mode"><pre class="language-text"><code>public abstract class AbstractQueuedSynchronizer
+    extends AbstractOwnableSynchronizer
+    implements java.io.Serializable {
+
+    // 1. 同步状态，核心变量，volatile保证可见性
+    private volatile int state;
+
+    // 2. CLH双向阻塞队列头尾节点
+    private transient volatile Node head;
+    private transient volatile Node tail;
+
+    // 3. 内部等待队列Node静态内部类
+    static final class Node {
+        // 共享模式标记
+        static final Node SHARED = new Node();
+        // 独占模式标记
+        static final Node EXCLUSIVE = null;
+
+        // waitStatus 节点状态值
+        static final int CANCELLED =  1;    // 线程取消，中断/超时，失效节点
+        static final int SIGNAL    = -1;    // 后继节点需要被唤醒
+        static final int CONDITION = -2;    // 在Condition条件队列等待
+        static final int PROPAGATE = -3;    // 共享模式下状态向后传播
+
+        volatile int waitStatus;
+        volatile Node prev;    // 前驱指针
+        volatile Node next;    // 后继指针
+        volatile Thread thread; // 绑定阻塞线程
+        Node nextWaiter;        // Condition条件队列下一个节点
+
+        // 判断是否共享节点
+        final boolean isShared() {
+            return nextWaiter == SHARED;
+        }
+        // 获取有效前驱节点，跳过取消节点
+        final Node predecessor() throws NullPointerException {
+            Node p = prev;
+            while (p.waitStatus == CANCELLED)
+                p = p.prev;
+            prev = p;
+            return p;
+        }
+    }
+}
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br><span class="line-number">28</span><br><span class="line-number">29</span><br><span class="line-number">30</span><br><span class="line-number">31</span><br><span class="line-number">32</span><br><span class="line-number">33</span><br><span class="line-number">34</span><br><span class="line-number">35</span><br><span class="line-number">36</span><br><span class="line-number">37</span><br><span class="line-number">38</span><br><span class="line-number">39</span><br><span class="line-number">40</span><br><span class="line-number">41</span><br><span class="line-number">42</span><br><span class="line-number">43</span><br><span class="line-number">44</span><br></div></div><h3 id="源码关键点解读"><a href="#源码关键点解读" class="header-anchor">#</a> 源码关键点解读</h3> <ol><li><strong>state 为什么是 volatile int</strong> <ul><li>volatile 保证多线程修改的内存可见性；</li> <li>CAS（<code>Unsafe.compareAndSwapInt</code>）依赖 volatile 的内存屏障防止指令重排；</li> <li>int 32 位可以被读写锁拆分为高低 16 位使用。</li></ul></li> <li><strong>Node 双向链表设计源码意图</strong><code>predecessor()</code> 方法是核心：当前驱节点被取消（CANCELLED=1）时，向前回溯找到有效前驱，并修正指针，单向链表无法完成回溯清理失效节点，这是双向链表唯一不可替代的价值。</li> <li>waitStatus 5 种状态流转规则（源码死记）
+<ul><li>0：初始默认状态；</li> <li>SIGNAL (-1)：前驱节点执行完必须唤醒我；</li> <li>CANCELLED (1)：永久失效，队列中会被 GC 清理；</li> <li>CONDITION (-2)：脱离主 AQS 队列，在 Condition 单向条件队列；</li> <li>PROPAGATE (-3)：共享锁释放时唤醒多个后继。</li></ul></li></ol> <h2 id="_2-aqs-独占模式获取锁-acquire-完整源码逐行拆解"><a href="#_2-aqs-独占模式获取锁-acquire-完整源码逐行拆解" class="header-anchor">#</a> 2. AQS 独占模式获取锁 <code>acquire()</code> 完整源码逐行拆解</h2> <h3 id="入口源码"><a href="#入口源码" class="header-anchor">#</a> 入口源码</h3> <div class="language- line-numbers-mode"><pre class="language-text"><code>public final void acquire(int arg) {
+    // 三段式逻辑
+    if (!tryAcquire(arg) &amp;&amp;
+        acquireQueued(addWaiter(Node.EXCLUSIVE), arg))
+        selfInterrupt();
+}
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br></div></div><p>四层拆解：</p> <h4 id="第一层-tryacquire-arg-钩子方法-留给子类实现"><a href="#第一层-tryacquire-arg-钩子方法-留给子类实现" class="header-anchor">#</a> 第一层：<code>tryAcquire(arg)</code> 钩子方法（留给子类实现）</h4> <p>AQS 空实现，抛出异常，由 ReentrantLock 等子类重写：</p> <div class="language- line-numbers-mode"><pre class="language-text"><code>protected boolean tryAcquire(int arg) {
+    throw new UnsupportedOperationException();
+}
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br></div></div><h4 id="第二层-addwaiter-node-mode-将线程封装-node-并入队源码"><a href="#第二层-addwaiter-node-mode-将线程封装-node-并入队源码" class="header-anchor">#</a> 第二层：<code>addWaiter(Node mode)</code> 将线程封装 Node 并入队源码</h4> <div class="language- line-numbers-mode"><pre class="language-text"><code>private Node addWaiter(Node mode) {
+    // 1. 新建Node绑定当前线程
+    Node node = new Node(Thread.currentThread(), mode);
+    // 快速尝试CAS插入队尾
+    Node pred = tail;
+    if (pred != null) {
+        node.prev = pred;
+        if (compareAndSetTail(pred, node)) {
+            pred.next = node;
+            return node;
+        }
+    }
+    // CAS失败进入自旋死循环入队enq
+    enq(node);
+    return node;
+}
+
+// 自旋CAS插入队尾，无限循环直到成功
+private Node enq(final Node node) {
+    for (;;) {
+        Node t = tail;
+        if (t == null) {
+            // 队列为空，初始化head虚拟头节点
+            if (compareAndSetHead(new Node()))
+                tail = head;
+        } else {
+            node.prev = t;
+            if (compareAndSetTail(t, node)) {
+                t.next = node;
+                return t;
+            }
+        }
+    }
+}
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br><span class="line-number">28</span><br><span class="line-number">29</span><br><span class="line-number">30</span><br><span class="line-number">31</span><br><span class="line-number">32</span><br><span class="line-number">33</span><br><span class="line-number">34</span><br></div></div><p><strong>源码重点</strong>：</p> <ul><li>头节点是<strong>空虚拟节点</strong>，不绑定任何线程，仅作为哨兵；</li> <li>先快速一次 CAS，失败再无限自旋，减少循环次数提升性能。</li></ul> <h4 id="第三层-核心阻塞自旋方法-acquirequeued-超长源码"><a href="#第三层-核心阻塞自旋方法-acquirequeued-超长源码" class="header-anchor">#</a> 第三层：核心阻塞自旋方法 <code>acquireQueued</code> 超长源码</h4> <div class="language- line-numbers-mode"><pre class="language-text"><code>final boolean acquireQueued(final Node node, int arg) {
+    boolean failed = true;
+    try {
+        boolean interrupted = false;
+        for (;;) {
+            // 获取有效前驱
+            final Node p = node.predecessor();
+            // 只有前驱是head头节点，才有资格尝试抢锁
+            if (p == head &amp;&amp; tryAcquire(arg)) {
+                // 抢到锁，把自己设为新head，清空线程引用
+                setHead(node);
+                p.next = null; // 旧head脱离链表，帮助GC
+                failed = false;
+                return interrupted;
+            }
+            // 判断是否需要park阻塞
+            if (shouldParkAfterFailedAcquire(p, node) &amp;&amp;
+                parkAndCheckInterrupt())
+                interrupted = true;
+        }
+    } finally {
+        if (failed)
+            cancelAcquire(node);
+    }
+}
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br></div></div><h5 id="子方法-1-shouldparkafterfailedacquire-修改前驱状态为-signal"><a href="#子方法-1-shouldparkafterfailedacquire-修改前驱状态为-signal" class="header-anchor">#</a> 子方法 1：<code>shouldParkAfterFailedAcquire</code> 修改前驱状态为 SIGNAL</h5> <div class="language- line-numbers-mode"><pre class="language-text"><code>private static boolean shouldParkAfterFailedAcquire(Node pred, Node node) {
+    int ws = pred.waitStatus;
+    if (ws == Node.SIGNAL)
+        // 前驱标记为SIGNAL，执行完会唤醒我，可以安心park
+        return true;
+    if (ws &gt; 0) {
+        // 前驱取消，持续向前删除所有取消节点
+        do {
+            node.prev = pred = pred.prev;
+        } while (pred.waitStatus &gt; 0);
+        pred.next = node;
+    } else {
+        // ws=0/PROPAGATE，CAS把前驱改为SIGNAL
+        compareAndSetWaitStatus(pred, ws, Node.SIGNAL);
+    }
+    return false;
+}
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br></div></div><h5 id="子方法-2-parkandcheckinterrupt-阻塞线程"><a href="#子方法-2-parkandcheckinterrupt-阻塞线程" class="header-anchor">#</a> 子方法 2：<code>parkAndCheckInterrupt</code> 阻塞线程</h5> <div class="language- line-numbers-mode"><pre class="language-text"><code>private final boolean parkAndCheckInterrupt() {
+    LockSupport.park(this);
+    // 返回是否被中断唤醒
+    return Thread.interrupted();
+}
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br></div></div><p><strong>acquireQueued 完整执行逻辑总结（源码背诵版）</strong></p> <ol><li>死循环获取前驱节点；</li> <li>只有前驱是 head 才允许调用 tryAcquire 抢锁；</li> <li>抢不到就把前驱状态改为 SIGNAL，调用 LockSupport.park 阻塞；</li> <li>被 unpark 唤醒后再次循环竞争；</li> <li>抢到锁后替换 head，断开旧节点引用，GC 回收；</li> <li>如果中途线程被中断，记录中断标记，最终上层<code>selfInterrupt()</code>补上中断。</li></ol> <h4 id="第四层-selfinterrupt-补充中断"><a href="#第四层-selfinterrupt-补充中断" class="header-anchor">#</a> 第四层：<code>selfInterrupt()</code> 补充中断</h4> <div class="language- line-numbers-mode"><pre class="language-text"><code>private static void selfInterrupt() {
+    Thread.currentThread().interrupt();
+}
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br></div></div><p>原因：park 唤醒时会清除中断标记，必须手动恢复中断状态。</p> <h2 id="_3-aqs-独占锁释放-release-源码解析"><a href="#_3-aqs-独占锁释放-release-源码解析" class="header-anchor">#</a> 3. AQS 独占锁释放 <code>release()</code> 源码解析</h2> <div class="language- line-numbers-mode"><pre class="language-text"><code>public final boolean release(int arg) {
+    // 子类执行释放逻辑
+    if (tryRelease(arg)) {
+        Node h = head;
+        // head不为空且状态不是初始0，唤醒后继节点
+        if (h != null &amp;&amp; h.waitStatus != 0)
+            unparkSuccessor(h);
+        return true;
+    }
+    return false;
+}
+
+// 唤醒头节点后继有效节点
+private void unparkSuccessor(Node node) {
+    int ws = node.waitStatus;
+    // 先把head状态归零
+    if (ws &lt; 0)
+        compareAndSetWaitStatus(node, ws, 0);
+
+    Node s = node.next;
+    // 后继为空或者被取消，从tail倒着找最前面有效节点
+    if (s == null || s.waitStatus &gt; 0) {
+        s = null;
+        for (Node t = tail; t != null &amp;&amp; t != node; t = t.prev)
+            if (t.waitStatus &lt;= 0)
+                s = t;
+    }
+    if (s != null)
+        LockSupport.unpark(s.thread);
+}
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br><span class="line-number">28</span><br><span class="line-number">29</span><br><span class="line-number">30</span><br></div></div><p><strong>源码亮点</strong>：
+释放唤醒时<strong>从尾部向前遍历</strong>找有效节点，因为 next 指针在并发入队时可能未完成赋值，prev 指针永远可靠，避免漏唤醒。</p> <h2 id="_4-aqs-共享模式-acquireshared-releaseshared-简要源码"><a href="#_4-aqs-共享模式-acquireshared-releaseshared-简要源码" class="header-anchor">#</a> 4. AQS 共享模式 acquireShared /releaseShared 简要源码</h2> <div class="language- line-numbers-mode"><pre class="language-text"><code>public final void acquireShared(int arg) {
+    // tryAcquireShared 返回负数代表获取失败
+    if (tryAcquireShared(arg) &lt; 0)
+        doAcquireShared(arg);
+}
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br></div></div><p>共享模式核心差异：</p> <ol><li>获取成功后会执行<code>setHeadAndPropagate</code>，向后传播唤醒多个读线程；</li> <li>ReentrantReadWriteLock 读锁、Semaphore、CountDownLatch 全部走这套共享逻辑。</li></ol> <hr> <h1 id="第二章-reentrantlock-完整源码逐行深度解析"><a href="#第二章-reentrantlock-完整源码逐行深度解析" class="header-anchor">#</a> 第二章 ReentrantLock 完整源码逐行深度解析</h1> <h2 id="_1-reentrantlock-外层类结构源码"><a href="#_1-reentrantlock-外层类结构源码" class="header-anchor">#</a> 1. ReentrantLock 外层类结构源码</h2> <div class="language- line-numbers-mode"><pre class="language-text"><code>public class ReentrantLock implements Lock, java.io.Serializable {
+    // 核心同步器对象，多态指向公平/非公平内部类
+    private final Sync sync;
+
+    // 默认构造：非公平锁
+    public ReentrantLock() {
+        sync = new NonfairSync();
+    }
+    // 传入boolean选择公平/非公平
+    public ReentrantLock(boolean fair) {
+        sync = fair ? new FairSync() : new NonfairSync();
+    }
+
+    // 委托给sync调用AQS模板方法
+    public void lock() {
+        sync.acquire(1);
+    }
+    public void unlock() {
+        sync.release(1);
+    }
+    public Condition newCondition() {
+        return sync.newCondition();
+    }
+
+    // 抽象内部Sync，继承AQS
+    abstract static class Sync extends AbstractQueuedSynchronizer {
+        // 模板：释放锁逻辑，公平非公平共用
+        protected final boolean tryRelease(int releases) {
+            int c = getState() - releases;
+            // 非持有线程释放直接抛异常
+            if (Thread.currentThread() != getExclusiveOwnerThread())
+                throw new IllegalMonitorStateException();
+            boolean free = false;
+            if (c == 0) {
+                free = true;
+                setExclusiveOwnerThread(null);
+            }
+            setState(c);
+            return free;
+        }
+        // 判断是否当前线程持有锁
+        final boolean isHeldExclusively() {
+            return getExclusiveOwnerThread() == Thread.currentThread();
+        }
+        final ConditionObject newCondition() {
+            return new ConditionObject();
+        }
+    }
+}
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br><span class="line-number">28</span><br><span class="line-number">29</span><br><span class="line-number">30</span><br><span class="line-number">31</span><br><span class="line-number">32</span><br><span class="line-number">33</span><br><span class="line-number">34</span><br><span class="line-number">35</span><br><span class="line-number">36</span><br><span class="line-number">37</span><br><span class="line-number">38</span><br><span class="line-number">39</span><br><span class="line-number">40</span><br><span class="line-number">41</span><br><span class="line-number">42</span><br><span class="line-number">43</span><br><span class="line-number">44</span><br><span class="line-number">45</span><br><span class="line-number">46</span><br><span class="line-number">47</span><br><span class="line-number">48</span><br><span class="line-number">49</span><br></div></div><h2 id="_2-非公平锁-nonfairsync-内部类源码-重点"><a href="#_2-非公平锁-nonfairsync-内部类源码-重点" class="header-anchor">#</a> 2. 非公平锁 NonfairSync 内部类源码（重点）</h2> <div class="language- line-numbers-mode"><pre class="language-text"><code>static final class NonfairSync extends Sync {
+    // 重写AQS独占获取钩子
+    protected final boolean tryAcquire(int acquires) {
+        final Thread current = Thread.currentThread();
+        int c = getState();
+        if (c == 0) {
+            // 【非公平核心】不判断队列，直接CAS抢占
+            if (compareAndSetState(0, acquires)) {
+                setExclusiveOwnerThread(current);
+                return true;
+            }
+        }
+        // 可重入逻辑：当前线程已经持有锁，state累加
+        else if (current == getExclusiveOwnerThread()) {
+            int nextc = c + acquires;
+            if (nextc &lt; 0) // int溢出
+                throw new Error(&quot;Maximum lock count exceeded&quot;);
+            setState(nextc);
+            return true;
+        }
+        return false;
+    }
+}
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br></div></div><h3 id="源码核心差异一句话"><a href="#源码核心差异一句话" class="header-anchor">#</a> 源码核心差异一句话</h3> <p>非公平锁<code>c==0</code>时<strong>直接 CAS 插队</strong>，无视 CLH 队列中排队的线程。</p> <h2 id="_3-公平锁-fairsync-内部类源码"><a href="#_3-公平锁-fairsync-内部类源码" class="header-anchor">#</a> 3. 公平锁 FairSync 内部类源码</h2> <div class="language- line-numbers-mode"><pre class="language-text"><code>static final class FairSync extends Sync {
+    protected final boolean tryAcquire(int acquires) {
+        final Thread current = Thread.currentThread();
+        int c = getState();
+        if (c == 0) {
+            // 【公平锁核心】先判断队列是否有前驱排队
+            if (!hasQueuedPredecessors() &amp;&amp;
+                compareAndSetState(0, acquires)) {
+                setExclusiveOwnerThread(current);
+                return true;
+            }
+        }
+        // 可重入逻辑和非公平完全一致
+        else if (current == getExclusiveOwnerThread()) {
+            int nextc = c + acquires;
+            if (nextc &lt; 0)
+                throw new Error(&quot;Maximum lock count exceeded&quot;);
+            setState(nextc);
+            return true;
+        }
+        return false;
+    }
+}
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br></div></div><h3 id="关键方法-hasqueuedpredecessors-源码"><a href="#关键方法-hasqueuedpredecessors-源码" class="header-anchor">#</a> 关键方法 <code>hasQueuedPredecessors()</code> 源码</h3> <div class="language- line-numbers-mode"><pre class="language-text"><code>public final boolean hasQueuedPredecessors() {
+    Node t = tail;
+    Node h = head;
+    Node s;
+    return h != t &amp;&amp;
+        ((s = h.next) == null || s.thread != Thread.currentThread());
+}
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br></div></div><p>逻辑翻译：
+队列不为空，并且头节点下一个有效节点不是当前线程 → 返回 true，代表有线程排队，放弃 CAS 抢锁。</p> <h2 id="_4-reentrantlock-可重入源码实现总结"><a href="#_4-reentrantlock-可重入源码实现总结" class="header-anchor">#</a> 4. ReentrantLock 可重入源码实现总结</h2> <ol><li><code>tryAcquire</code> 中判断 <code>current == getExclusiveOwnerThread()</code>；</li> <li><code>state = state + 1</code> 累加计数；</li> <li><code>tryRelease</code> 中每次<code>state -1</code>，只有减到 0 才算完全释放；</li> <li><strong>加锁 n 次必须解锁 n 次</strong>，否则 state 不为 0 死锁。</li></ol> <h2 id="_5-locksupport-park-底层补充源码原理"><a href="#_5-locksupport-park-底层补充源码原理" class="header-anchor">#</a> 5. LockSupport.park 底层补充源码原理</h2> <p><code>LockSupport</code>底层调用<code>Unsafe.park(boolean isAbsolute, long time)</code>，依赖操作系统内核：</p> <ul><li>Linux：pthread_mutex + pthread_cond 条件变量；</li> <li>Windows：WaitForSingleObject；</li></ul> <p>优势：</p> <ol><li>不需要 synchronized 监视器包裹；</li> <li>unpark 可以先执行，持有许可，后续 park 直接放行；</li> <li>精准阻塞指定线程，而 Object.wait 只能随机唤醒。</li></ol> <h3 id="locksupport-park-大白话彻底拆解-用法-场景-代码示例-和wait区别"><a href="#locksupport-park-大白话彻底拆解-用法-场景-代码示例-和wait区别" class="header-anchor">#</a> LockSupport.park() 大白话彻底拆解（用法+场景+代码示例+和wait区别）</h3> <h4 id="一、先建立最简单模型-每个线程自带一张「通行证」"><a href="#一、先建立最简单模型-每个线程自带一张「通行证」" class="header-anchor">#</a> 一、先建立最简单模型：每个线程自带一张「通行证」</h4> <p>JVM 给每一个 Java 线程内部维护了一个<strong>只有 0 和 1 的标记（permit 许可）</strong></p> <ul><li>0 = 没有通行证</li> <li>1 = 有一张通行证
+<strong>通行证规则死记：最多只能存 1 张，发多少次都只算1张</strong></li></ul> <h5 id="两个核心方法就是操作这张通行证"><a href="#两个核心方法就是操作这张通行证" class="header-anchor">#</a> 两个核心方法就是操作这张通行证</h5> <ol><li><code>LockSupport.park()</code>
+检查自己线程的通行证：
+<ul><li>有通行证（1）：直接把通行证销毁（变成0），方法立刻结束，线程继续往下跑</li> <li>无通行证（0）：线程直接卡住、休眠、放弃CPU，进入 WAITING 等待状态</li></ul></li> <li><code>LockSupport.unpark(Thread t)</code>
+给指定线程 t 发一张通行证：
+<ul><li>如果t当前通行证是0 → 变成1</li> <li>如果t已经是1 → 啥事不做（不会叠加成2）</li></ul></li></ol> <hr> <h3 id="二、4个最直观运行案例-一看就懂"><a href="#二、4个最直观运行案例-一看就懂" class="header-anchor">#</a> 二、4个最直观运行案例，一看就懂</h3> <h4 id="案例1-先park-后unpark-常规阻塞唤醒"><a href="#案例1-先park-后unpark-常规阻塞唤醒" class="header-anchor">#</a> 案例1：先park，后unpark（常规阻塞唤醒）</h4> <div class="language- line-numbers-mode"><pre class="language-text"><code>public class ParkDemo1 {
+    public static void main(String[] args) throws InterruptedException {
+        Thread t1 = new Thread(() -&gt; {
+            System.out.println(&quot;线程t1开始执行，准备park阻塞&quot;);
+            LockSupport.park(); // 没有通行证，卡住
+            System.out.println(&quot;线程t1被唤醒，继续执行&quot;);
+        });
+
+        t1.start();
+        Thread.sleep(2000); // 主线程等2秒
+        System.out.println(&quot;主线程准备给t1发通行证unpark&quot;);
+        LockSupport.unpark(t1);
+    }
+}
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br></div></div><p>执行流程：</p> <ol><li>t1 执行 park，通行证0 → 阻塞</li> <li>2秒后主线程 unpark(t1)，通行证变为1</li> <li>t1 被唤醒，park消耗通行证变回0，继续打印</li></ol> <hr> <h3 id="案例2-先-unpark-发通行证-后-park-重点-顺序无关"><a href="#案例2-先-unpark-发通行证-后-park-重点-顺序无关" class="header-anchor">#</a> 案例2：先 unpark 发通行证，后 park（重点：顺序无关）</h3> <div class="language- line-numbers-mode"><pre class="language-text"><code>public class ParkDemo2 {
+    public static void main(String[] args) {
+        Thread t1 = new Thread(() -&gt; {
+            System.out.println(&quot;t1 马上执行park&quot;);
+            LockSupport.park();
+            System.out.println(&quot;t1 直接通过，没有阻塞&quot;);
+        });
+
+        // 先提前发通行证
+        LockSupport.unpark(t1);
+        t1.start();
+    }
+}
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br></div></div><p>结果：<strong>t1 完全不会阻塞</strong>
+原因：
+unpark 提前给t1通行证置为1，后面调用park直接消耗掉，一秒都不卡。
+👉 这是和 <code>wait/notify</code> 最大的分水岭：wait必须先等待再通知，反过来永久死等。</p> <hr> <h4 id="案例3-unpark多次也只有1张通行证"><a href="#案例3-unpark多次也只有1张通行证" class="header-anchor">#</a> 案例3：unpark多次也只有1张通行证</h4> <div class="language- line-numbers-mode"><pre class="language-text"><code>public class ParkDemo3 {
+    public static void main(String[] args) {
+        Thread t1 = new Thread(() -&gt; {
+            LockSupport.park(); // 消耗第1次unpark，放行
+            System.out.println(&quot;第一次park结束&quot;);
+            LockSupport.park(); // 没有通行证了，永久阻塞
+            System.out.println(&quot;第二次park结束&quot;);
+        });
+
+        t1.start();
+        // 连续发3次通行证，最终也只有1张
+        LockSupport.unpark(t1);
+        LockSupport.unpark(t1);
+        LockSupport.unpark(t1);
+    }
+}
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br></div></div><p>运行结果：只会打印第一行，第二个park卡死。
+规则再次强调：<strong>许可不可累积，上限1</strong>。</p> <hr> <h4 id="案例4-线程中断打断-park-阻塞"><a href="#案例4-线程中断打断-park-阻塞" class="header-anchor">#</a> 案例4：线程中断打断 park 阻塞</h4> <div class="language- line-numbers-mode"><pre class="language-text"><code>public class ParkDemo4 {
+    public static void main(String[] args) throws InterruptedException {
+        Thread t1 = new Thread(() -&gt; {
+            System.out.println(&quot;t1 park阻塞&quot;);
+            LockSupport.park();
+            // park被中断唤醒，不会抛异常，但中断标记被清空
+            System.out.println(&quot;t1 被中断唤醒，是否中断：&quot; + Thread.interrupted());
+        });
+
+        t1.start();
+        Thread.sleep(1000);
+        t1.interrupt(); // 中断线程，直接唤醒park
+    }
+}
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br></div></div><p>关键点：</p> <ol><li><code>park()</code> 被中断唤醒<strong>不抛 InterruptedException</strong></li> <li><code>Thread.interrupted()</code> 会返回true，同时清除中断状态
+这就是AQS源码里 <code>parkAndCheckInterrupt()</code> 方法的由来。</li></ol> <hr> <h3 id="三、park-三个重载方法完整用法"><a href="#三、park-三个重载方法完整用法" class="header-anchor">#</a> 三、park 三个重载方法完整用法</h3> <div class="language- line-numbers-mode"><pre class="language-text"><code>// 1. 无限阻塞，直到 unpark 或者被中断
+LockSupport.park();
+
+// 2. 最多阻塞多少纳秒，超时自动唤醒
+LockSupport.parkNanos(1000000000);
+
+// 3. 阻塞到某个绝对时间戳（毫秒）
+long deadline = System.currentTimeMillis() + 3000;
+LockSupport.parkUntil(deadline);
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br></div></div><h3 id="四、park-与-object-wait-核心区别-彻底分清"><a href="#四、park-与-object-wait-核心区别-彻底分清" class="header-anchor">#</a> 四、park() 与 Object.wait() 核心区别（彻底分清）</h3> <table><thead><tr><th>特性</th> <th>LockSupport.park()</th> <th>synchronized + wait()</th></tr></thead> <tbody><tr><td>是否需要锁</td> <td>不需要任何同步锁，随便调用</td> <td>必须先拿到对象监视器，否则直接报错</td></tr> <tr><td>执行顺序</td> <td>unpark先发后park也生效</td> <td>必须先wait再notify，顺序颠倒死锁</td></tr> <tr><td>唤醒粒度</td> <td>unpark精准唤醒<strong>指定单个线程</strong></td> <td>notify随机唤醒一个，notifyAll全部唤醒</td></tr> <tr><td>中断响应</td> <td>唤醒不抛异常，仅清除中断标记</td> <td>抛出 InterruptedException</td></tr> <tr><td>锁释放</td> <td>park 完全不释放synchronized锁</td> <td>wait 执行瞬间释放监视器锁</td></tr></tbody></table> <h4 id="举个反例-wait-顺序颠倒直接死锁"><a href="#举个反例-wait-顺序颠倒直接死锁" class="header-anchor">#</a> 举个反例：wait 顺序颠倒直接死锁</h4> <div class="language- line-numbers-mode"><pre class="language-text"><code>Object lock = new Object();
+new Thread(()-&gt;{
+    try {
+        Thread.sleep(1000);
+        synchronized (lock){
+            lock.wait();
+        }
+    } catch (InterruptedException e) {
+    }
+}).start();
+
+// 先notify，后wait，永久卡死
+synchronized (lock){
+    lock.notify();
+}
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br></div></div><hr> <h3 id="五、locksupport-到底用来干什么-实际业务-底层用途"><a href="#五、locksupport-到底用来干什么-实际业务-底层用途" class="header-anchor">#</a> 五、LockSupport 到底用来干什么？（实际业务&amp;底层用途）</h3> <h4 id="用途1-juc-aqs-并发包底层唯一阻塞工具-最重要"><a href="#用途1-juc-aqs-并发包底层唯一阻塞工具-最重要" class="header-anchor">#</a> 用途1：JUC AQS 并发包底层唯一阻塞工具（最重要）</h4> <p>ReentrantLock、读写锁、CountDownLatch、Semaphore 所有锁排队阻塞线程，全部依赖它：</p> <ol><li>多个线程抢锁失败，进入AQS双向CLH队列排队</li> <li>排队的线程调用 <code>LockSupport.park()</code> 挂起，不占用CPU空转</li> <li>上一个线程释放锁时，调用 <code>LockSupport.unpark(下一个线程)</code> 精准唤醒
+为什么不用 wait/notify？</li></ol> <ul><li>AQS队列是自己实现的，不想绑定synchronized监视器锁</li> <li>需要精准唤醒某一个后继节点，notify做不到</li> <li>需要处理中断、超时获取锁（tryLock(time)），park重载天然支持</li></ul> <h4 id="用途2-手写简单阻塞队列、自定义同步器"><a href="#用途2-手写简单阻塞队列、自定义同步器" class="header-anchor">#</a> 用途2：手写简单阻塞队列、自定义同步器</h4> <p>自己实现一个简易生产者消费者，不用synchronized的Condition，用LockSupport手动控制线程启停。</p> <p>示例简易生产者消费者：</p> <div class="language- line-numbers-mode"><pre class="language-text"><code>public class SimpleQueue {
+    private Queue&lt;String&gt; queue = new LinkedList&lt;&gt;();
+    private int maxSize = 5;
+    private Thread consumer;
+
+    public void produce(String msg) {
+        if (queue.size() &gt;= maxSize) {
+            LockSupport.park(); // 满了，生产者阻塞
+        }
+        queue.add(msg);
+        System.out.println(&quot;生产：&quot; + msg);
+        LockSupport.unpark(consumer); // 唤醒消费者
+    }
+
+    public void consume() {
+        consumer = Thread.currentThread();
+        while (true) {
+            if (queue.isEmpty()) {
+                LockSupport.park(); // 空了，消费者阻塞
+            }
+            String poll = queue.poll();
+            System.out.println(&quot;消费：&quot; + poll);
+        }
+    }
+}
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br></div></div><h4 id="用途3-线程休眠可控工具-业务开发极少用-框架底层多"><a href="#用途3-线程休眠可控工具-业务开发极少用-框架底层多" class="header-anchor">#</a> 用途3：线程休眠可控工具（业务开发极少用，框架底层多）</h4> <p>比如定时任务框架、线程池空闲线程挂起、自定义自旋锁的阻塞逻辑。</p> <hr> <h2 id="六、极简总结背诵版"><a href="#六、极简总结背诵版" class="header-anchor">#</a> 六、极简总结背诵版</h2> <ol><li>本质：<strong>基于线程内部1张唯一许可（permit）的阻塞工具</strong></li> <li><code>park()</code>：有许可就消耗放行，无许可就阻塞线程；</li> <li><code>unpark(线程)</code>：给目标线程发放许可，最多1张，重复调用无效；</li> <li>优点：无需同步锁、唤醒顺序不限、精准单线程唤醒、支持超时阻塞；</li> <li>核心价值：JDK AQS 并发锁体系底层依赖的线程挂起原语，普通业务几乎不用，面试+看JUC源码必须吃透。</li></ol> <p>如果需要，我可以给你画一段 <strong>AQS 里 acquireQueued + parkAndCheckInterrupt 完整执行流程图文字版</strong>，把锁竞争、入队、park阻塞、release唤醒整条链路串起来。</p> <hr> <h1 id="第三章-reentrantreadwritelock-读写锁源码深度拆解"><a href="#第三章-reentrantreadwritelock-读写锁源码深度拆解" class="header-anchor">#</a> 第三章 ReentrantReadWriteLock 读写锁源码深度拆解</h1> <h2 id="_1-外层类结构与-state-拆分源码"><a href="#_1-外层类结构与-state-拆分源码" class="header-anchor">#</a> 1. 外层类结构与 state 拆分源码</h2> <div class="language- line-numbers-mode"><pre class="language-text"><code>public class ReentrantReadWriteLock
+        implements ReadWriteLock, java.io.Serializable {
+    private final ReadLock readerLock;
+    private final WriteLock writerLock;
+    final Sync sync;
+
+    public ReentrantReadWriteLock() {
+        this(false);
+    }
+    public ReentrantReadWriteLock(boolean fair) {
+        sync = fair ? new FairSync() : new NonfairSync();
+        readerLock = new ReadLock(this);
+        writerLock = new WriteLock(this);
+    }
+
+    // 读写锁视图，内部直接委托sync
+    public ReadLock readLock()  { return readerLock; }
+    public WriteLock writeLock(){ return writerLock; }
+
+    // 核心Sync继承AQS
+    abstract static class Sync extends AbstractQueuedSynchronizer {
+        // 移位常量：16位
+        static final int SHARED_SHIFT   = 16;
+        // 读锁单位增量 65536
+        static final int SHARED_UNIT    = (1 &lt;&lt; SHARED_SHIFT);
+        // 最大读锁计数 65535
+        static final int MAX_COUNT      = (1 &lt;&lt; SHARED_SHIFT) - 1;
+        // 写锁掩码，取低16位
+        static final int EXCLUSIVE_MASK = (1 &lt;&lt; SHARED_SHIFT) - 1;
+
+        // 取低16位 = 写锁重入次数
+        static int countOfWrite(int c) {
+            return c &amp; EXCLUSIVE_MASK;
+        }
+        // 右移16位 = 读锁持有线程总数
+        static int countOfRead(int c) {
+            return c &gt;&gt;&gt; SHARED_SHIFT;
+        }
+    }
+}
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br><span class="line-number">28</span><br><span class="line-number">29</span><br><span class="line-number">30</span><br><span class="line-number">31</span><br><span class="line-number">32</span><br><span class="line-number">33</span><br><span class="line-number">34</span><br><span class="line-number">35</span><br><span class="line-number">36</span><br><span class="line-number">37</span><br><span class="line-number">38</span><br><span class="line-number">39</span><br><span class="line-number">40</span><br></div></div><h3 id="state-32-位拆分源码规则-死记"><a href="#state-32-位拆分源码规则-死记" class="header-anchor">#</a> state 32 位拆分源码规则（死记）</h3> <ul><li>高 16 位：读锁共享计数，每次读锁 +<code>SHARED_UNIT(65536)</code>；</li> <li>低 16 位：写锁独占重入次数，每次写锁 + 1；
+计算公式：</li></ul> <div class="language- line-numbers-mode"><pre class="language-text"><code>写锁状态 = state &amp; 0x0000FFFF
+读锁状态 = state &gt;&gt;&gt; 16
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br></div></div><h2 id="_2-writelock-写锁独占模式-tryacquire-源码"><a href="#_2-writelock-写锁独占模式-tryacquire-源码" class="header-anchor">#</a> 2. WriteLock 写锁独占模式 tryAcquire 源码</h2> <div class="language- line-numbers-mode"><pre class="language-text"><code>protected final boolean tryAcquire(int acquires) {
+    Thread current = Thread.currentThread();
+    int c = getState();
+    int w = countOfWrite(c);
+
+    // 分支1：已有读锁占用 或者 其他线程持有写锁，直接失败
+    if (countOfRead(c) != 0 || w != 0 &amp;&amp; current != getExclusiveOwnerThread())
+        return false;
+
+    // 分支2：写锁重入溢出校验
+    if (w + acquires &gt; MAX_COUNT)
+        throw new Error(&quot;Write lock count overflow&quot;);
+
+    // CAS修改state，低16位+1
+    if (compareAndSetState(c, c + acquires)) {
+        setExclusiveOwnerThread(current);
+        return true;
+    }
+    return false;
+}
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br></div></div><p>核心约束源码体现：
+只要<strong>读锁计数 &gt; 0</strong>，写锁永远获取失败，保证读写互斥。</p> <h2 id="_3-readlock-读锁共享模式-tryacquireshared-源码"><a href="#_3-readlock-读锁共享模式-tryacquireshared-源码" class="header-anchor">#</a> 3. ReadLock 读锁共享模式 tryAcquireShared 源码</h2> <div class="language- line-numbers-mode"><pre class="language-text"><code>protected final int tryAcquireShared(int unused) {
+    Thread current = Thread.currentThread();
+    int c = getState();
+    // 存在写锁且不是自己持有，直接返回-1获取失败
+    if (countOfWrite(c) != 0 &amp;&amp; getExclusiveOwnerThread() != current)
+        return -1;
+
+    int r = countOfRead(c);
+    // 读锁计数溢出判断
+    if (r &gt;= MAX_COUNT)
+        throw new Error(&quot;Read lock overflow&quot;);
+
+    // CAS高16位+65536
+    if (compareAndSetState(c, c + SHARED_UNIT)) {
+        return 1; // 共享获取成功，返回正数
+    }
+    // CAS自旋重试逻辑省略...
+}
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br></div></div><h2 id="_4-锁降级源码官方标准实现-源码级原理"><a href="#_4-锁降级源码官方标准实现-源码级原理" class="header-anchor">#</a> 4. 锁降级源码官方标准实现（源码级原理）</h2> <h3 id="降级定义源码逻辑"><a href="#降级定义源码逻辑" class="header-anchor">#</a> 降级定义源码逻辑</h3> <ol><li>当前线程持有<strong>写锁（独占）</strong>；</li> <li>在写锁未释放时调用<code>readLock.lock()</code>获取读锁；</li> <li>执行<code>writeLock.unlock()</code>释放写锁；</li> <li>此时线程仅持有读锁，完成降级。</li></ol> <div class="language- line-numbers-mode"><pre class="language-text"><code>// 锁降级标准源码模板
+rwLock.writeLock().lock();
+try {
+    // 关键：持有写锁期间先获取读锁
+    rwLock.readLock().lock();
+    // 修改共享数据
+} finally {
+    // 先释放写锁，读锁仍持有
+    rwLock.writeLock().unlock();
+}
+// 后续读操作
+try {
+} finally {
+    rwLock.readLock().unlock();
+}
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br></div></div><h3 id="源码层面为什么不支持锁升级"><a href="#源码层面为什么不支持锁升级" class="header-anchor">#</a> 源码层面为什么不支持锁升级？</h3> <p>读锁是共享模式，多个线程同时持有读锁，写锁<code>tryAcquire</code>判断读计数≠0 直接返回 false，永远无法 CAS 成功，死循环阻塞。</p> <h2 id="_5-读写锁源码遗留缺陷-写饥饿"><a href="#_5-读写锁源码遗留缺陷-写饥饿" class="header-anchor">#</a> 5. 读写锁源码遗留缺陷：写饥饿</h2> <p>大量读线程持续占用高 16 位读计数，写锁线程在 AQS 队列长期阻塞，JDK 官方解决方案：<code>StampedLock</code>乐观读，底层 CAS 版本戳校验，放弃可重入换取高并发性能。</p> <hr> <h1 id="第四章-condition-条件队列完整源码解析-aqs-第二套队列"><a href="#第四章-condition-条件队列完整源码解析-aqs-第二套队列" class="header-anchor">#</a> 第四章 Condition 条件队列完整源码解析（AQS 第二套队列）</h1> <h2 id="_1-conditionobject-内部类核心结构"><a href="#_1-conditionobject-内部类核心结构" class="header-anchor">#</a> 1. ConditionObject 内部类核心结构</h2> <div class="language- line-numbers-mode"><pre class="language-text"><code>public class ConditionObject implements Condition, java.io.Serializable {
+    // 条件队列单向链表首尾
+    private transient Node firstWaiter;
+    private transient Node lastWaiter;
+
+    // await() 释放锁进入条件队列阻塞
+    public final void await() throws InterruptedException {
+        if (Thread.interrupted())
+            throw new InterruptedException();
+        // 1. 将当前线程封装Node加入Condition单向队列
+        Node node = addConditionWaiter();
+        // 2. 完全释放AQS独占锁，state归零
+        int savedState = fullyRelease(node);
+        int interruptMode = 0;
+        // 3. 自旋判断是否被转移回AQS主队列
+        while (!isOnSyncQueue(node)) {
+            LockSupport.park(this);
+            // 处理中断
+            if ((interruptMode = checkInterruptWhileWaiting(node)) != 0)
+                break;
+        }
+        // 4. 重新竞争AQS主锁
+        if (acquireQueued(node, savedState) &amp;&amp; interruptMode != THROW_IE)
+            interruptMode = REINTERRUPT;
+        // 清理条件队列取消节点
+        if (node.nextWaiter != null)
+            unlinkCancelledWaiters();
+        // 抛出中断或自中断
+        if (interruptMode != 0)
+            reportInterruptAfterWait(interruptMode);
+    }
+
+    // signal 唤醒条件队列头节点
+    public final void signal() {
+        // 必须持有独占锁才能调用signal
+        if (!isHeldExclusively())
+            throw new IllegalMonitorStateException();
+        Node first = firstWaiter;
+        if (first != null)
+            doSignal(first);
+    }
+}
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br><span class="line-number">28</span><br><span class="line-number">29</span><br><span class="line-number">30</span><br><span class="line-number">31</span><br><span class="line-number">32</span><br><span class="line-number">33</span><br><span class="line-number">34</span><br><span class="line-number">35</span><br><span class="line-number">36</span><br><span class="line-number">37</span><br><span class="line-number">38</span><br><span class="line-number">39</span><br><span class="line-number">40</span><br><span class="line-number">41</span><br><span class="line-number">42</span><br></div></div><h3 id="condition-完整流转源码流程"><a href="#condition-完整流转源码流程" class="header-anchor">#</a> Condition 完整流转源码流程</h3> <ol><li><code>await()</code>：调用<code>fullyRelease</code>释放 AQS 锁，Node.waitStatus 改为 CONDITION (-2)，进入 Condition<strong>单向等待队列</strong>；</li> <li><code>signal()</code>：将 Condition 队首 Node 的 waitStatus 改为 0，转移到 AQS<strong>主 CLH 双向队列</strong>尾部排队；</li> <li>被 AQS 队列前驱 unpark 唤醒后，重新竞争锁；</li></ol> <h3 id="和-object-wait-notify-源码本质区别"><a href="#和-object-wait-notify-源码本质区别" class="header-anchor">#</a> 和 Object.wait/notify 源码本质区别</h3> <ul><li>synchronized 监视器只有<strong>1 个等待集合</strong>，notifyAll 全部唤醒；</li> <li>一个 Lock 可以 new 多个 Condition，每个独立单向队列，<code>signal()</code>精准唤醒某一组线程，粒度更细。</li></ul> <hr> <h1 id="第五章-redisson-分布式锁-lua-源码-看门狗定时任务源码深度解析"><a href="#第五章-redisson-分布式锁-lua-源码-看门狗定时任务源码深度解析" class="header-anchor">#</a> 第五章 Redisson 分布式锁 Lua 源码 + 看门狗定时任务源码深度解析</h1> <h2 id="前置-原生-set-nx-ex-锁的底层漏洞-redis-单命令源码"><a href="#前置-原生-set-nx-ex-锁的底层漏洞-redis-单命令源码" class="header-anchor">#</a> 前置：原生 SET NX EX 锁的底层漏洞（Redis 单命令源码）</h2> <div class="language- line-numbers-mode"><pre class="language-text"><code>SET lock_key thread_uuid NX EX 10
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br></div></div><p>缺陷源码层面：</p> <ol><li>锁过期任务未执行完，其他线程 CAS 抢占，数据并发错乱；</li> <li>同一线程多次加锁无法识别，不可重入；</li> <li>主从异步复制，主宕机从未同步锁，锁丢失。</li></ol> <h2 id="_1-redisson-rlock-可重入锁-加锁-lua-完整源码"><a href="#_1-redisson-rlock-可重入锁-加锁-lua-完整源码" class="header-anchor">#</a> 1. Redisson RLock 可重入锁 <strong>加锁 Lua 完整源码</strong></h2> <div class="language- line-numbers-mode"><pre class="language-text"><code>-- KEYS[1] = 锁key
+-- ARGV[1] = 过期时间毫秒
+-- ARGV[2] = 线程唯一标识（UUID:ThreadId）
+if redis.call('exists', KEYS[1]) == 0 then
+    -- 锁不存在，Hash结构存入，重入计数=1
+    redis.call('hset', KEYS[1], ARGV[2], 1)
+    redis.call('pexpire', KEYS[1], ARGV[1])
+    return nil
+end
+-- 锁已存在，判断是否当前持有线程
+if redis.call('hexists', KEYS[1], ARGV[2]) == 1 then
+    -- 重入计数+1
+    redis.call('hincrby', KEYS[1], ARGV[2], 1)
+    redis.call('pexpire', KEYS[1], ARGV[1])
+    return nil
+end
+-- 被其他线程占用，返回剩余过期时间
+return redis.call('pttl', KEYS[1])
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br></div></div><h3 id="源码设计要点"><a href="#源码设计要点" class="header-anchor">#</a> 源码设计要点</h3> <ul><li>Hash 结构<code>key:{线程标识:重入次数}</code>天然实现可重入；</li> <li>整段 Lua 在 Redis 单线程原子执行，无并发竞态。</li></ul> <h2 id="_2-redisson-解锁-lua-源码"><a href="#_2-redisson-解锁-lua-源码" class="header-anchor">#</a> 2. Redisson 解锁 Lua 源码</h2> <div class="language- line-numbers-mode"><pre class="language-text"><code>-- KEYS[1] 锁key
+-- ARGV[1] 线程标识
+if redis.call('hexists', KEYS[1], ARGV[1]) == 0 then
+    return nil
+end
+-- 重入次数-1
+local counter = redis.call('hincrby', KEYS[1], ARGV[1], -1)
+if counter &gt; 0 then
+    -- 还有重入层级，续期不删除
+    redis.call('pexpire', KEYS[1], 30000)
+    return nil
+else
+    -- 计数归零，删除锁
+    redis.call('del', KEYS[1])
+    return 1
+end
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br></div></div><h2 id="_3-watchdog-看门狗后台续期任务源码逻辑-java-层"><a href="#_3-watchdog-看门狗后台续期任务源码逻辑-java-层" class="header-anchor">#</a> 3. WatchDog 看门狗后台续期任务源码逻辑（Java 层）</h2> <div class="language- line-numbers-mode"><pre class="language-text"><code>private void scheduleExpirationRenewal(long threadId) {
+    ExpirationEntry entry = new ExpirationEntry();
+    ExpirationEntry old = EXPIRATION_RENEWAL_MAP.putIfAbsent(getEntryName(), entry);
+    if (old != null) {
+        old.addThreadId(threadId);
+    } else {
+        // 定时任务，默认3秒执行一次（锁默认10s，1/3时间）
+        renewExpiration();
+    }
+}
+
+private void renewExpiration() {
+    Timeout task = commandExecutor.getServiceManager().newTimeout(new TimerTask() {
+        @Override
+        public void run(Timeout timeout) throws Exception {
+            ExpirationEntry ent = EXPIRATION_RENEWAL_MAP.get(getEntryName());
+            if (ent == null) return;
+            Long threadId = ent.getFirstThreadId();
+            if (threadId == null) return;
+
+            // 执行续期Lua脚本
+            RFuture&lt;Boolean&gt; future = renewExpirationAsync(threadId);
+            future.onComplete((res, e) -&gt; {
+                if (res) {
+                    // 递归再次调度，循环续期
+                    renewExpiration();
+                }
+            });
+        }
+    }, internalLockLeaseTime / 3, TimeUnit.MILLISECONDS);
+}
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br><span class="line-number">28</span><br><span class="line-number">29</span><br><span class="line-number">30</span><br><span class="line-number">31</span><br></div></div><h3 id="看门狗源码规则"><a href="#看门狗源码规则" class="header-anchor">#</a> 看门狗源码规则</h3> <ol><li>只有调用无参<code>lock()</code>才启动自动续期；</li> <li>手动传入<code>leaseTime</code>过期时间，<strong>直接禁用看门狗</strong>，业务自己处理续期；</li> <li><code>unlock()</code>时删除<code>EXPIRATION_RENEWAL_MAP</code>中的任务，终止递归定时。</li></ol> <h2 id="_4-redisson-红锁-redlock-源码核心思想-解决主从锁丢失"><a href="#_4-redisson-红锁-redlock-源码核心思想-解决主从锁丢失" class="header-anchor">#</a> 4. Redisson 红锁 RedLock 源码核心思想（解决主从锁丢失）</h2> <ol><li>传入 N 个独立 Redis 主节点；</li> <li>循环向每个节点执行加锁 Lua；</li> <li>记录成功加锁节点数量，**超过半数 (N/2+1)**才算获取锁成功；</li> <li>释放时遍历所有节点统一删除 key；
+牺牲性能换取集群分布式锁强可靠性。</li></ol> <h2 id="_5-redisson-读写锁-rreadwritelock-lua-源码核心"><a href="#_5-redisson-读写锁-rreadwritelock-lua-源码核心" class="header-anchor">#</a> 5. Redisson 读写锁 RReadWriteLock Lua 源码核心</h2> <p>同样 Hash 结构：</p> <ul><li>写锁独占，标记写入线程 ID；</li> <li>读锁共享，多个线程 ID 累加计数；</li> <li>支持写锁降级，不支持读锁升级，和 JDK 读写锁规则完全对齐。</li></ul> <hr> <h1 id="第六章-aqs-衍生工具类极简源码拆解-countdownlatch-semaphore-cyclicbarrier"><a href="#第六章-aqs-衍生工具类极简源码拆解-countdownlatch-semaphore-cyclicbarrier" class="header-anchor">#</a> 第六章 AQS 衍生工具类极简源码拆解（CountDownLatch / Semaphore / CyclicBarrier）</h1> <h2 id="_1-countdownlatch-源码-aqs-共享模式"><a href="#_1-countdownlatch-源码-aqs-共享模式" class="header-anchor">#</a> 1. CountDownLatch 源码（AQS 共享模式）</h2> <div class="language- line-numbers-mode"><pre class="language-text"><code>public class CountDownLatch {
+    private final Sync sync;
+    private static final class Sync extends AQS {
+        Sync(int count) {
+            setState(count);
+        }
+        // 共享获取：state&gt;0 返回-1阻塞
+        protected int tryAcquireShared(int acquires) {
+            return (getState() == 0) ? 1 : -1;
+        }
+        // 共享释放：state自减1
+        protected boolean tryReleaseShared(int releases) {
+            for (;;) {
+                int c = getState();
+                if (c == 0) return false;
+                int next = c - 1;
+                if (compareAndSetState(c, next))
+                    return next == 0;
+            }
+        }
+    }
+}
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br></div></div><p>要点：一次性计数器，state 归 0 永久放行，无法 reset。</p> <h2 id="_2-semaphore-信号量源码-aqs-共享"><a href="#_2-semaphore-信号量源码-aqs-共享" class="header-anchor">#</a> 2. Semaphore 信号量源码（AQS 共享）</h2> <p>state = 许可总数，<code>acquire()</code> state-1，<code>release()</code> state+1，支持公平 / 非公平，用于接口限流、池化资源控制。</p> <h2 id="_3-cyclicbarrier-源码-不基于-aqs"><a href="#_3-cyclicbarrier-源码-不基于-aqs" class="header-anchor">#</a> 3. CyclicBarrier 源码（<strong>不基于 AQS</strong>）</h2> <p>底层组合：<code>ReentrantLock + Condition</code></p> <div class="language- line-numbers-mode"><pre class="language-text"><code>private final ReentrantLock lock = new ReentrantLock();
+private final Condition trip = lock.newCondition();
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br></div></div><p>逻辑：</p> <ol><li>每调用<code>await()</code>计数器 - 1；</li> <li>计数器为 0 时<code>trip.signalAll()</code>批量唤醒；</li> <li>自动重置计数器，循环使用。</li></ol> <hr> <h1 id="第七章-高频源码面试追问-直接背答案"><a href="#第七章-高频源码面试追问-直接背答案" class="header-anchor">#</a> 第七章 高频源码面试追问（直接背答案）</h1> <ol><li><strong>AQS 为什么 CLH 队列要用双向链表？</strong>
+源码<code>predecessor()</code>方法需要向前回溯清理 CANCELLED 失效节点，单向链表无法反向遍历。</li> <li><strong>ReentrantLock 非公平锁吞吐量更高源码原因？</strong><code>tryAcquire</code>中<code>c==0</code>直接 CAS 插队，跳过<code>hasQueuedPredecessors()</code>队列判断，减少上下文切换。</li> <li><strong>读写锁 state 拆高低 16 位源码为什么用 int 不用 long？</strong>
+32 位 int 足够拆分，JDK8 中 CAS 操作 int 比 long 更轻量，满足最大 65535 读锁并发上限。</li> <li><strong>Condition await 为什么必须先 fullyRelease 释放全部 state？</strong>
+当前线程持有 n 次可重入锁，必须一次性清空 state，否则其他线程无法获取锁，源码<code>fullyRelease</code>循环递减到 0。</li> <li><strong>Redisson 看门狗为什么 1/3 时间续一次？</strong>
+预留网络延迟、Redis 执行耗时，避免刚好到期才续期导致锁过期失效。</li></ol> <hr> <h1 id="后续可以继续给你扩充的同格式源码集"><a href="#后续可以继续给你扩充的同格式源码集" class="header-anchor">#</a> 后续可以继续给你扩充的同格式源码集</h1> <p>如果你需要，我可以按完全一致的<strong>贴源码 + 逐行注释 + 执行逻辑 + 面试提问</strong>格式，再输出下面整套：</p> <ol><li>CAS + Unsafe 底层源码、volatile 内存屏障、happens-before</li> <li>AtomicInteger / LongAdder 分段锁源码</li> <li>HashMap、ConcurrentHashMap JDK7/JDK8/JDK17 完整源码解析</li> <li>ThreadPoolExecutor 线程池全套源码（Worker、阻塞队列、拒绝策略）</li> <li>CompletableFuture 异步编排源码解析</li></ol></div></div>  <div class="page-edit"><div class="edit-link"><a href="https://github.com/lxzhang666666/Meteor-Collection/edit/master/docs/30.宝藏/60.源码及进阶/锁源码.md" target="_blank" rel="noopener noreferrer">编辑</a> <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></div> <!----> <div class="last-updated"><span class="prefix">上次更新:</span> <span class="time">2026/08/20, 00:13:04</span></div></div> <div class="page-nav-wapper"><div class="page-nav-centre-wrap"><a href="/pages/99a556/" class="page-nav-centre page-nav-centre-prev"><div class="tooltip">分布式秒杀系统设计</div></a> <a href="/pages/efecf3/" class="page-nav-centre page-nav-centre-next"><div class="tooltip">API 网关设计</div></a></div> <div class="page-nav"><p class="inner"><span class="prev">
+        ←
+        <a href="/pages/99a556/" class="prev">分布式秒杀系统设计</a></span> <span class="next"><a href="/pages/efecf3/">API 网关设计</a>→
+      </span></p></div></div></div> <div class="article-list"><div class="article-title"><a href="/archives/" class="iconfont icon-bi">最近更新</a></div> <div class="article-wrapper"><dl><dd>01</dd> <dt><a href="/dynamic-editor-deploy-guide.html"><div>
+            动态文章编辑系统 - 部署指南
+            <!----></div></a> <span class="date"></span></dt></dl><dl><dd>02</dd> <dt><a href="/pages/06b1d1/"><div>
+            jvm面试
+            <!----></div></a> <span class="date">08-12</span></dt></dl><dl><dd>03</dd> <dt><a href="/pages/fd8a27/"><div>
+            MQ面试
+            <!----></div></a> <span class="date">08-12</span></dt></dl> <dl><dd></dd> <dt><a href="/archives/" class="more">更多文章&gt;</a></dt></dl></div></div></main></div> <div class="footer"><div class="icons"><a href="mailto:1870287706@qq.com" title="发邮件" target="_blank" class="iconfont icon-youjian"></a><a href="https://github.com/lxzhang666666" title="GitHub" target="_blank" class="iconfont icon-github"></a><a href="https://blog.csdn.net/weixin_43748329" title="CSDN" target="_blank" class="iconfont icon-csdn"></a></div> 
+  Theme by
+  <a href="https://github.com/xugaoyi/vuepress-theme-vdoing" target="_blank" title="本站主题">Vdoing</a> 
+    | Copyright © 2026-2026
+    <span>lxzhang666666</span></div> <div class="buttons"><div title="返回顶部" class="button blur go-to-top iconfont icon-fanhuidingbu" style="display:none;"></div> <div title="去评论" class="button blur go-to-comment iconfont icon-pinglun" style="display:none;"></div> <div title="主题模式" class="button blur theme-mode-but iconfont icon-zhuti"><ul class="select-box" style="display:none;"><li class="iconfont icon-zidong">
+          跟随系统
+        </li><li class="iconfont icon-rijianmoshi">
+          浅色模式
+        </li><li class="iconfont icon-yejianmoshi">
+          深色模式
+        </li><li class="iconfont icon-yuedu">
+          阅读模式
+        </li></ul></div></div> <div class="body-bg" style="background:url() center center / cover no-repeat;opacity:0.5;"></div> <!----> <!----></div><div class="global-ui"><div></div><div></div><div id="tcomment"></div><div class="article-editor" style="bottom:40px;right:40px;display:none;" data-v-bbc11332><button class="ae-toggle-btn" data-v-bbc11332>
+    ✏️
+  </button> <div class="ae-panel" style="display:none;" data-v-bbc11332><div class="ae-header" data-v-bbc11332><span class="ae-title" data-v-bbc11332>编辑文章</span> <button class="ae-close" data-v-bbc11332>×</button></div> <div class="ae-form" data-v-bbc11332><input placeholder="文章标题" value="" class="ae-input ae-title-input" data-v-bbc11332> <textarea placeholder="输入 Markdown 内容..." rows="15" class="ae-textarea" data-v-bbc11332></textarea> <div class="ae-actions" data-v-bbc11332><button class="ae-btn ae-save" data-v-bbc11332>保存</button> <button class="ae-btn ae-cancel" data-v-bbc11332>取消</button></div> <!----></div> <div class="ae-preview" data-v-bbc11332><div class="ae-preview-header" data-v-bbc11332>预览</div> <div class="ae-preview-content" data-v-bbc11332></div></div></div></div></div></div>
+    <script src="/assets/js/app.cf853d99.js" defer></script><script src="/assets/js/2.65ec4fd8.js" defer></script><script src="/assets/js/229.6f65a22d.js" defer></script><script src="/assets/js/20.41b1440f.js" defer></script><script src="/assets/js/11.13545bd3.js" defer></script><script src="/assets/js/13.0be47331.js" defer></script><script src="/assets/js/10.f5186269.js" defer></script>
+  </body>
+</html>
