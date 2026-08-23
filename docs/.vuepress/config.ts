@@ -317,7 +317,7 @@ export default defineConfig4CustomTheme<VdoingThemeConfig>({
   ],
 
   // 排除 superpowers 目录（skill 生成的计划文件），不作为文章展示
-  pagePatterns: ['*.md', '!superpowers/**/*.md'],
+  pagePatterns: ['**/*.md', '!**/superpowers/**/*.md'],
 
   markdown: {
     lineNumbers: true,
