@@ -316,6 +316,9 @@ export default defineConfig4CustomTheme<VdoingThemeConfig>({
     require('./plugins/hide-edit-link-for-db-sources'), // 隐藏 source: db 动态文章的 GitHub 编辑按钮
   ],
 
+  // 排除 superpowers 目录（skill 生成的计划文件），不作为文章展示
+  pagePatterns: ['*.md', '!superpowers/**/*.md'],
+
   markdown: {
     lineNumbers: true,
     extractHeaders: ['h2', 'h3', 'h4', 'h5', 'h6'], // 提取标题到侧边栏的级别，默认['h2', 'h3']
