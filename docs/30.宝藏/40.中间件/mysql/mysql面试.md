@@ -12,7 +12,8 @@ author:
   name: Meteor
   link: https://github.com/lxzhang666666
 ---
-# MySQL 后端高频核心面试题完整版（原理+标准答案 可直接复制）
+
+# MySQL 后端高频核心面试题
 ## 目录
 1. MySQL 架构分层（连接层、服务层、引擎层、存储层）
 2. InnoDB 和 MyISAM 核心区别、使用场景
@@ -446,3 +447,101 @@ InnoDB自动对热点页建立哈希索引，等值查询加速，可关闭。
 5. 主从依赖binlog同步，半同步降低数据丢失风险，大事务是延迟和死锁元凶；
 6. 千万级以上数据表考虑水平分表，Sharding-JDBC为首选中间件；
 7. 架构遵循先索引优化、再SQL改写、最后分库分表的优化顺序。
+
+---
+
+## 索引
+
+帮助mysql排好顺序的数据结构
+
+## 死锁产生条件、排查与解决
+
+### 1. 死锁四大必要条件（全部满足才会死锁）
+
+1. **互斥条件**：行锁排他独占，别人无法获取
+   示例：事务 A 锁定了 user 表 id=1 的行锁，事务 B 无法同时修改这一行，只能阻塞等待。
+2. **请求保持**：事务持有已有锁，继续申请其他锁不释放
+   示例：事务 A 已经锁住 user 表记录，不提交、不释放，又去尝试锁住 order 表某条记录
+3. **不可剥夺**：锁只能主动释放，不能被系统强行抢占
+   示例：事务 A 长时间占有行锁，数据库不会自动断开 A 的锁，只能等 A 执行完 commit 或 rollback。
+4. **循环等待**：事务A等B的锁，事务B等A的锁，闭环等待
+   定义：多个事务形成互相等待的闭环链条，你等我、我等你，谁都无法释放锁。
+
+有两张表 user表 order表
+事务 1：握着 user 锁 → 等 order 锁 事务1修改user时 事务2修改order
+事务 2：握着 order 锁 → 等 user 锁 事务2修改order时 事务1修改user
+闭环等待，MySQL 立刻检测出死锁，自动回滚其中一个事务，抛出死锁报错。
+
+~~~sql
+-- 建两张简单测试表
+CREATE TABLE t_user
+(
+    id   INT PRIMARY KEY,
+    name VARCHAR(20)
+);
+CREATE TABLE t_order
+(
+    id  INT PRIMARY KEY,
+    uid INT
+);
+
+INSERT INTO t_user
+VALUES (1, '张三');
+INSERT INTO t_order
+VALUES (1, 1);
+
+
+-- 会话 1（事务 1）
+START TRANSACTION;
+UPDATE t_user
+SET name='张三1'
+WHERE id = 1;
+-- 此时持有 t_user 行锁，先不提交
+
+-- 接着要去更新订单表，申请t_order行锁
+UPDATE t_order
+SET uid=2
+WHERE id = 1;
+-- 卡住，等待事务2释放t_order锁
+
+-- 会话 2（事务 2，紧接着执行）
+START TRANSACTION;
+UPDATE t_order
+SET uid=3
+WHERE id = 1;
+-- 持有 t_order 行锁，不提交
+
+-- 接着要去更新用户表，申请t_user行锁
+UPDATE t_user
+SET name='张三2'
+WHERE id = 1;
+-- 卡住，等待事务1释放t_user锁
+
+-- 事务 1：握着 user 锁 → 等 order 锁
+-- 事务 2：握着 order 锁 → 等 user 锁 闭环等待，MySQL 立刻检测出死锁，自动回滚其中一个事务，抛出死锁报错。
+~~~
+
+### 处理方式
+
+后台死锁检测线程自动检测循环等待，回滚代价更小的事务，释放锁资源。
+
+排查SQL命令
+
+```sql
+-- 查看最近一次死锁详细日志
+show
+engine innodb status;
+-- 查询当前运行事务、锁等待信息
+select *
+from information_schema.innodb_trx;
+select *
+from information_schema.innodb_locks;
+```
+
+业务规避方案
+
+1. 多表更新固定统一访问顺序（所有事务先更新表 A 再更新表 B）；
+2. 缩小事务粒度，尽早 commit 提交，缩短锁持有时间；
+3. 大批量更新拆分为小批次循环执行；
+4. 悲观锁替换为 version 版本号乐观锁；
+5. 降低隔离级别为 RC，减少间隙锁、临键锁锁定范围。
