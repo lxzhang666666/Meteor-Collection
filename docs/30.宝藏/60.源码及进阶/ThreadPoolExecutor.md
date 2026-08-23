@@ -7,11 +7,11 @@ categories:
   - Collection
 tags: []
 author: 
-  name: lxzhang666666
+  name: Meteor
   link: https://github.com/lxzhang666666
 ---
 
-# ThreadPoolExecutor 线程池 完整源码级深度解析（独立模块）
+# ThreadPoolExecutor 线程池 完整源码级深度解析
 
 ## 1. 类顶层结构与核心成员变量（JDK8）
 

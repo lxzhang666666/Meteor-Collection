@@ -7,7 +7,7 @@ categories:
   - Collection
 tags: []
 author: 
-  name: lxzhang666666
+  name: Meteor
   link: https://github.com/lxzhang666666
 ---
 
@@ -450,8 +450,20 @@ public Object intercept(Object proxy, Method method, Object[] args, MethodProxy 
 
 ### 3. SpringBoot 2.x/3.x 默认AOP代理是哪种？
 
-SpringBoot 2.x 依旧**默认JDK代理**；
-SpringBoot 3.x（Spring Framework 6）底层规则没变，只是CGLIB依赖包需要手动引入。
+
+| SpringBoot 版本 | spring.aop.proxy‑target‑class 默认值 | 默认代理策略 | 底层 Spring 框架原生行为（裸 Spring，不用 Boot） |
+| --- | --- | --- | --- |
+| 1.5.x | false | **原生 Spring 逻辑：有接口用 JDK 代理，无接口 CGLIB** | 有接口→JDK；无接口→CGLIB |
+| 2.0.x ~ 2.7.x | **true** | **强制 CGLIB 代理，就算实现接口，也优先 CGLIB**Spring | Spring5 本身依旧：有接口优先 JDK |
+| 3.0.x ~3.x | true | **依旧强制 CGLIB** | Spring6 本身依旧：有接口优先 JDK |
+
+>
+> 关键点：
+>
+>
+> 1. SpringBoot **1.5.x 默认 JDK 优先**；
+> 2. **从 SpringBoot2.0 开始，AopAutoConfiguration 里面 `matchIfMissing=true`，没有配置的情况下，自动开启 `proxyTargetClass=true`，默认 CGLIB**。
+> 3. **Spring Framework 本身没有改逻辑！是 SpringBoot 自动配置改开关**。
 
 ## 二、源码底层深挖题
 
@@ -535,5 +547,3 @@ public class UserService$$EnhancerBySpringCGLIB$$xxxx extends UserService {
 3. **CGLIB代理**：继承目标类+ASM字节码+MethodInterceptor.intercept，可拦普通类非final方法；
 4. **统一执行**：两种代理最终都封装`MethodInvocation`执行通知责任链，共用一套AOP通知体系；
 5. **高频坑**：内部this调用失效、final/static无法拦截、CGLIB需要无参构造（Objenesis优化）。
-
-需要我继续往下拆解 **AOP通知责任链ReflectiveMethodInvocation.proceed()递归执行源码** 或者 **AspectJ注解解析、Advisor创建过程** 吗？

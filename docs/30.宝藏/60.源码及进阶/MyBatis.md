@@ -7,7 +7,7 @@ categories:
   - Collection
 tags: []
 author: 
-  name: lxzhang666666
+  name: Meteor
   link: https://github.com/lxzhang666666
 ---
 
@@ -504,8 +504,3 @@ Spring 事务管理中，**每次查询都会获取新的 SqlSession**（非事�
 2. **一级缓存**：SqlSession私有HashMap缓存，BaseExecutor维护，DML自动清空，会话隔离；
 3. **二级缓存**：CachingExecutor装饰器实现，Mapper命名空间共享，事务提交才落地，namespace级整体清空；
 4. **执行顺序**：二级缓存 → 一级缓存 → DB；Spring非事务环境一级缓存基本无效。
-
-需要我继续拆解：
-
-1. **MyBatis 插件体系 Interceptor 四大拦截点源码**
-2. 或者 **MyBatis 结果集映射 ResultSetHandler 反射封装实体源码** 吗？

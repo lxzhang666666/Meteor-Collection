@@ -9,7 +9,7 @@ categories:
 tags:
   - 
 author: 
-  name: lxzhang666666
+  name: Meteor
   link: https://github.com/lxzhang666666
 ---
 # Java后端MQ高频面试题（8年资深开发面试完整版·原理+标准答案）

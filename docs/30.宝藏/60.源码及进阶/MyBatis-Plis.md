@@ -7,13 +7,13 @@ categories:
   - Collection
 tags: []
 author: 
-  name: lxzhang666666
+  name: Meteor
   link: https://github.com/lxzhang666666
 ---
 
-# MyBatis-Plus 完整核心源码拆解 + 架构体系 + 高频面试考点
+# MyBatis-Plus 完整核心源码拆解 
 
-## 一、整体架构总览（先建立顶层认知）
+## 一、整体架构总览
 
 MyBatis-Plus（简称 MP）本质是 **MyBatis 的增强工具，只做增强不做修改**，完全兼容原生 MyBatis 所有特性。
 
@@ -372,9 +372,3 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
 4. **插件统一入口**：`MybatisPlusInterceptor` 管理分页、乐观锁、防全表更新、多租户；
 5. **分层封装**：BaseMapper(DAO) + ServiceImpl(业务层) 两级封装；
 6. **自动装配**：SpringBoot `MybatisPlusAutoConfiguration` 完成所有Bean初始化。
-
-需要我继续往下拆解：
-
-1. **MP 多租户插件 SQL 改写完整源码**
-2. 或者 **MP 自定义全局SQL注入器，新增自定义通用方法实战**
-3. 或者对比 MyBatis、MP、MyBatis-Flex 三者差异吗？

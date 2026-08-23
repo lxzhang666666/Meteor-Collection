@@ -4,6 +4,22 @@
 const fs = require('fs');
 const path = require('path');
 
+
+// 1. 为 readFileList.js 添加 superpowers 排除
+const readFileListFile = path.join(__dirname, '../node_modules/vuepress-theme-vdoing/node_utils/modules/readFileList.js');
+if (fs.existsSync(readFileListFile)) {
+  let rlContent = fs.readFileSync(readFileListFile, 'utf8');
+  if (!rlContent.includes('superpowers')) {
+    rlContent = rlContent.replace(
+      "if (stat.isDirectory() && item !== '.vuepress' && item !== '@pages') {",
+      "if (stat.isDirectory() && item !== '.vuepress' && item !== '@pages' && item !== 'superpowers') {"
+    );
+    fs.writeFileSync(readFileListFile, rlContent);
+    console.log('Patched readFileList.js - added superpowers exclusion');
+  } else {
+    console.log('readFileList.js already patched, skipping');
+  }
+}
 const themeFile = path.join(__dirname, '../node_modules/vuepress-theme-vdoing/node_utils/getSidebarData.js');
 
 if (!fs.existsSync(themeFile)) {

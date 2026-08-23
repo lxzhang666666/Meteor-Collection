@@ -9,7 +9,7 @@ categories:
 tags:
   - 
 author: 
-  name: lxzhang666666
+  name: Meteor
   link: https://github.com/lxzhang666666
 ---
 # MySQL 后端高频核心面试题完整版（原理+标准答案 可直接复制）
