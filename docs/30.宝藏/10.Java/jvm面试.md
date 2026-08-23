@@ -41,29 +41,9 @@ author:
 
 **【解决方案】**
 
-**▶ 初级回答（知道现象和基本处理）**
-
-频繁Full GC通常是内存泄漏或大对象过多导致老年代快速填满。可以先通过jmap -heap查看堆内存使用情况，用jstat -gcutil观察GC情况，然后dump堆内存用MAT或JProfiler分析大对象。临时解决方案是重启服务或增大堆内存。
-
-**▶ 中级回答（能定位根因并给出调优方案）**
-
-第一步：用jstat -gcutil <pid> 1000 10 持续观察GC情况，确认是YGC后老年代暴涨还是本身老年代就满。第二步：jmap -dump:format=b,file=heap.hprof <pid> 导出堆转储（注意这会触发一次Full GC并暂停应用，建议在低峰期或先摘除流量）。第三步：用MAT分析，重点看Dominator Tree和Histogram，定位占用内存最多的对象和GC Roots引用链。
-
-常见根因及对应方案：
-
-```text
-- 缓存未设上限：如本地HashMap缓存无限增长 → 改用Caffeine/Guava Cache并设置maximumSize
-
-- 大对象直接进入老年代：如一次性查询10万条数据 → 分页查询或流式处理
-
-- 内存泄漏：如ThreadLocal未remove、静态集合持续添加 → 代码修复
-
-- 元空间溢出：动态生成类过多（如CGLIB代理、反射） → 检查是否重复创建代理对象
-
 **▶ 资深回答（体系化调优 + 根因定位 + 预防机制）**
 
 完整的排查和调优应分为"紧急止血 → 根因定位 → 长期优化"三个阶段：
-```
 
 **【紧急止血】**
 
@@ -197,7 +177,6 @@ A: G1会通过调整年轻代Region数量来满足目标停顿。设太小会导
 A: 大部分GC参数需要重启。但可以通过jcmd修改部分参数，如jcmd <pid> VM.set_flag MaxGCPauseMillis 300。也可以用JVMTI或JMX连接。
 
 
-
 ## **1.2 各种OOM场景排查与解决方案**
 
 **【场景描述】**生产环境中遇到多种不同类型的OutOfMemoryError，包括Java heap space、Metaspace、unable to create new native thread、Direct buffer memory、GC overhead limit exceeded等，需要快速区分类型并定位根因。
@@ -215,10 +194,6 @@ A: 大部分GC参数需要重启。但可以通过jcmd修改部分参数，如jc
 - java.lang.OutOfMemoryError: GC overhead limit exceeded — GC耗时占比过高
 
 **【解决方案】**
-
-**▶ 初级回答**
-
-OOM就是内存不够用了，调大-Xmx参数就行。如果是堆外内存就调大-XX:MaxDirectMemorySize。
 
 **▶ 中级回答**
 
@@ -418,31 +393,6 @@ A: JDK7+，intern()的字符串存放在堆中（不再是永久代），但如�
 
 **【解决方案】**
 
-**▶ 初级回答**
-
-把Parallel GC换成G1 GC，设置-XX:+UseG1GC，然后调大堆内存。
-
-**▶ 中级回答**
-
-GC调优不是简单换收集器，需要基于数据驱动：
-
-- 第一步：开启GC日志，收集至少24小时的GC数据
-
-- 第二步：用GCViewer或GCEasy分析日志，确定瓶颈是YGC还是Full GC
-
-- 第三步：调整参数（年轻代大小、晋升阈值、IHOP等）
-
-- 第四步：压测验证，对比调优前后的停顿时间和吞吐量
-
-# 开启GC日志（JDK9+统一格式，JDK8用旧参数）
-# JDK8:
--XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCApplicationStoppedTime
--XX:+PrintPromotionFailure -Xloggc:/var/log/gc/gc-%t.log
--XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 -XX:GCLogFileSize=100M
-
-# JDK9+:
--Xlog:gc*,gc+heap=trace,gc+age=trace:file=/var/log/gc/gc-%t.log:time,uptime,level,tags:filecount=10,filesize=100M
-
 **▶ 资深回答**
 
 完整的GC调优方法论 + 收集器选型决策：
@@ -597,6 +547,18 @@ Object load(Object* ref) {
 
 - GC耗时占比：正常<5%，>10%说明GC压力大
 
+## 开启GC日志（JDK9+统一格式，JDK8用旧参数）
+
+### JDK8:
+
+-XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCApplicationStoppedTime
+-XX:+PrintPromotionFailure -Xloggc:/var/log/gc/gc-%t.log
+-XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 -XX:GCLogFileSize=100M
+
+### JDK9+:
+
+-Xlog:gc*,gc+heap=trace,gc+age=trace:file=/var/log/gc/gc-%t.log:time,uptime,level,tags:filecount=10,filesize=100M
+
 **【面试官追问预判】**
 
 - Q: G1的Region大小如何选择？设错了有什么影响？
@@ -628,10 +590,6 @@ A: 安全点是线程执行过程中某些特定位置，此时线程状态是�
 - 使用AtomicInteger后，在极高并发下CPU使用率飙升
 
 **【解决方案】**
-
-**▶ 初级回答**
-
-count++不是原子操作，包含读取-修改-写入三个步骤，多线程下会丢失更新。可以用synchronized或AtomicInteger来保证原子性。AtomicInteger基于CAS，性能更好。
 
 **▶ 中级回答**
 
@@ -852,10 +810,6 @@ A: ①synchronized是JVM内置锁，ReentrantLock是API层面的锁（基于AQS�
 
 **【解决方案】**
 
-**▶ 初级回答**
-
-死锁是多个线程互相持有对方需要的锁并等待。用jstack查看线程状态可以发现死锁。避免死锁的方法是固定加锁顺序。
-
 **▶ 中级回答**
 
 死锁产生的四个必要条件（缺一不可）：
@@ -1039,9 +993,7 @@ A: 5个哲学家围坐，每人需要左右两根筷子才能吃饭。经典死�
 
 **【解决方案】**
 
-**▶ 初级回答**
 
-不要用Executors创建线程池，要用ThreadPoolExecutor手动指定参数，使用有界队列，设置拒绝策略。任务要捕获异常。
 
 **▶ 中级回答**
 
@@ -1333,10 +1285,6 @@ A: Tomcat的ThreadPoolExecutor继承JDK的ThreadPoolExecutor，重写了execute(
 
 **【解决方案】**
 
-**▶ 初级回答**
-
-开启慢查询日志，找到慢SQL，用EXPLAIN分析执行计划，看有没有走索引。没走索引就加索引。
-
 **▶ 中级回答**
 
 完整的慢SQL排查流程：
@@ -1387,9 +1335,9 @@ EXPLAIN输出字段（MySQL 5.7+）：
 │              │   Using join buffer：关联查询用了join buffer       │
 └──────────────┴──────────────────────────────────────────────────┘
 
-**▶ 资深回答**
 ```
 
+**▶ 资深回答**
 从B+树索引结构到优化器成本模型的完整分析：
 
 **【B+树索引结构】**
@@ -1543,10 +1491,6 @@ A: InnoDB聚簇索引：叶子节点存完整行数据，主键索引就是聚�
 - key_len显示联合索引只用了第一列
 
 **【解决方案】**
-
-**▶ 初级回答**
-
-索引失效常见原因：like以%开头、对索引列用函数、隐式类型转换、OR条件、不符合最左前缀。避免这些情况就能走索引。
 
 **▶ 中级回答**
 
@@ -1730,10 +1674,6 @@ A: 低选择性列（如性别、状态）的索引，每个值对应大量行�
 
 **【解决方案】**
 
-**▶ 初级回答**
-
-超卖是因为"查库存"和"扣库存"不是原子操作。可以用synchronized或数据库行锁解决。
-
 **▶ 中级回答**
 
 四种解决方案对比：
@@ -1905,10 +1845,6 @@ A: ①Redis SETNX用户ID（setIfAbsent），成功才允许抢购；②数据�
 - 多线程中事务不生效
 
 **【解决方案】**
-
-**▶ 初级回答**
-
-Spring事务基于AOP代理，同类调用不生效。异常要抛出来才能回滚，方法必须是public。
 
 **▶ 中级回答**
 
@@ -2165,10 +2101,6 @@ A: ①TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();②�
 - 缓存雪崩：大量key同时过期，数据库QPS持续高位，可能导致数据库宕机
 
 **【解决方案】**
-
-**▶ 初级回答**
-
-缓存穿透：缓存空值或用布隆过滤器。缓存击穿：热点key永不过期或加锁。缓存雪崩：过期时间加随机值。
 
 **▶ 中级回答**
 
@@ -2443,10 +2375,6 @@ A: Redis的LRU不是精确LRU（没有双向链表），而是近似LRU。每个
 
 **【解决方案】**
 
-**▶ 初级回答**
-
-用SET key value NX EX seconds实现分布式锁，value用唯一标识（如UUID），释放锁时先判断value是否是自己的再删除。用Redisson框架更可靠。
-
 **▶ 中级回答**
 
 分布式锁的演进过程：
@@ -2678,10 +2606,6 @@ A: Redisson提供RReadWriteLock。读锁共享（多个读线程可同时持有�
 
 **【解决方案】**
 
-**▶ 初级回答**
-
-更新数据时，先更新数据库再删除缓存（Cache-Aside模式）。缓存下次读取时自动从数据库加载最新数据。
-
 **▶ 中级回答**
 
 四种缓存更新策略对比：
@@ -2904,10 +2828,6 @@ A: 数据更新时，除了删除Redis缓存，还要通知所有服务节点删
 - AOP代理场景下循环依赖的特殊处理
 
 **【解决方案】**
-
-**▶ 初级回答**
-
-Spring通过三级缓存解决单例Bean的setter循环依赖。构造器注入和原型Bean的循环依赖无法解决，需要重构代码消除循环依赖，或用@Lazy延迟加载。
 
 **▶ 中级回答**
 
@@ -3147,13 +3067,7 @@ A: @Lazy注入的不是真实对象，而是一个代理对象（JDK动态代理
 
 **【解决方案】**
 
-```text
-**▶ 初级回答**
-
-Bean生命周期：实例化→属性注入→初始化→使用→销毁。初始化可以用@PostConstruct、InitializingBean、init-method。销毁用@PreDestroy、DisposableBean、destroy-method。
-
 **▶ 中级回答**
-```
 
 Bean生命周期完整流程：
 
@@ -3408,10 +3322,6 @@ A: 原型Bean每次getBean都创建新实例，Spring只负责创建、初始化
 
 **【解决方案】**
 
-**▶ 初级回答**
-
-2PC（两阶段提交）分为准备阶段和提交阶段。协调者通知所有参与者准备，都OK则提交，有一个失败则回滚。2PC有同步阻塞和协调者单点问题，3PC增加了CanCommit阶段和超时机制。
-
 **▶ 中级回答**
 
 2PC和3PC的详细流程：
@@ -3604,10 +3514,6 @@ A: 金融核心场景：跨行转账、证券交易、支付清算。这些场�
 - 空回滚、幂等、悬挂等TCC特有的问题
 
 **【解决方案】**
-
-**▶ 初级回答**
-
-TCC分为三个阶段：Try（预留资源）、Confirm（确认提交）、Cancel（取消回滚）。Try全部成功则调用Confirm，有一个失败则调用Cancel。需要保证Confirm和Cancel的幂等性。
 
 **▶ 中级回答**
 
@@ -3896,10 +3802,6 @@ A: 通常用"冻结字段"实现：库存表增加frozen_count字段，Try时sto
 - 流程状态需要持久化，支持宕机恢复
 
 **【解决方案】**
-
-**▶ 初级回答**
-
-SAGA将长事务拆分为多个本地事务，每个本地事务有对应的补偿事务。正向执行所有步骤，某步失败则按相反顺序执行补偿。SAGA不保证隔离性，中间状态对其他事务可见。
 
 **▶ 中级回答**
 
@@ -4199,10 +4101,6 @@ A: SAGA没有隔离性，中间状态可见。解决方案：①语义锁（设�
 - 消息表积压，定时任务未及时处理
 
 **【解决方案】**
-
-**▶ 初级回答**
-
-本地消息表的核心是将业务操作和消息写入放在同一个本地事务中，然后定时任务扫描消息表发送到MQ，消费端幂等处理。这样保证了业务和消息的原子性。
 
 **▶ 中级回答**
 

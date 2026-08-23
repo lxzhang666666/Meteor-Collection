@@ -136,6 +136,360 @@ MQ全称Message Queue消息队列，是一款分布式异步通信中间件，�
 ### 总结一句话
 发送端确认回执 + Broker持久化多副本集群 + 网络重传 + 消费端手动ACK四重保障。
 
+### RabbitMQ
+
+#### 1、生产者端：防止发送丢失
+
+默认情况下：生产者发消息，不知道 Broker 有没有收到，网络抖动消息丢了生产者无感知。
+
+##### 方案：开启 Publisher Confirm（发布确认） + Publisher Return（回退）
+
+- Confirm：消息成功到达 Broker，回调 ack；Broker 拒收消息回调 nack。
+- Return：消息路由失败（找不到队列），把消息退回生产者。
+
+application.yml 配置（SpringBoot）
+
+```
+spring:
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
+    # 开启发布确认
+    publisher-confirm-type: correlated
+    # 开启消息回退，路由失败返回消息
+    publisher-returns: true
+```
+
+```
+// 配置ConfirmCallback、ReturnsCallback
+@Configuration
+public class RabbitConfig {
+    @Bean
+    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory){
+        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+        // confirm回调：消息到达broker的确认
+        rabbitTemplate.setConfirmCallback((correlationData, ack, cause) -> {
+            if(ack){
+                // 消息成功到达broker
+            }else{
+                // 没有到达Broker，本地补偿：数据库记录消息，定时重发
+            }
+        });
+        // return回调：路由失败，找不到队列
+        rabbitTemplate.setReturnsCallback(returned -> {
+            // 消息路由失败，做补偿
+        });
+        return rabbitTemplate;
+    }
+}
+```
+
+发送消息携带 CorrelationData（消息唯一 id，用于业务记录）
+
+```
+//发送
+CorrelationData correlationData = new CorrelationData(UUID.randomUUID().toString());
+rabbitTemplate.convertAndSend("exchange","routingKey","业务消息",correlationData);
+```
+
+>
+> ❗注意：confirm 只能确认消息到达 Broker，**不代表消息已经持久化磁盘**。
+> 发送消息前业务库记录消息表，confirm nack 时定时任务重发兜底。
+
+#### 2、Broker 端：防止 MQ 宕机丢失消息
+
+>
+> 如果队列、消息都是非持久化，MQ 重启，全部消息直接清空。
+> 需要同时开启：**交换机持久化、队列持久化、消息持久化**。
+
+##### 1）声明队列、Exchange 设置 durable=true
+
+```
+// 持久化交换机 durable = true
+@Bean
+public DirectExchange directExchange(){
+    return ExchangeBuilder.directExchange("biz.exchange").durable(true).build();
+}
+
+// 持久化队列 durable = true
+@Bean
+public Queue bizQueue(){
+    return QueueBuilder.durable("biz.queue").build();
+}
+```
+
+>
+> durable=true：队列 / 交换机元数据持久化磁盘；durable=false MQ 重启队列直接消失。
+
+##### 2）消息设置持久化
+
+发送消息时，消息投递模式 `MessageDeliveryMode.PERSISTENT`（持久化）
+
+```
+Message message = MessageBuilder
+        .withBody("业务消息".getBytes(StandardCharsets.UTF_8))
+        .setDeliveryMode(MessageDeliveryMode.PERSISTENT) //消息持久化，写入磁盘
+        .build();
+rabbitTemplate.send("biz.exchange","routingKey",message,correlationData);
+```
+
+SpringBoot `convertAndSend` 如果队列持久化，**默认消息就是持久模式 PERSISTENT**。
+
+>
+> ⚠️持久化不是立刻刷磁盘！
+> RabbitMQ 收到持久消息，写到磁盘文件，但是操作系统页缓存 pagecache，内核异步刷盘。极端断电，pagecache 还没刷盘，消息会丢。
+> 想要真正落盘再返回应答：RabbitMQ 没有同步刷盘参数；靠镜像队列（集群多副本）降低风险。
+
+##### Broker 集群高可靠配置：镜像队列 / 镜像策略
+
+单机 MQ 无论怎么持久化，宕机风险很高。配置镜像队列，消息复制到多个节点。
+管理界面或者 policy 命令：
+
+```
+# 所有队列镜像到全部节点
+rabbitmqctl set_policy ha-all "^" '{"ha-mode":"all"}'
+```
+
+- ha‑mode=all：队列所有节点保存副本；主节点挂掉，从节点升级为主。
+
+>
+> 小结 Broker 高可靠三件套：
+
+1. Exchange durable=true
+2. Queue durable=true
+3. Message deliveryMode=PERSISTENT
+4. 集群开启镜像队列。
+
+#### 3、消费者端：防止消费丢失
+
+RabbitMQ 默认：消费者收到消息，**自动 ack**。
+如果刚收到消息，还没执行业务，进程宕机；消息已经 ack，MQ 直接删除消息，消息丢失。
+
+✅必须：**关闭自动 ACK，使用手动 ACK**；先执行业务，再手动 ack。
+
+##### SpringBoot 配置关闭自动 ack
+
+```
+spring:
+  rabbitmq:
+    listener:
+      simple:
+        # 关闭自动确认 MANUAL 手动ack
+        acknowledge-mode: MANUAL
+```
+
+消费者代码
+
+```
+@Component
+public class BizConsumer {
+
+    @RabbitListener(queues = "biz.queue")
+    public void consume(Message message, Channel channel) throws IOException {
+        long deliveryTag = message.getMessageProperties().getDeliveryTag();
+        try {
+            // 1.执行业务逻辑
+            doBiz(message.getBody());
+
+            // 2.业务成功，手动ack
+            channel.basicAck(deliveryTag,false);
+        }catch (Exception e){
+            // 业务异常，拒绝消息，requeue=true 重新放回队列，重新投递
+            channel.basicNack(deliveryTag,false,true);
+        }
+    }
+}
+```
+
+- `basicAck(deliveryTag, false)`：确认消费成功。
+- `basicNack(deliveryTag, multiple, requeue)`
+    - requeue=true：消息退回队列，重新投递；会造成消息重复。
+    - requeue=false：丢弃消息（死信队列场景）。
+
+>
+> ❌错误做法：先 basicAck，再执行业务，宕机直接丢消息。
+
+>
+> 注意：basicNack requeue=true，消息会立刻重新入队；如果业务持续报错，会无限循环消费，要配合死信队列 DLQ。
+
+### RocketMQ
+
+#### 1）生产者端：防止发送丢失
+
+问题：网络抖动，消息发出去，Broker 没收到，生产者以为发送成功，消息丢了。
+
+✅设置：
+
+1. **同步发送 sendSync**，不要用 sendOneWay（单向发送，无应答，极易丢消息）
+2. 开启重试，设置重试次数
+3. 必须检查发送返回状态 SendResult，判断 SEND_OK 才算成功；失败要做本地重试 / 落库消息表。
+
+```
+// 生产者配置
+DefaultMQProducer producer = new DefaultMQProducer("producer_group");
+producer.setNamesrvAddr("127.0.0.1:9876");
+producer.start();
+
+Message msg = new Message("topic_test", "tag", "消息内容".getBytes(StandardCharsets.UTF_8));
+
+// 同步发送！！不要用sendOneWay
+SendResult result = producer.send(msg);
+if(result.getSendStatus() == SendStatus.SEND_OK){
+    // 发送成功
+}else{
+    // 发送失败：本地重试、或者存入数据库消息表，后台定时任务补偿重发
+}
+```
+
+>
+> ❌禁止：sendOneWay，只管发不管应答，网络波动直接丢消息。
+
+>
+> 注意：同步发送会损失一点吞吐量，追求高可靠场景必须用。
+
+#### 2）Broker 服务端配置，防止 Broker 宕机丢消息
+
+Broker 会收到消息，存在 PageCache，如果直接返回成功，还没刷盘，机器断电，消息丢失。
+
+**Broker 关键配置（broker.conf）**
+
+```
+# 1.刷盘策略：SYNC_FLUSH 同步刷盘。消息落磁盘之后才给生产者返回成功。
+# ASYNC_FLUSH异步刷盘：先写内存就返回，断电会丢消息（生产高可靠场景不能用）
+flushDiskType=SYNC_FLUSH
+
+# 2.集群模式：主从同步复制 SYNC_MASTER 同步复制；主写完，同步到从节点成功，才返回生产者成功
+# ASYNC_MASTER异步复制，主写完立刻返回，主宕机从还没同步，消息丢失
+brokerRole=SYNC_MASTER
+```
+
+>
+> ⚠️生产高可靠：**同步刷盘 + 同步主从复制**。
+> 代价：性能下降；追求性能用异步刷盘 + 异步复制，会有极小概率丢消息。
+
+>
+> 架构上：必须部署主从集群，不能单机 Broker。
+
+#### 3）消费者端：防止消费丢失
+
+场景：消息投递到消费者，还没执行业务逻辑，程序宕机；RocketMQ 默认自动 ack，消息直接被删除，消息丢失。
+
+✅**关闭自动 ACK，使用手动 ACK！！**
+
+```
+DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("consumer_group");
+consumer.setNamesrvAddr("127.0.0.1:9876");
+// 关键！关闭自动确认，手动ack
+consumer.setMessageMode(MessageMode.PUSH);
+consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
+
+consumer.registerMessageListener((MessageListenerConcurrently) (msgs, context) -> {
+    try{
+        // 执行业务逻辑
+        doBusiness(msgs);
+        // 业务处理成功，手动ACK
+        return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+    }catch (Exception e){
+        // 业务失败，返回RECONSUME_LATER，消息重新投递，重试
+        return ConsumeConcurrentlyStatus.RECONSUME_LATER;
+    }
+});
+consumer.start();
+```
+
+>
+> 关键点：
+
+1. **先执行业务，后返回 CONSUME_SUCCESS（ack）**；
+2. 如果业务异常，返回 RECONSUME_LATER，消息不会被删除，Broker 重新投递；
+3. 不要先 ack 再执行业务，会直接丢消息。
+
+>
+> 面试坑：RECONSUME_LATER 不是立刻重投，Broker 会延迟一段时间再投递，会产生重复消息，业务需要做幂等。
+
+>
+> 消费模式：并发消费；顺序消息要用 MessageListenerOrderly。
+
+### Kafka
+
+#### 1）生产者端配置
+
+```
+Properties props = new Properties();
+props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
+props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+
+// 核心配置
+props.put(ProducerConfig.ACKS_CONFIG, "all"); // 等待所有ISR副本写入成功才返回
+props.put(ProducerConfig.RETRIES_CONFIG, 3); // 发送失败重试次数
+props.put(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, 1); // 保证重试消息顺序，防止乱序
+KafkaProducer<String,String> producer = new KafkaProducer<>(props);
+
+// 同步发送，等待回调确认
+producer.send(new ProducerRecord<>("topic_test", "msg"), (metadata, exception) -> {
+    if(exception != null){
+        //发送失败，本地补偿
+    }
+});
+producer.flush();
+```
+
+- `acks=all`：leader 写入，并且全部 ISR 副本同步完成，才应答生产者；最高可靠。
+- acks=1：leader 写完就返回，副本还没同步，leader 宕机丢消息。
+- acks=0：不需要应答，直接发，极易丢消息。
+
+#### 2）Broker 服务端配置 (server.properties)
+
+```
+# 副本数量至少3
+default.replication.factor=3
+# ISR最小存活副本数，写入的时候至少要有2个ISR副本在线才允许写入
+min.insync.replicas=2
+```
+
+>
+> 每个 topic 副本数 >=3；min.insync.replicas=2，配合 acks=all，保证至少两个副本落盘。
+
+Kafka 消息是刷操作系统 pagecache，由操作系统定时刷磁盘，**没有同步刷盘参数**；机器断电极端情况 pagecache 数据丢失，生产环境一般用多副本规避。
+
+#### 3）消费者配置，防止消费丢失
+
+默认 Kafka 消费者自动提交 offset，业务没处理完，offset 提交，消息丢失。
+✅关闭自动提交，**业务执行完成手动提交 offset**。
+
+```
+Properties props = new Properties();
+props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,"127.0.0.1:9092");
+props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+props.put(ConsumerConfig.GROUP_ID_CONFIG,"group1");
+// 关闭自动提交offset！！
+props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
+KafkaConsumer<String,String> consumer = new KafkaConsumer<>(props);
+
+while(true){
+    ConsumerRecords<String,String> records = consumer.poll(Duration.ofMillis(100));
+    for(ConsumerRecord<String,String> record : records){
+        try{
+            //执行业务逻辑
+            doBusiness(record.value());
+            //业务成功，手动提交offset
+            consumer.commitSync();
+        }catch (Exception e){
+            //业务异常，不提交offset；下一次poll会重新消费这条消息
+        }
+    }
+}
+```
+
+>
+> 注意：**先业务，后 commitSync 提交 offset**。不要先提交 offset 再执行业务。
+
+>
+> commitSync 是同步提交；commitAsync 异步提交，异步提交失败不会重试，高可靠场景优先 commitSync。
 ---
 
 ## 7. MQ如何解决消息重复消费，幂等性落地方案

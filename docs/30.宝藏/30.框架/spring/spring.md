@@ -102,8 +102,10 @@ AutowireCapableBeanFactory 自动装配
 
 SingletonBeanRegistry 运行期间注册单例 Bean  
 定义了允许在运行期间向容器注册单实例 Bean 的方法；对于单实例（ singleton）的 Bean 来说，BeanFactory 会缓存 Bean 实例，所以第二次使用 getBean() 获取 Bean 时将直接从IoC 容器的缓存中获取 Bean 实例。Spring 在DefaultSingletonBeanRegistry 类中提供了一个用于缓存单实例 Bean 的缓存器，它是一个用 HashMap 实现的缓存器，单实例的 Bean 以beanName 为键保存在这个 HashMap 中。
+
 依赖日志框框
 在初始化 BeanFactory 时，必须为其提供一种日志框架，比如使用 Log4J， 即在类路径下提供 Log4J 配置文件，这样启动 Spring 容器才不会报错。
+
 ----
 
 ### Spring AOP原理:
@@ -127,6 +129,7 @@ JDK 动态代理主要涉及到 java.lang.reflect 包中的两个类：Proxy 和
 
 3.2CGLib 动态代理
 CGLib 全称为 Code Generation Library，是一个强大的高性能，高质量的代码生成类库，可以在运行期扩展 Java 类与实现 Java 接口，CGLib 封装了 asm，可以再运行期动态生成新的 class。和 JDK 动态代理相比较：JDK 创建代理有一个限制，就是只能为接口创建代理实例，而对于没有通过接口定义业务方法的类，则可以通过 CGLib 创建动态代理。
+
 ---
 ## spring bean 容器的生命周期
 spring bean 容器的生命周期流程如下：
@@ -166,6 +169,7 @@ spring bean 容器的生命周期流程如下：
 ### 1）哪些情况 Spring 可以解决？哪些解决不了
 
 ✅**可以解决：单例 bean，setter / 字段注入（属性注入）**
+
 ❌**不能解决：**
 
 1. prototype 作用域 bean，直接抛异常
@@ -204,7 +208,7 @@ spring bean 容器的生命周期流程如下：
 
 ## Spring的扩展点以及时机
 
-1. BeanDefinitionRegistryPostProcessor
+## 1. BeanDefinitionRegistryPostProcessor
 ### 执行时机 
 ApplicationContext 执行 `refresh()` → `invokeBeanFactoryPostProcessors()` 阶段，**优先级最高**，在所有BeanFactoryPostProcessor之前执行。
 ### 底层原理 
@@ -217,7 +221,7 @@ ApplicationContext 执行 `refresh()` → `invokeBeanFactoryPostProcessors()` �
 ### 使用场景 
 Mybatis 自动注册Mapper、动态插件注册、自定义注解扫描注入Bean。
 
-2. BeanFactoryPostProcessor接口
+## 2. BeanFactoryPostProcessor接口
 实现BeanFactoryPostProcessor 
 并重写postProcessBeanFactory() 
 可以在所有BeanDefinition注册完成后做扩展 可以修改所有的bean描述例如 作用域、懒加载方式
