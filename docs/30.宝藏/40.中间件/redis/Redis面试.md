@@ -9,7 +9,7 @@ categories:
 tags:
   - 
 author: 
-  name: lxzhang666666
+  name: Meteor
   link: https://github.com/lxzhang666666
 ---
 # Redis 资深Java后端高频面试题（8年开发完整版·原理+标准答案 可直接复制）

@@ -7,11 +7,11 @@ categories:
   - Collection
 tags: []
 author: 
-  name: lxzhang666666
+  name: Meteor
   link: https://github.com/lxzhang666666
 ---
 
-# Sharding-JDBC 完整版深度解析（全案例+表结构+配置+跨表JOIN落地+源码+面试）
+# Sharding-JDBC 完整版深度解析
 
 ## 总大纲
 

@@ -7,13 +7,13 @@ categories:
   - Collection
 tags: []
 author: 
-  name: lxzhang666666
+  name: Meteor
   link: https://github.com/lxzhang666666
 ---
 
 # Java后端工程师精通 Claude Code 完整体系
 
-## 一、先铺垫：我对Claude Code的整体使用架构（开场定调）
+## 一、我对Claude Code的整体使用架构
 
 日常分为三层使用：
 
@@ -570,5 +570,4 @@ A：Superpowers是开发过程中主动评审，pr-review-toolkit是**代码提�
 
 ---
 
-# 六、一句话极简口述版（面试官直接加分）
 我在Java后端项目里搭建了四层AI能力：用Superpowers做需求拆解、TDD开发、安全重构和标准化排错；用Context7持久化Maven项目架构，解决长会话失忆问题；用Performance-Analyzer扫描MyBatis N+1、线程池等性能隐患；最后通过pr-review-toolkit在MR合并前做上线门禁评审，再配合CLAUDE.md和忽略文件做安全管控，整套流程既提升开发效率，又严格把控代码质量、性能与线上风险。

@@ -7,11 +7,11 @@ categories:
   - Collection
 tags: []
 author: 
-  name: lxzhang666666
+  name: Meteor
   link: https://github.com/lxzhang666666
 ---
 
-# Spring IoC 循环依赖 三级缓存 完整源码级拆解（独立模块）
+# Spring IoC 循环依赖 三级缓存 完整源码级拆解
 
 ## 1. 先明确概念
 

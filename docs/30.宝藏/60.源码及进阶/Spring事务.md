@@ -7,7 +7,7 @@ categories:
   - Collection
 tags: []
 author: 
-  name: lxzhang666666
+  name: Meteor
   link: https://github.com/lxzhang666666
 ---
 
@@ -464,15 +464,39 @@ NESTED底层依赖JDBC的`Connection.setSavepoint()`，MyISAM引擎不支持事�
 
 ---
 
-# 极简背诵总结
+### Spring 事务底层原理
+基于AOP动态代理，拦截`@Transactional`标注的方法：
+1. 方法执行前开启事务，获取数据库连接，关闭自动提交
+2. 执行业务SQL
+3. 无异常正常commit提交；抛出异常执行rollback回滚 底层核心接口：`PlatformTransactionManager`事务管理器。
+
+### 七大传播机制（重点记常用）
+1. REQUIRED（默认）：有事务就加入，没有新建事务
+2. SUPPORTS：有事务就用，没有就非事务执行
+3. MANDATORY：必须在外部事务内执行，否则抛异常
+4. REQUIRES_NEW：新建独立事务，挂起外层事务
+5. NOT_SUPPORTED：挂起外层事务，非事务运行
+6. NEVER：禁止存在事务，有事务直接报错
+7. NESTED：嵌套事务，基于保存点savepoint，子事务回滚不影响父事务
+
+### @Transactional 失效的8种场景
+1. 方法非public修饰（AOP无法拦截）
+2. 同类内部方法自调用（this调用不走代理）
+3. 异常被try-catch捕获，没有抛出RuntimeException/Error
+4. 传播机制配置错误（如SUPPORTS、NOT_SUPPORTED）
+5. 多线程异步调用，不同事务上下文
+6. 数据库引擎不支持事务（MyISAM）
+7. 嵌套事务NESTED底层不支持
+8. 手动关闭了事务管理器
+
+### 编程式事务和声明式事务
+1. 声明式：@Transactional注解，AOP实现，简洁，优先使用
+2. 编程式：使用TransactionTemplate手动控制提交回滚，颗粒度更细
+
+# 总结
 
 1. **入口**：`TransactionInterceptor.invoke()` 转发到父类`TransactionAspectSupport.invokeWithinTransaction`模板方法；
 2. **四步核心**：解析注解→创建事务（传播行为）→执行业务→异常回滚/正常提交→finally清理ThreadLocal；
 3. **传播行为**：全部由`DataSourceTransactionManager.getTransaction()`实现，NESTED基于数据库Savepoint；
 4. **上下文核心**：`TransactionSynchronizationManager` ThreadLocal绑定JDBC连接，实现嵌套事务资源复用；
 5. **失效根源**：AOP代理未生效（非public、this自调用）、异常回滚规则不匹配、引擎不支持事务、异步跨线程。
-
-需要我继续拆解：
-
-1. `AnnotationTransactionAttributeSource` 如何解析类/方法上`@Transactional`注解优先级；
-2. 或者 **分布式事务（Seata AT模式）和Spring本地事务的差异源码对比** 吗？

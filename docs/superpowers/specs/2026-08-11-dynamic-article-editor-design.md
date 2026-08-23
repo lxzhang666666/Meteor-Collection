@@ -8,7 +8,7 @@ categories:
 tags:
   - 
 author: 
-  name: lxzhang666666
+  name: Meteor
   link: https://github.com/lxzhang666666
 ---
 # 动态文章编辑系统 - 设计文档

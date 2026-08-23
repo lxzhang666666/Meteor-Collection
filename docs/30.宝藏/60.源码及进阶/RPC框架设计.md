@@ -7,11 +7,11 @@ categories:
   - Collection
 tags: []
 author: 
-  name: lxzhang666666
+  name: Meteor
   link: https://github.com/lxzhang666666
 ---
 
-# 自研轻量级RPC框架 深度架构设计（对标Dubbo核心原理，面试天花板完整版）
+# 自研轻量级RPC框架 深度架构设计
 
 整体沿用秒杀系统的交付结构：
 
